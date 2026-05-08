@@ -13,7 +13,7 @@ export function ChatInput({
   onChange,
   onSend,
   disabled,
-  placeholder = "Faça uma pergunta sobre a Constituição...",
+  placeholder = "Faca uma pergunta sobre a Constituicao...",
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -34,26 +34,26 @@ export function ChatInput({
   }
 
   return (
-    <div className="flex items-end gap-2 p-4 border-t border-beige-dark bg-cream">
-      <textarea
-        ref={textareaRef}
-        rows={1}
-        value={value}
-        onChange={handleChange}
-        onKeyDown={handleKeyDown}
-        disabled={disabled}
-        placeholder={placeholder}
-        className="flex-1 resize-none rounded-xl border border-beige-dark bg-white px-4 py-2.5 text-sm outline-none focus:border-orange transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-      />
-      <button
-        onClick={onSend}
-        disabled={disabled || !value.trim()}
-        className="shrink-0 p-2.5 bg-orange text-cream rounded-xl hover:bg-orange-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-      >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
-        </svg>
-      </button>
+    <div className="px-6 pb-5 pt-3 border-t border-ink/10">
+      <div className="flex items-end gap-3">
+        <textarea
+          ref={textareaRef}
+          rows={1}
+          value={value}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          placeholder={placeholder}
+          className="flex-1 resize-none bg-transparent text-sm text-ink placeholder:text-ink-faint/60 outline-none py-1 font-mono disabled:opacity-40 disabled:cursor-not-allowed"
+        />
+        <button
+          onClick={onSend}
+          disabled={disabled || !value.trim()}
+          className="shrink-0 text-[11px] uppercase tracking-wider text-ink-light hover:text-ink transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer font-mono pb-1"
+        >
+          enviar
+        </button>
+      </div>
     </div>
   );
 }

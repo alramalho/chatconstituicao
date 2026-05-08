@@ -4,3 +4,4 @@ dist
 .env.local
 .turbo
 *.tsbuildinfo
+.DS_Store

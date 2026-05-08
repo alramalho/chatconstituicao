@@ -1,12 +1,12 @@
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { gateway } from "ai";
 import type { ConstitutionNode } from "@chatconstituicao/shared";
 import { CONSTITUICAO } from "../data/constituicao.js";
 import { NavigationDecision } from "./schemas.js";
 import { buildNavigationPrompt } from "./prompt.js";
 
 const MAX_STEPS = 7;
-const model = google("gemini-2.5-flash-preview-04-17");
+const model = gateway("google/gemini-3-flash");
 
 export type NavigationResult = {
   context: string;
@@ -45,6 +45,12 @@ function collectLeafArticles(node: ConstitutionNode): ConstitutionNode[] {
     articles.push(...collectLeafArticles(child));
   }
   return articles;
+}
+
+function searchArticles(root: ConstitutionNode, query: string, limit = 5): ConstitutionNode[] {
+  const allArticles = collectLeafArticles(root);
+  const re = new RegExp(query, "i");
+  return allArticles.filter((a) => re.test(a.content ?? "") || re.test(a.title)).slice(0, limit);
 }
 
 export async function navigateConstitution(
@@ -98,6 +104,16 @@ export async function navigateConstitution(
           });
         }
       }
+    } else if (decision.action === "search") {
+      const results = searchArticles(CONSTITUICAO, decision.query);
+      for (const node of results) {
+        if (node.content) {
+          collected.set(node.id, {
+            title: node.title,
+            content: node.content,
+          });
+        }
+      }
     } else if (decision.action === "answer") {
       break;
     }
@@ -120,7 +136,7 @@ export async function navigateConstitution(
   }));
 
   const context = articleRefs
-    .map((a) => `${a.title}:\n${a.content}`)
+    .map((a) => `[${a.id}] ${a.title}:\n${a.content}`)
     .join("\n\n---\n\n");
 
   return { context, articleRefs };

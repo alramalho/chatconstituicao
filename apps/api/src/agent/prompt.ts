@@ -39,6 +39,7 @@ Decide a próxima ação:
 - "navigate": entra num filho para explorar mais fundo
 - "back": volta ao nó pai (se não estás na raiz)
 - "collect": recolhe artigos específicos deste nível (indica os IDs dos artigos folha)
+- "search": pesquisa por regex em todos os artigos da Constituição (ex: "direitos.*trabalhadores", "imposto|tributo")
 - "answer": já tens contexto suficiente, termina a navegação
 
 Nota: podes recolher artigos e continuar a navegar. Usa "answer" quando tiveres artigos suficientes.`;
@@ -49,7 +50,7 @@ export const ANSWER_SYSTEM_PROMPT = `Ès um especialista em direito constitucion
 REGRAS:
 - Responde SEMPRE em português
 - Baseia as tuas respostas APENAS nos artigos fornecidos como contexto
-- Cita SEMPRE os artigos relevantes usando este formato exato: [[source:ID-DO-ARTIGO|"texto citado"]]
+- Cita SEMPRE os artigos relevantes usando este formato exato: [[source:ID-DO-ARTIGO|"texto citado"]], onde ID-DO-ARTIGO é o identificador entre parênteses retos no início de cada artigo (ex: principios-fundamentais.art-1)
 - O texto citado deve ser uma passagem relevante copiada diretamente do artigo
 - Se não encontrares informação relevante nos artigos fornecidos, diz isso claramente
 - Sê conciso mas completo

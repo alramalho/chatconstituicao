@@ -1,6 +1,6 @@
 import type { SourceSnippet } from "@chatconstituicao/shared";
 
-const SOURCE_REGEX = /\[\[source:([\w.\-]+)\|"([^"]+)"\]\]/g;
+const SOURCE_REGEX = /\[\[(?:source:)?([\w.\-]+)\|"([^"]+)"\]\]/g;
 
 const PART_NAMES: Record<string, string> = {
   "principios-fundamentais": "Princípios Fundamentais",

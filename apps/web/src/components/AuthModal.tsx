@@ -33,77 +33,75 @@ export function AuthModal({ onClose, onSignIn, onSignUp }: AuthModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-cream rounded-2xl shadow-xl w-full max-w-sm mx-4 overflow-hidden">
-        <div className="flex items-center justify-between px-6 pt-5 pb-3">
-          <h2 className="text-lg font-serif font-semibold text-brown">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/20 backdrop-blur-sm">
+      <div className="bg-parchment-light w-full max-w-sm mx-4 p-8">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-sm tracking-[0.15em] uppercase text-ink">
             {tab === "login" ? "Entrar" : "Criar conta"}
           </h2>
           <button
             onClick={onClose}
-            className="text-brown-light hover:text-brown transition-colors cursor-pointer"
+            className="text-ink-faint hover:text-ink transition-colors cursor-pointer text-sm"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            fechar
           </button>
         </div>
 
-        <div className="flex border-b border-beige-dark mx-6">
+        <div className="flex gap-6 mb-6">
           <button
             onClick={() => setTab("login")}
-            className={`flex-1 pb-2 text-sm font-medium transition-colors cursor-pointer ${
+            className={`text-xs tracking-wide uppercase transition-colors cursor-pointer pb-1 ${
               tab === "login"
-                ? "text-orange border-b-2 border-orange"
-                : "text-brown-light"
+                ? "text-ink border-b border-ink"
+                : "text-ink-faint"
             }`}
           >
             Entrar
           </button>
           <button
             onClick={() => setTab("register")}
-            className={`flex-1 pb-2 text-sm font-medium transition-colors cursor-pointer ${
+            className={`text-xs tracking-wide uppercase transition-colors cursor-pointer pb-1 ${
               tab === "register"
-                ? "text-orange border-b-2 border-orange"
-                : "text-brown-light"
+                ? "text-ink border-b border-ink"
+                : "text-ink-faint"
             }`}
           >
             Registar
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm text-brown-light mb-1">Email</label>
+            <label className="block text-xs text-ink-faint mb-2 font-sans">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2 rounded-lg border border-beige-dark bg-white text-sm outline-none focus:border-orange transition-colors"
+              className="w-full px-0 py-2 bg-transparent border-b border-stone/60 text-sm outline-none focus:border-ink transition-colors font-serif"
             />
           </div>
 
           <div>
-            <label className="block text-sm text-brown-light mb-1">Password</label>
+            <label className="block text-xs text-ink-faint mb-2 font-sans">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               minLength={6}
-              className="w-full px-3 py-2 rounded-lg border border-beige-dark bg-white text-sm outline-none focus:border-orange transition-colors"
+              className="w-full px-0 py-2 bg-transparent border-b border-stone/60 text-sm outline-none focus:border-ink transition-colors font-serif"
             />
           </div>
 
           {error && (
-            <p className="text-sm text-red-600">{error}</p>
+            <p className="text-xs text-red-800/70">{error}</p>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-orange text-cream rounded-lg text-sm font-medium hover:bg-orange-dark transition-colors disabled:opacity-50 cursor-pointer"
+            className="w-full py-3 text-xs tracking-[0.15em] uppercase text-ink border border-stone/60 hover:border-ink transition-colors disabled:opacity-40 cursor-pointer"
           >
             {loading
               ? "..."

@@ -3,8 +3,8 @@ import { supabase } from "../lib/supabase.js";
 
 const anonymousUsage = new Map<string, number>();
 
-const ANON_LIMIT = 1;
-const FREE_LIMIT = 5;
+const ANON_LIMIT = parseInt(process.env.ANON_LIMIT ?? "3", 10);
+const FREE_LIMIT = 10;
 
 export async function checkQuota(
   userId: string | null,
@@ -46,6 +46,21 @@ export async function decrementQuota(
   }
 
   await supabase.rpc("increment_questions_used", { uid: userId });
+}
+
+export async function resetQuota(
+  userId: string | null,
+  ip: string
+): Promise<void> {
+  if (!userId) {
+    anonymousUsage.set(ip, 0);
+    return;
+  }
+
+  await supabase
+    .from("user_quotas")
+    .update({ questions_used: 0 })
+    .eq("user_id", userId);
 }
 
 export async function addQuota(

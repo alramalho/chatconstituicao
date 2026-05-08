@@ -1,0 +1,64 @@
+{
+  "runId": "2026-04-07T07-33-23-374Z",
+  "provider": "page-index",
+  "timestamp": "2026-04-07T07:35:04.729Z",
+  "results": [
+    {
+      "questionId": "q11",
+      "provider": "page-index",
+      "score": 0.75,
+      "explanation": "A resposta está substancialmente correta: identifica que os direitos, liberdades e garantias só podem ser suspensos em estado de sítio ou de emergência e enumera corretamente os direitos insuscetíveis de suspensão, com referência ao artigo 19.º. No entanto, acrescenta informação extra sobre motivos, duração e procedimento com citações a outros artigos, que embora em geral plausíveis, não eram necessários para responder à pergunta e incluem formulações que podem não corresponder exatamente ao texto constitucional pedido. Como a substância e a citação do artigo relevante estão presentes, mas não de forma estritamente precisa e focada, a pontuação é 0.75."
+    },
+    {
+      "questionId": "q14",
+      "provider": "page-index",
+      "score": 1,
+      "explanation": "A resposta está correta: indica que o Tribunal Constitucional é composto por treze juízes e que o mandato dura nove anos, não renovável. Além disso, cita explicitamente o artigo 222.º da Constituição, conforme պահանջido."
+    },
+    {
+      "questionId": "q21",
+      "provider": "page-index",
+      "score": 1,
+      "explanation": "A resposta está correta: afirma que o voto não é legalmente obrigatório, apenas um dever cívico, e cita corretamente o artigo 49.º, n.º 2, bem como o artigo 113.º, n.º 2, sobre o recenseamento eleitoral obrigatório. Isso corresponde ao texto constitucional."
+    },
+    {
+      "questionId": "q27",
+      "provider": "page-index",
+      "score": 1,
+      "explanation": "A resposta está correta e cita o artigo exato: artigo 288.º, alínea o), que consagra como limite material da revisão a autonomia político-administrativa dos Açores e da Madeira."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 4,
+    "averageScore": 0.9375,
+    "averageLatencyMs": 16014.75,
+    "byCategory": {
+      "direitos-liberdades-garantias": {
+        "count": 1,
+        "avgScore": 0.75
+      },
+      "tribunais": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "participacao-politica": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "revisao-constitucional": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "hard": {
+        "count": 2,
+        "avgScore": 0.875
+      },
+      "medium": {
+        "count": 2,
+        "avgScore": 1
+      }
+    }
+  }
+}

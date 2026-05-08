@@ -1,0 +1,64 @@
+{
+  "runId": "2026-04-07T07-20-43-244Z",
+  "provider": "raw",
+  "timestamp": "2026-04-07T07:21:16.792Z",
+  "results": [
+    {
+      "questionId": "q11",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "A resposta está correta quanto ao essencial: refere que os direitos, liberdades e garantias só podem ser suspensos em estado de sítio ou de emergência, e identifica corretamente as restrições absolutas do artigo 19.º, n.º 6. Além disso, cita corretamente o artigo 19.º e os seus números relevantes."
+    },
+    {
+      "questionId": "q14",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "A resposta está factual e juridicamente correta: o Tribunal Constitucional é composto por treze juízes e o mandato dura nove anos. Além disso, cita corretamente o artigo 222.º, n.º 1 e n.º 3, que suportam a composição e a duração do mandato."
+    },
+    {
+      "questionId": "q21",
+      "provider": "raw-gpt",
+      "score": 0.5,
+      "explanation": "A resposta reconhece corretamente que o artigo 49.º, n.º 2, diz que o exercício do direito de sufrágio é um dever cívico, e cita esse artigo. No entanto, não responde de forma completa à pergunta: na Constituição, isso não equivale a dizer que o voto é obrigatório, e faltou referir o artigo 113.º, n.º 2, que esclarece que o recenseamento eleitoral é obrigatório, não o voto."
+    },
+    {
+      "questionId": "q27",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "A resposta está correta e cita o artigo decisivo: artigo 288.º, alínea o), que constitui um limite material à revisão constitucional. As referências adicionais aos artigos 6.º e 225.º são também compatíveis com a Constituição, e a conclusão de que a autonomia dos Açores e da Madeira não pode ser eliminada está correta."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 4,
+    "averageScore": 0.875,
+    "averageLatencyMs": 6658.25,
+    "byCategory": {
+      "direitos-liberdades-garantias": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "tribunais": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "participacao-politica": {
+        "count": 1,
+        "avgScore": 0.5
+      },
+      "revisao-constitucional": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "hard": {
+        "count": 2,
+        "avgScore": 1
+      },
+      "medium": {
+        "count": 2,
+        "avgScore": 0.75
+      }
+    }
+  }
+}

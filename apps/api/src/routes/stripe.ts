@@ -25,8 +25,8 @@ router.post("/create-checkout", authMiddleware, async (req, res) => {
       },
     ],
     metadata: { userId: req.user.id },
-    success_url: `${process.env.FRONTEND_URL ?? "http://localhost:5173"}?payment=success`,
-    cancel_url: `${process.env.FRONTEND_URL ?? "http://localhost:5173"}?payment=cancel`,
+    success_url: `${process.env.FRONTEND_URL ?? "http://localhost:5188"}?payment=success`,
+    cancel_url: `${process.env.FRONTEND_URL ?? "http://localhost:5188"}?payment=cancel`,
   });
 
   res.json({ url: session.url });

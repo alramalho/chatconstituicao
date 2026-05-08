@@ -1,43 +1,88 @@
 @import "tailwindcss";
 
 @theme {
-  --color-cream: #FFF8F0;
-  --color-beige: #F5E6D3;
-  --color-beige-dark: #E8D5C0;
-  --color-orange: #D4770B;
-  --color-orange-dark: #B8650A;
-  --color-orange-light: #F0A850;
-  --color-brown: #5C3D2E;
-  --color-brown-light: #8B6F5E;
+  --color-parchment: #EDE8E0;
+  --color-parchment-light: #F3EFE8;
+  --color-parchment-dark: #E0DAD0;
+  --color-stone: #D1C9BD;
+  --color-ink: #2C2520;
+  --color-ink-light: #5C5349;
+  --color-ink-faint: #8A8076;
+  --color-accent: #8B7355;
+  --color-accent-light: #A8956F;
+  --color-rule: #C8C1B6;
+  --font-family-title: 'PT Serif', 'Georgia', serif;
   --font-family-serif: 'Lora', 'Georgia', serif;
+  --font-family-mono: 'Courier New', 'Courier', monospace;
   --font-family-sans: 'Inter', system-ui, sans-serif;
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-brown);
-  font-family: var(--font-family-sans);
+  background-color: var(--color-parchment);
+  color: var(--color-ink);
+  font-family: var(--font-family-mono);
+  font-size: 14px;
   margin: 0;
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--color-beige);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-beige-dark);
+  background: var(--color-stone);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-brown-light);
+  background: var(--color-ink-faint);
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--color-beige-dark) var(--color-beige);
+  scrollbar-color: var(--color-stone) transparent;
+}
+
+::selection {
+  background-color: rgba(139, 115, 85, 0.2);
+}
+
+@keyframes quota-blink {
+  0% { opacity: 1; }
+  20% { opacity: 0.2; }
+  40% { opacity: 1; }
+  60% { opacity: 0.2; }
+  80% { opacity: 1; }
+  100% { opacity: 0.3; }
+}
+
+.quota-blink {
+  animation: quota-blink 0.8s ease-out forwards;
+}
+
+@keyframes loader-pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.6; }
+}
+
+.loader-bar span {
+  animation: loader-pulse 1.2s ease-in-out infinite;
 }

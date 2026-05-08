@@ -1,52 +1,40 @@
 import type { User } from "@supabase/supabase-js";
-import type { QuotaInfo } from "@chatconstituicao/shared";
 
 type HeaderProps = {
   user: User | null;
-  quota: QuotaInfo | null;
   onLoginClick: () => void;
   onLogout: () => void;
 };
 
-export function Header({ user, quota, onLoginClick, onLogout }: HeaderProps) {
-  const remaining = quota
-    ? quota.questionsLimit - quota.questionsUsed
-    : null;
-
+export function Header({ user, onLoginClick, onLogout }: HeaderProps) {
   return (
-    <header className="flex items-center justify-between px-6 py-3 bg-beige border-b border-beige-dark">
-      <h1 className="text-xl font-serif font-semibold text-brown tracking-tight">
-        Chat Constituição
+    <div className="inline-flex items-center gap-6 px-6 py-2 border-[2px] border-ink bg-parchment">
+      <h1 className="text-sm font-title tracking-[0.2em] uppercase text-ink whitespace-nowrap">
+        Chat Constituicao
       </h1>
 
-      <div className="flex items-center gap-4">
-        {quota && (
-          <span className="text-sm text-brown-light">
-            {remaining}/{quota.questionsLimit} perguntas restantes
-          </span>
-        )}
+      <div className="w-px h-3 bg-ink/30" />
 
-        {user ? (
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-brown-light truncate max-w-48">
-              {user.email}
-            </span>
-            <button
-              onClick={onLogout}
-              className="text-sm text-orange-dark hover:text-orange transition-colors cursor-pointer"
-            >
-              Sair
-            </button>
-          </div>
-        ) : (
+      {user ? (
+        <div className="flex items-center gap-3">
+          <span className="text-[11px] text-ink-faint font-mono truncate max-w-32">
+            {user.email}
+          </span>
           <button
-            onClick={onLoginClick}
-            className="px-4 py-1.5 text-sm bg-orange text-cream rounded-lg hover:bg-orange-dark transition-colors cursor-pointer"
+            onClick={onLogout}
+            className="text-[11px] text-ink-faint hover:text-ink transition-colors cursor-pointer font-mono"
           >
-            Entrar
+            sair
           </button>
-        )}
-      </div>
-    </header>
+        </div>
+      ) : (
+        <button
+          onClick={onLoginClick}
+          className="text-[11px] text-ink-light hover:text-ink transition-colors cursor-pointer font-mono"
+        >
+          entrar
+        </button>
+      )}
+    </div>
   );
 }

@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { streamText } from "ai";
-import { google } from "@ai-sdk/google";
+import { streamText, gateway } from "ai";
 import { authMiddleware } from "../middleware/auth.js";
 import { checkQuota, decrementQuota } from "../services/quota.js";
 import { navigateConstitution } from "../agent/navigate.js";
@@ -40,12 +39,12 @@ ${context || "Nenhum artigo relevante encontrado."}`;
   await decrementQuota(userId, ip);
 
   const result = streamText({
-    model: google("gemini-2.5-flash-preview-04-17"),
+    model: gateway("google/gemini-3-flash"),
     system: systemWithContext,
     messages,
   });
 
-  result.pipeDataStreamToResponse(res);
+  result.pipeTextStreamToResponse(res);
 });
 
 export default router;

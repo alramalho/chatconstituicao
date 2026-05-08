@@ -1,0 +1,44 @@
+{
+  "runId": "2026-04-07T07-17-06-894Z",
+  "provider": "raw",
+  "timestamp": "2026-04-07T07:17:25.940Z",
+  "results": [
+    {
+      "questionId": "q14",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The hypothesis correctly states that the Tribunal Constitucional is composed of thirteen judges and that their mandate lasts nine years without renewal, as specified in Article 222.º. The model provides accurate article references (Artigo 222.º, n.º 1 and n.º 3) supporting these facts, aligning perfectly with the ground truth."
+    },
+    {
+      "questionId": "q27",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The hypothesis correctly states that constitutional revision cannot eliminate the autonomy of the Azores and Madeira. It accurately cites Article 288, specifically point (e), as establishing this material limit, aligning perfectly with the ground truth answer."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 2,
+    "averageScore": 1,
+    "averageLatencyMs": 7973.5,
+    "byCategory": {
+      "tribunais": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "revisao-constitucional": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "medium": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "hard": {
+        "count": 1,
+        "avgScore": 1
+      }
+    }
+  }
+}

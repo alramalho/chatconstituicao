@@ -1,0 +1,44 @@
+{
+  "runId": "2026-04-07T07-15-51-847Z",
+  "provider": "raw",
+  "timestamp": "2026-04-07T07:16:42.824Z",
+  "results": [
+    {
+      "questionId": "q11",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The model answer correctly states that rights, freedoms, and guarantees can only be suspended in cases of 'estado de sítio' or 'estado de emergência' as per Article 19.º of the Portuguese Constitution. It accurately details the conditions, limitations, and specific rights that cannot be suspended, closely matching the expected answer and including comprehensive constitutional references."
+    },
+    {
+      "questionId": "q21",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The model answer correctly states that voting is not mandatory in Portugal and accurately references relevant constitutional articles (article 10 and article 113) to support this. Although the ground truth explicitly mentions article 49.º, n.º 2, the articles cited by the model are also pertinent and correctly described, fully supporting the conclusion. Therefore, the answer is fully correct with appropriate article references."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 2,
+    "averageScore": 1,
+    "averageLatencyMs": 23564,
+    "byCategory": {
+      "direitos-liberdades-garantias": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "participacao-politica": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "hard": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "medium": {
+        "count": 1,
+        "avgScore": 1
+      }
+    }
+  }
+}

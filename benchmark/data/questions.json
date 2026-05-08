@@ -1,0 +1,242 @@
+[
+  {
+    "id": "q1",
+    "question": "Qual é a língua oficial de Portugal segundo a Constituição?",
+    "expected_answer": "A língua oficial é o Português, conforme o artigo 11.º, n.º 3.",
+    "expected_articles": ["principios-fundamentais.art-11"],
+    "category": "principios-fundamentais",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q2",
+    "question": "É permitida a pena de morte em Portugal?",
+    "expected_answer": "Não. O artigo 24.º estabelece que a vida humana é inviolável e que em caso algum haverá pena de morte.",
+    "expected_articles": ["parte-i.titulo-ii.cap-i.art-24"],
+    "category": "direitos-liberdades-garantias",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q3",
+    "question": "Qual a idade mínima para ser eleito Presidente da República?",
+    "expected_answer": "35 anos. São elegíveis os cidadãos eleitores, portugueses de origem, maiores de 35 anos (artigo 122.º).",
+    "expected_articles": ["parte-iii.titulo-ii.cap-i.art-122"],
+    "category": "presidente-republica",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q4",
+    "question": "Quanto tempo dura o mandato do Presidente da República?",
+    "expected_answer": "O mandato tem a duração de cinco anos (artigo 128.º).",
+    "expected_articles": ["parte-iii.titulo-ii.cap-i.art-128"],
+    "category": "presidente-republica",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q5",
+    "question": "Quais são os órgãos de soberania previstos na Constituição?",
+    "expected_answer": "São órgãos de soberania o Presidente da República, a Assembleia da República, o Governo e os Tribunais (artigo 110.º).",
+    "expected_articles": ["parte-iii.titulo-i.art-110"],
+    "category": "organizacao-poder-politico",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q6",
+    "question": "Os trabalhadores têm direito à greve? E o lock-out é permitido?",
+    "expected_answer": "Sim, é garantido o direito à greve (artigo 57.º, n.º 1). Porém, é proibido o lock-out (n.º 4 do mesmo artigo).",
+    "expected_articles": ["parte-i.titulo-ii.cap-iii.art-57"],
+    "category": "direitos-trabalhadores",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q7",
+    "question": "A Constituição prevê a existência de um salário mínimo nacional?",
+    "expected_answer": "Sim. O artigo 59.º, n.º 2, alínea a), estabelece que incumbe ao Estado o estabelecimento e a actualização do salário mínimo nacional.",
+    "expected_articles": ["parte-i.titulo-iii.cap-i.art-59"],
+    "category": "direitos-economicos",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q8",
+    "question": "O serviço nacional de saúde é gratuito?",
+    "expected_answer": "O artigo 64.º, n.º 2, alínea a), prevê um serviço nacional de saúde universal e geral e, tendo em conta as condições económicas e sociais dos cidadãos, tendencialmente gratuito.",
+    "expected_articles": ["parte-i.titulo-iii.cap-ii.art-64"],
+    "category": "direitos-sociais",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q9",
+    "question": "De quantos em quantos anos pode a Constituição ser revista?",
+    "expected_answer": "A Assembleia da República pode rever a Constituição decorridos cinco anos sobre a data da publicação da última lei de revisão ordinária (artigo 284.º, n.º 1). Pode ainda assumir poderes de revisão extraordinária a qualquer momento por maioria de quatro quintos dos Deputados.",
+    "expected_articles": ["parte-iv.titulo-ii.art-284"],
+    "category": "revisao-constitucional",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q10",
+    "question": "Quais são os limites materiais da revisão constitucional?",
+    "expected_answer": "O artigo 288.º enumera os limites: a independência nacional e unidade do Estado, a forma republicana de governo, a separação das Igrejas do Estado, os direitos liberdades e garantias dos cidadãos, os direitos dos trabalhadores, a coexistência dos sectores público privado e cooperativo, o sufrágio universal directo secreto e periódico, o pluralismo político, a separação e interdependência dos órgãos de soberania, a fiscalização da constitucionalidade, a independência dos tribunais, a autonomia das autarquias locais e a autonomia político-administrativa dos Açores e da Madeira.",
+    "expected_articles": ["parte-iv.titulo-ii.art-288"],
+    "category": "revisao-constitucional",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q11",
+    "question": "Em que circunstâncias podem ser suspensos os direitos, liberdades e garantias?",
+    "expected_answer": "Apenas em caso de estado de sítio ou de estado de emergência, declarados na forma prevista na Constituição (artigo 19.º). Mesmo assim, nunca podem ser afectados os direitos à vida, à integridade pessoal, à identidade pessoal, à capacidade civil e à cidadania, a não retroactividade da lei criminal, o direito de defesa dos arguidos e a liberdade de consciência e de religião.",
+    "expected_articles": ["parte-i.titulo-i.art-19"],
+    "category": "direitos-liberdades-garantias",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q12",
+    "question": "Qual é o prazo máximo para a detenção ser apreciada por um juiz?",
+    "expected_answer": "A detenção será submetida, no prazo máximo de quarenta e oito horas, a apreciação judicial (artigo 28.º, n.º 1).",
+    "expected_articles": ["parte-i.titulo-ii.cap-i.art-28"],
+    "category": "direitos-liberdades-garantias",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q13",
+    "question": "O que é o Provedor de Justiça e como é designado?",
+    "expected_answer": "O Provedor de Justiça é um órgão independente ao qual os cidadãos podem apresentar queixas por acções ou omissões dos poderes públicos. O seu titular é designado pela Assembleia da República (artigo 23.º).",
+    "expected_articles": ["parte-i.titulo-i.art-23"],
+    "category": "principios-gerais",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q14",
+    "question": "Quantos juízes compõem o Tribunal Constitucional e qual a duração do seu mandato?",
+    "expected_answer": "O Tribunal Constitucional é composto por treze juízes, sendo dez designados pela Assembleia da República e três cooptados por estes. O mandato tem a duração de nove anos e não é renovável (artigo 222.º).",
+    "expected_articles": ["parte-iii.titulo-vi.art-222"],
+    "category": "tribunais",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q15",
+    "question": "A Constituição garante o direito à habitação?",
+    "expected_answer": "Sim. O artigo 65.º estabelece que todos têm direito, para si e para a sua família, a uma habitação de dimensão adequada, em condições de higiene e conforto e que preserve a intimidade pessoal e a privacidade familiar.",
+    "expected_articles": ["parte-i.titulo-iii.cap-ii.art-65"],
+    "category": "direitos-sociais",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q16",
+    "question": "Existem limites à liberdade de expressão na Constituição?",
+    "expected_answer": "O artigo 37.º garante a todos o direito de exprimir e divulgar livremente o seu pensamento pela palavra, pela imagem ou por qualquer outro meio, bem como o direito de informar, de se informar e de ser informado, sem impedimentos nem discriminações. As infracções cometidas no exercício destes direitos ficam submetidas aos princípios gerais de direito criminal ou do ilícito de mera ordenação social. A Constituição proíbe a censura.",
+    "expected_articles": ["parte-i.titulo-ii.cap-i.art-37"],
+    "category": "direitos-liberdades-garantias",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q17",
+    "question": "Quem são os cidadãos portugueses?",
+    "expected_answer": "São cidadãos portugueses todos aqueles que como tal sejam considerados pela lei ou por convenção internacional (artigo 4.º).",
+    "expected_articles": ["principios-fundamentais.art-4"],
+    "category": "principios-fundamentais",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q18",
+    "question": "As Forças Armadas podem ter actividade política?",
+    "expected_answer": "Não. O artigo 275.º, n.º 4, estabelece que as Forças Armadas são rigorosamente apartidárias e os seus elementos não podem aproveitar-se da sua arma, do seu posto ou da sua função para qualquer intervenção política.",
+    "expected_articles": ["parte-iii.titulo-x.art-275"],
+    "category": "defesa-nacional",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q19",
+    "question": "Quantos deputados tem a Assembleia da República?",
+    "expected_answer": "A Assembleia da República tem o mínimo de cento e oitenta e o máximo de duzentos e trinta Deputados, nos termos da lei eleitoral (artigo 148.º).",
+    "expected_articles": ["parte-iii.titulo-iii.cap-i.art-148"],
+    "category": "assembleia-republica",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q20",
+    "question": "Em que situações não pode a Assembleia da República ser dissolvida?",
+    "expected_answer": "A Assembleia da República não pode ser dissolvida nos seis meses posteriores à sua eleição, no último semestre do mandato do Presidente da República ou durante a vigência do estado de sítio ou do estado de emergência (artigo 172.º).",
+    "expected_articles": ["parte-iii.titulo-iii.cap-iii.art-172"],
+    "category": "assembleia-republica",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q21",
+    "question": "O voto é obrigatório em Portugal?",
+    "expected_answer": "Não, o voto não é obrigatório. O artigo 49.º, n.º 2, estabelece que o exercício do direito de sufrágio é pessoal e constitui um dever cívico. O recenseamento eleitoral é que é obrigatório (artigo 113.º, n.º 2), mas votar não.",
+    "expected_articles": ["parte-i.titulo-ii.cap-ii.art-49", "parte-iii.titulo-i.art-113"],
+    "category": "participacao-politica",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q22",
+    "question": "A Constituição permite a expropriação? Em que condições?",
+    "expected_answer": "Sim. O artigo 62.º, n.º 2, prevê que a requisição e a expropriação por utilidade pública só podem ser efectuadas com base na lei e mediante o pagamento de justa indemnização.",
+    "expected_articles": ["parte-i.titulo-iii.cap-i.art-62"],
+    "category": "direitos-economicos",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q23",
+    "question": "Quem tem direito à segurança social?",
+    "expected_answer": "Todos têm direito à segurança social (artigo 63.º, n.º 1). O sistema protege os cidadãos na doença, velhice, invalidez, viuvez e orfandade, bem como no desemprego e em todas as outras situações de falta ou diminuição de meios de subsistência ou de capacidade para o trabalho.",
+    "expected_articles": ["parte-i.titulo-iii.cap-ii.art-63"],
+    "category": "direitos-sociais",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q24",
+    "question": "O que diz a Constituição sobre o direito de resistência?",
+    "expected_answer": "O artigo 21.º estabelece que todos têm o direito de resistir a qualquer ordem que ofenda os seus direitos, liberdades e garantias e de repelir pela força qualquer agressão, quando não seja possível recorrer à autoridade pública.",
+    "expected_articles": ["parte-i.titulo-i.art-21"],
+    "category": "principios-gerais",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q25",
+    "question": "O Presidente da República pode ser reeleito indefinidamente?",
+    "expected_answer": "Não. O artigo 123.º estabelece que não é admitida a reeleição para um terceiro mandato consecutivo, nem durante o quinquénio imediatamente subsequente ao termo do segundo mandato consecutivo.",
+    "expected_articles": ["parte-iii.titulo-ii.cap-i.art-123"],
+    "category": "presidente-republica",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q26",
+    "question": "Que maioria é necessária para aprovar alterações à Constituição?",
+    "expected_answer": "As alterações da Constituição são aprovadas por maioria de dois terços dos Deputados em efectividade de funções (artigo 286.º, n.º 1). O Presidente da República não pode recusar a promulgação da lei de revisão.",
+    "expected_articles": ["parte-iv.titulo-ii.art-286"],
+    "category": "revisao-constitucional",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q27",
+    "question": "Pode a revisão constitucional eliminar a autonomia dos Açores e da Madeira?",
+    "expected_answer": "Não. O artigo 288.º, alínea o), estabelece que as leis de revisão constitucional terão de respeitar a autonomia político-administrativa dos arquipélagos dos Açores e da Madeira. É um limite material da revisão.",
+    "expected_articles": ["parte-iv.titulo-ii.art-288"],
+    "category": "revisao-constitucional",
+    "difficulty": "hard"
+  },
+  {
+    "id": "q28",
+    "question": "Podem existir penas perpétuas em Portugal?",
+    "expected_answer": "Não. O artigo 30.º, n.º 1, estabelece que não pode haver penas nem medidas de segurança privativas ou restritivas da liberdade com carácter perpétuo ou de duração ilimitada ou indefinida.",
+    "expected_articles": ["parte-i.titulo-ii.cap-i.art-30"],
+    "category": "direitos-liberdades-garantias",
+    "difficulty": "easy"
+  },
+  {
+    "id": "q29",
+    "question": "Quem fiscaliza a execução do Orçamento do Estado?",
+    "expected_answer": "A execução do Orçamento é fiscalizada pelo Tribunal de Contas e pela Assembleia da República (artigo 107.º).",
+    "expected_articles": ["parte-ii.titulo-iv.art-107"],
+    "category": "organizacao-economica",
+    "difficulty": "medium"
+  },
+  {
+    "id": "q30",
+    "question": "É possível rever a Constituição durante o estado de emergência?",
+    "expected_answer": "Não. O artigo 289.º estabelece que não pode ser praticado nenhum acto de revisão constitucional na vigência de estado de sítio ou de estado de emergência.",
+    "expected_articles": ["parte-iv.titulo-ii.art-289"],
+    "category": "revisao-constitucional",
+    "difficulty": "easy"
+  }
+]

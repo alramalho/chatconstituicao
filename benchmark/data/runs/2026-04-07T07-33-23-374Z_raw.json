@@ -1,0 +1,64 @@
+{
+  "runId": "2026-04-07T07-33-23-374Z",
+  "provider": "raw",
+  "timestamp": "2026-04-07T07:33:53.588Z",
+  "results": [
+    {
+      "questionId": "q11",
+      "provider": "raw-gpt",
+      "score": 0.75,
+      "explanation": "A resposta está substancialmente correta e cita o artigo 19.º com os números relevantes. Contudo, vai além do que era perguntado e inclui detalhes adicionais (pressupostos de declaração, proporcionalidade, duração, etc.) que não são necessários para responder à pergunta. Ainda assim, não há erro factual relevante nas citações principais."
+    },
+    {
+      "questionId": "q14",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "A resposta está correta quanto ao número de juízes (13) e à duração do mandato (9 anos), e cita corretamente o artigo 222.º, n.º 1 e n.º 3."
+    },
+    {
+      "questionId": "q21",
+      "provider": "raw-gpt",
+      "score": 0.25,
+      "explanation": "The hypothesis is mostly incorrect because it says the vote is mandatory (“Sim”), which contradicts the Constitution and the expected answer. It does cite the relevant articles 49.º, n.º 2, and 113.º, n.º 2, but it misinterprets them: article 49.º, n.º 2 establishes a civic duty, not legal obligation to vote, while article 113.º, n.º 2 makes electoral registration obligatory. So it has some relevant information, but the main conclusion is wrong."
+    },
+    {
+      "questionId": "q27",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "A resposta está correta e cita exatamente o artigo relevante: o artigo 288.º, alínea o), como limite material da revisão constitucional. Também reforça corretamente com o artigo 6.º, n.º 2, sobre as regiões autónomas."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 4,
+    "averageScore": 0.75,
+    "averageLatencyMs": 5236,
+    "byCategory": {
+      "direitos-liberdades-garantias": {
+        "count": 1,
+        "avgScore": 0.75
+      },
+      "tribunais": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "participacao-politica": {
+        "count": 1,
+        "avgScore": 0.25
+      },
+      "revisao-constitucional": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "hard": {
+        "count": 2,
+        "avgScore": 0.875
+      },
+      "medium": {
+        "count": 2,
+        "avgScore": 0.625
+      }
+    }
+  }
+}

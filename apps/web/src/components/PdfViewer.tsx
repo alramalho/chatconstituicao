@@ -3,142 +3,139 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 export type PdfViewerHandle = {
-  scrollToPage: (page: number) => void;
-  highlightText: (text: string) => void;
+  scrollToText: (text: string) => void;
 };
 
 type PdfViewerProps = {
   className?: string;
+  width?: number;
 };
 
 export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
-  function PdfViewer({ className }, ref) {
+  function PdfViewer({ className, width: widthProp }, ref) {
     const [numPages, setNumPages] = useState(0);
-    const [currentPage, setCurrentPage] = useState(1);
+    const [pageToast, setPageToast] = useState<number | null>(null);
+    const [containerWidth, setContainerWidth] = useState<number | undefined>(widthProp);
+    const scrollRef = useRef<HTMLDivElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const toastTimer = useRef<ReturnType<typeof setTimeout>>(null);
+    const pendingScroll = useRef<string | null>(null);
+    const retryTimer = useRef<ReturnType<typeof setTimeout>>(null);
+
+    useEffect(() => {
+      if (widthProp) { setContainerWidth(widthProp); return; }
+      if (!containerRef.current) return;
+      const obs = new ResizeObserver(([entry]) => {
+        setContainerWidth(entry.contentRect.width);
+      });
+      obs.observe(containerRef.current);
+      return () => obs.disconnect();
+    }, [widthProp]);
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
       setNumPages(numPages);
     }
 
-    const scrollToPage = useCallback((page: number) => {
-      if (page < 1 || page > numPages) return;
-      setCurrentPage(page);
-    }, [numPages]);
+    const doScroll = useCallback((text: string): boolean => {
+      const normalize = (s: string) => s.replace(/\s+/g, " ").trim();
+      const searchText = normalize(text).slice(0, 60);
+      console.log("[scroll] searching for:", JSON.stringify(searchText));
+      if (!scrollRef.current) return false;
 
-    const highlightText = useCallback((text: string) => {
-      if (!containerRef.current) return;
-      const textLayer = containerRef.current.querySelector(".react-pdf__Page__textContent");
-      if (!textLayer) return;
+      const textLayers = scrollRef.current.querySelectorAll(".react-pdf__Page__textContent");
+      if (textLayers.length === 0) return false;
 
-      // Clear previous highlights
-      textLayer.querySelectorAll(".source-highlight").forEach((el) => {
-        const parent = el.parentNode;
-        if (parent) {
-          parent.replaceChild(document.createTextNode(el.textContent || ""), el);
-          parent.normalize();
-        }
-      });
-
-      // Find and highlight
-      const spans = textLayer.querySelectorAll("span");
-      const fullText = Array.from(spans).map((s) => s.textContent).join("");
-      const idx = fullText.toLowerCase().indexOf(text.toLowerCase());
-      if (idx === -1) return;
-
-      let charCount = 0;
-      for (const span of spans) {
-        const spanText = span.textContent || "";
-        const spanStart = charCount;
-        const spanEnd = charCount + spanText.length;
-
-        if (spanEnd > idx && spanStart < idx + text.length) {
-          const highlightStart = Math.max(0, idx - spanStart);
-          const highlightEnd = Math.min(spanText.length, idx + text.length - spanStart);
-
-          const before = spanText.slice(0, highlightStart);
-          const match = spanText.slice(highlightStart, highlightEnd);
-          const after = spanText.slice(highlightEnd);
-
-          span.textContent = "";
-          if (before) span.appendChild(document.createTextNode(before));
-
-          const mark = document.createElement("mark");
-          mark.className = "source-highlight";
-          mark.style.backgroundColor = "rgba(212, 119, 11, 0.25)";
-          mark.style.borderRadius = "2px";
-          mark.textContent = match;
-          span.appendChild(mark);
-
-          if (after) span.appendChild(document.createTextNode(after));
-
-          if (highlightStart === 0) {
-            mark.scrollIntoView({ behavior: "smooth", block: "center" });
+      for (let i = 0; i < textLayers.length; i++) {
+        const spans = textLayers[i].querySelectorAll("span");
+        if (spans.length === 0) continue;
+        const fullText = normalize(Array.from(spans).map((s) => s.textContent).join(" "));
+        if (fullText.toLowerCase().includes(searchText.toLowerCase())) {
+          const pageEl = textLayers[i].closest(".react-pdf__Page") as HTMLElement | null;
+          if (pageEl && scrollRef.current) {
+            const pageNum = i + 1;
+            if (toastTimer.current) clearTimeout(toastTimer.current);
+            setPageToast(pageNum);
+            toastTimer.current = setTimeout(() => setPageToast(null), 2000);
+            pageEl.scrollIntoView({ behavior: "smooth", block: "center" });
+            console.log("[scroll] found on page", pageNum);
           }
+          return true;
         }
-
-        charCount = spanEnd;
       }
+      console.warn("[scroll] no match found");
+      return true;
     }, []);
 
-    useImperativeHandle(ref, () => ({ scrollToPage, highlightText }), [
-      scrollToPage,
-      highlightText,
-    ]);
+    const scrollToText = useCallback((text: string) => {
+      if (retryTimer.current) clearTimeout(retryTimer.current);
+      if (!doScroll(text)) {
+        pendingScroll.current = text;
+      }
+    }, [doScroll]);
 
     useEffect(() => {
-      containerRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-    }, [currentPage]);
+      if (numPages > 0 && pendingScroll.current) {
+        const text = pendingScroll.current;
+        pendingScroll.current = null;
+        // text layers render async after pages mount, retry a few times
+        let attempts = 0;
+        const tryScroll = () => {
+          if (doScroll(text)) return;
+          attempts++;
+          if (attempts < 10) {
+            retryTimer.current = setTimeout(tryScroll, 500);
+          }
+        };
+        retryTimer.current = setTimeout(tryScroll, 500);
+      }
+    }, [numPages, doScroll]);
+
+    useImperativeHandle(ref, () => ({ scrollToText }), [scrollToText]);
 
     return (
-      <div className={`flex flex-col h-full bg-white ${className ?? ""}`}>
-        <div className="flex items-center justify-between px-4 py-2 border-b border-beige-dark bg-beige/50">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage <= 1}
-            className="px-3 py-1 text-sm rounded-lg bg-beige hover:bg-beige-dark disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
-          >
-            ← Anterior
-          </button>
-          <span className="text-sm text-brown-light">
-            Página {currentPage} de {numPages || "..."}
-          </span>
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(numPages, p + 1))}
-            disabled={currentPage >= numPages}
-            className="px-3 py-1 text-sm rounded-lg bg-beige hover:bg-beige-dark disabled:opacity-40 transition-colors cursor-pointer disabled:cursor-not-allowed"
-          >
-            Seguinte →
-          </button>
-        </div>
-
-        <div ref={containerRef} className="flex-1 overflow-y-auto flex justify-center py-4">
+      <div ref={containerRef} className={`h-full relative ${className ?? ""}`}>
+        <div
+          ref={scrollRef}
+          className="h-full overflow-y-auto overflow-x-hidden"
+        >
+          {pageToast !== null && (
+            <div className="sticky top-3 z-10 flex justify-center pointer-events-none">
+              <div className="bg-ink text-parchment text-xs font-mono px-3 py-1.5 rounded shadow-lg animate-pulse">
+                Página {pageToast}
+              </div>
+            </div>
+          )}
           <Document
             file="/constituicao.pdf"
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
-              <div className="flex items-center justify-center h-64 text-brown-light text-sm">
-                A carregar PDF...
+              <div className="flex items-center justify-center h-64 text-ink-faint text-sm italic font-serif">
+                a carregar...
               </div>
             }
             error={
-              <div className="flex items-center justify-center h-64 text-brown-light text-sm">
-                Erro ao carregar o PDF.
+              <div className="flex items-center justify-center h-64 text-ink-faint text-sm italic font-serif">
+                erro ao carregar o PDF
               </div>
             }
           >
-            <Page
-              pageNumber={currentPage}
-              renderTextLayer={true}
-              renderAnnotationLayer={true}
-              className="shadow-lg"
-            />
+            {numPages > 0 &&
+              Array.from({ length: numPages }, (_, i) => i + 1).map((pageNum) => (
+                <div
+                  key={pageNum}
+                  className="flex justify-center mb-1"
+                >
+                  <Page
+                    pageNumber={pageNum}
+                    width={containerWidth}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                  />
+                </div>
+              ))}
           </Document>
         </div>
       </div>

@@ -13,8 +13,8 @@ export function ChatMessage({ role, content, onSourceClick }: ChatMessageProps) 
 
   if (isUser) {
     return (
-      <div className="flex justify-end mb-4">
-        <div className="max-w-[80%] px-4 py-3 bg-orange/10 rounded-2xl rounded-br-sm text-sm">
+      <div className="flex justify-end mb-8">
+        <div className="max-w-[75%] text-sm text-ink-light italic text-right">
           {content}
         </div>
       </div>
@@ -24,8 +24,8 @@ export function ChatMessage({ role, content, onSourceClick }: ChatMessageProps) 
   const { segments } = parseSourceMarkers(content);
 
   return (
-    <div className="flex justify-start mb-4">
-      <div className="max-w-[80%] px-4 py-3 bg-beige rounded-2xl rounded-bl-sm text-sm leading-relaxed">
+    <div className="mb-8">
+      <div className="max-w-[85%] text-sm leading-[1.8] text-ink">
         {segments.map((segment, i) => {
           if (typeof segment === "string") {
             return <span key={i}>{segment}</span>;
@@ -33,18 +33,13 @@ export function ChatMessage({ role, content, onSourceClick }: ChatMessageProps) 
 
           const source = segment as SourceSnippet;
           return (
-            <span key={i} className="inline mx-0.5">
+            <span key={i} className="inline">
               <SourcePill
                 articleId={source.articleId}
                 quotedText={source.quotedText}
                 breadcrumb={source.breadcrumb}
                 onClick={(id) => onSourceClick(id, source.quotedText)}
               />
-              {source.quotedText && (
-                <span className="font-serif italic text-brown-light text-xs ml-1">
-                  &ldquo;{source.quotedText}&rdquo;
-                </span>
-              )}
             </span>
           );
         })}

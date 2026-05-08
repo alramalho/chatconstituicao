@@ -1,0 +1,64 @@
+{
+  "runId": "2026-04-07T07-17-58-581Z",
+  "provider": "raw",
+  "timestamp": "2026-04-07T07:18:51.054Z",
+  "results": [
+    {
+      "questionId": "q11",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The model answer correctly states that the suspension of rights, freedoms, and guarantees can only occur in case of a state of siege or state of emergency, as provided by the Constitution. It accurately lists the circumstances that justify such declarations, notes the limitations and protections of certain fundamental rights, and refers explicitly to article 19, paragraphs 1 to 8, which is the correct constitutional basis. Therefore, it fully meets the criteria for a correct answer with right specific article references."
+    },
+    {
+      "questionId": "q14",
+      "provider": "raw-gpt",
+      "score": 0.75,
+      "explanation": "The hypothesis correctly states that the Tribunal Constitucional is composed of thirteen judges and that their mandate lasts nine years and is not renewable, both factual elements matching the Constitution. It also cites Article 222.º with specific paragraphs (n.º 1 and n.º 3), which are the relevant citations for the composition and mandate duration. However, it omits the detail that ten judges are appointed by the Assembly of the Republic and three are co-opted, which is part of the expected complete answer. Given that all article references are correct and present, but some substantive detail is missing, a score of 0.75 is appropriate."
+    },
+    {
+      "questionId": "q21",
+      "provider": "raw-gpt",
+      "score": 0.75,
+      "explanation": "The hypothesis correctly states that the vote is not obligatory and refers to relevant articles about suffrage (Article 10.º, n.º 1 and Article 49.º, n.º 1). However, it fails to cite the specific article (Article 49.º, n.º 2) that explicitly clarifies that voting is a civic duty and not mandatory, nor does it mention the obligatory voter registration in Article 113.º, n.º 2. Thus, while substance is correct and some article references are given, the answer is incomplete in citations."
+    },
+    {
+      "questionId": "q27",
+      "provider": "raw-gpt",
+      "score": 1,
+      "explanation": "The model answer correctly states that constitutional revision cannot eliminate the autonomy of the Azores and Madeira, explicitly cites Article 288, paragraph o) as the legal basis, and explains that this is a material limit of constitutional revision. This matches the ground truth fully both in substance and citation."
+    }
+  ],
+  "summary": {
+    "totalQuestions": 4,
+    "averageScore": 0.875,
+    "averageLatencyMs": 10382,
+    "byCategory": {
+      "direitos-liberdades-garantias": {
+        "count": 1,
+        "avgScore": 1
+      },
+      "tribunais": {
+        "count": 1,
+        "avgScore": 0.75
+      },
+      "participacao-politica": {
+        "count": 1,
+        "avgScore": 0.75
+      },
+      "revisao-constitucional": {
+        "count": 1,
+        "avgScore": 1
+      }
+    },
+    "byDifficulty": {
+      "hard": {
+        "count": 2,
+        "avgScore": 1
+      },
+      "medium": {
+        "count": 2,
+        "avgScore": 0.75
+      }
+    }
+  }
+}

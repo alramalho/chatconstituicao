@@ -18,6 +18,11 @@ export const NavigationDecision = z.discriminatedUnion("action", [
     reasoning: z.string(),
   }),
   z.object({
+    action: z.literal("search"),
+    query: z.string().describe("Regex pattern to search across all article texts (case-insensitive)"),
+    reasoning: z.string(),
+  }),
+  z.object({
     action: z.literal("answer"),
     reasoning: z.string(),
   }),

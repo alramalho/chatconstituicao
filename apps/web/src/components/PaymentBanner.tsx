@@ -32,16 +32,16 @@ export function PaymentBanner({ token }: PaymentBannerProps) {
   }
 
   return (
-    <div className="mx-4 mb-2 p-4 bg-orange/10 border border-orange/30 rounded-xl text-center">
-      <p className="text-sm text-brown mb-3">
-        Atingiu o limite de perguntas gratuitas.
+    <div className="mx-8 mb-4 py-4 border-t border-stone/60 text-center">
+      <p className="text-xs text-ink mb-3 italic">
+        Limite de perguntas gratuitas atingido.
       </p>
       <button
         onClick={handlePurchase}
         disabled={loading || !token}
-        className="px-5 py-2 bg-orange text-cream rounded-lg text-sm font-medium hover:bg-orange-dark transition-colors disabled:opacity-50 cursor-pointer"
+        className="text-xs tracking-wide uppercase text-ink transition-colors disabled:opacity-40 cursor-pointer border-b border-dashed border-ink/40  pb-0.5"
       >
-        {loading ? "A processar..." : "Comprar 50 perguntas — 5€"}
+        {loading ? "A processar..." : "Desbloquear 50 perguntas — 5\u20ac"}
       </button>
     </div>
   );
