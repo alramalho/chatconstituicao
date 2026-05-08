@@ -1,0 +1,6 @@
+{
+  "buildCommand": "pnpm --filter @chatconstituicao/web build",
+  "outputDirectory": "apps/web/dist",
+  "installCommand": "pnpm install --frozen-lockfile",
+  "framework": "vite"
+}
