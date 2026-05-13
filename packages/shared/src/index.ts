@@ -1,1 +1,1 @@
-export type { ConstitutionNode, SourceSnippet, QuotaInfo } from "./types.js";
+export type { LegalDocumentNode, ConstitutionNode, SourceSnippet, QuotaInfo } from "./types.js";

@@ -2,8 +2,9 @@ import { Router } from "express";
 import { streamText, gateway } from "ai";
 import { authMiddleware } from "../middleware/auth.js";
 import { checkQuota, decrementQuota } from "../services/quota.js";
-import { navigateConstitution } from "../agent/navigate.js";
-import { ANSWER_SYSTEM_PROMPT } from "../agent/prompt.js";
+import { navigateLegalDocument } from "../agent/navigate.js";
+import { buildAnswerSystemPrompt } from "../agent/prompt.js";
+import { getDocumentForHost } from "../data/documents.js";
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.post("/", authMiddleware, async (req, res) => {
   const { messages } = req.body;
   const ip = req.ip ?? "unknown";
   const userId = req.user?.id ?? null;
+  const document = getDocumentForHost(req.headers.host);
 
   const quota = await checkQuota(userId, ip);
   if (quota.questionsUsed >= quota.questionsLimit) {
@@ -26,13 +28,14 @@ router.post("/", authMiddleware, async (req, res) => {
     return;
   }
 
-  const { context, articleRefs } = await navigateConstitution(
+  const { context, articleRefs } = await navigateLegalDocument(
+    document,
     lastUserMessage.content
   );
 
-  const systemWithContext = `${ANSWER_SYSTEM_PROMPT}
+  const systemWithContext = `${buildAnswerSystemPrompt(document)}
 
-ARTIGOS RELEVANTES DA CONSTITUIÇÃO:
+ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
 
 ${context || "Nenhum artigo relevante encontrado."}`;
 

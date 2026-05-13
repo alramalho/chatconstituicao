@@ -1,6 +1,6 @@
-import type { ConstitutionNode } from "@chatconstituicao/shared";
+import type { LegalDocumentNode } from "@chatconstituicao/shared";
 
-export const CONSTITUICAO: ConstitutionNode = {
+export const CONSTITUICAO: LegalDocumentNode = {
   id: "constituicao",
   title: "Constituição da República Portuguesa",
   children: [
@@ -3089,4 +3089,3 @@ e) Proceder-se-á à avaliação prévia dos meios de produção e outros bens a
     },
   ],
 };
-

@@ -8,6 +8,7 @@ import { QuotaDialog } from "./components/QuotaDialog";
 import { QuotaBar } from "./components/QuotaBar";
 import { useAuth } from "./hooks/useAuth";
 import { useQuota } from "./hooks/useQuota";
+import { documentConfig } from "./lib/document";
 
 const PDF_WIDTH = 612;
 const API_URL = import.meta.env.VITE_API_URL as string;
@@ -116,7 +117,7 @@ export default function App() {
           <div
             className="hidden md:block flex-1 min-w-0 overflow-hidden"
           >
-            <PdfViewer ref={pdfRef} />
+            <PdfViewer ref={pdfRef} file={documentConfig.pdfFile} />
           </div>
         </div>
       </div>
@@ -129,9 +130,9 @@ export default function App() {
             <div className="p-4 bg-parchment rounded-t-lg flex-1 overflow-y-auto">
               <div aria-hidden className="mx-auto w-12 h-1.5 flex-shrink-0 rounded-full bg-ink/20 mb-2" />
               <Drawer.Title className="text-xs text-center text-ink-faint font-mono mb-2">
-                Constituicao da Republica Portuguesa
+                {documentConfig.documentTitle}
               </Drawer.Title>
-              <PdfViewer ref={drawerPdfRef} width={window.innerWidth - 32} />
+              <PdfViewer ref={drawerPdfRef} width={window.innerWidth - 32} file={documentConfig.pdfFile} />
             </div>
           </Drawer.Content>
         </Drawer.Portal>

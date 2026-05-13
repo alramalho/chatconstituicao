@@ -3,6 +3,7 @@ import { stripe } from "../lib/stripe.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { addQuota } from "../services/quota.js";
 import type Stripe from "stripe";
+import { getDocumentForHost, getFrontendUrlForHost } from "../data/documents.js";
 
 const router = Router();
 
@@ -12,21 +13,24 @@ router.post("/create-checkout", authMiddleware, async (req, res) => {
     return;
   }
 
+  const document = getDocumentForHost(req.headers.host);
+  const frontendUrl = getFrontendUrlForHost(req.headers.host);
+
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     line_items: [
       {
         price_data: {
           currency: "eur",
-          product_data: { name: "50 perguntas — Chat Constituição" },
+          product_data: { name: document.stripeProductName },
           unit_amount: 500,
         },
         quantity: 1,
       },
     ],
     metadata: { userId: req.user.id },
-    success_url: `${process.env.FRONTEND_URL ?? "http://localhost:5188"}?payment=success`,
-    cancel_url: `${process.env.FRONTEND_URL ?? "http://localhost:5188"}?payment=cancel`,
+    success_url: `${frontendUrl}?payment=success`,
+    cancel_url: `${frontendUrl}?payment=cancel`,
   });
 
   res.json({ url: session.url });
