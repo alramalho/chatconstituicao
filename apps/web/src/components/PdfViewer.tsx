@@ -12,10 +12,11 @@ export type PdfViewerHandle = {
 type PdfViewerProps = {
   className?: string;
   width?: number;
+  file?: string;
 };
 
 export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
-  function PdfViewer({ className, width: widthProp }, ref) {
+  function PdfViewer({ className, width: widthProp, file = "/constituicao.pdf" }, ref) {
     const [numPages, setNumPages] = useState(0);
     const [pageToast, setPageToast] = useState<number | null>(null);
     const [containerWidth, setContainerWidth] = useState<number | undefined>(widthProp);
@@ -109,7 +110,7 @@ export const PdfViewer = forwardRef<PdfViewerHandle, PdfViewerProps>(
             </div>
           )}
           <Document
-            file="/constituicao.pdf"
+            file={file}
             onLoadSuccess={onDocumentLoadSuccess}
             loading={
               <div className="flex items-center justify-center h-64 text-ink-faint text-sm italic font-serif">

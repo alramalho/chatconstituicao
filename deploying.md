@@ -1,72 +1,111 @@
-  
-  My recommendation for a single Express API: go with the simple SSH + systemd + Caddy approach. It's:                                                                                                                   
-  - Free, no overhead                                             
-  - 5 minutes to set up                                                                                                                                                                                                  
-  - Easy to understand and debug                                  
-  - Caddy gives you auto-HTTPS with zero config                                                                                                                                                                          
-                                                                                                                                                                                                                         
-  Here's the plan:                                                                                                                                                                                                       
-                                                                                                                                                                                                                         
-  On your Hetzner server:                                                                                                                                                                                                
-                                                                  
-  # 1. Install Node 22                                                                                                                                                                                                   
-  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -                                                                                                                                                         
-  sudo apt install -y nodejs                                                                                                                                                                                             
-                                                                                                                                                                                                                         
-  # 2. Install pnpm                                                                                                                                                                                                      
-  npm i -g pnpm                                                   
+# ChatLegal deployment
 
-  # 3. Install Caddy (reverse proxy + auto HTTPS)                                                                                                                                                                        
-  sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
-  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg                                                                         
-  curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list                                                                                          
-  sudo apt update && sudo apt install caddy                                                                                                                                                                              
-                                                                                                                                                                                                                         
-  # 4. Clone & build                                                                                                                                                                                                     
-  cd /opt                                                                                                                                                                                                                
-  sudo git clone <your-repo-url> chatconstituicao                                                                                                                                                                        
-  cd chatconstituicao                                                                                                                                                                                                    
-  pnpm install                                                                                                                                                                                                           
-  pnpm build                                                                                                                                                                                                             
-                                                                                                                                                                                                                         
-  # 5. Create env file                                                                                                                                                                                                   
-  sudo cp apps/api/.env.example apps/api/.env                                                                                                                                                                            
-  sudo nano apps/api/.env  # fill in your real values                                                                                                                                                                    
-                                                                                                                                                                                                                         
-  Set FRONTEND_URL in .env to your frontend domain (e.g. https://chatconstituicao.pt).                                                                                                                                   
-                                                                                                                                                                                                                         
-  6. Create systemd service — /etc/systemd/system/chatconstituicao-api.service:                                                                                                                                          
-  [Unit]                                                          
-  Description=ChatConstituicao API                                                                                                                                                                                       
-  After=network.target                                            
-                                                                                                                                                                                                                         
-  [Service]
-  Type=simple                                                                                                                                                                                                            
-  WorkingDirectory=/opt/chatconstituicao                          
-  ExecStart=/usr/bin/node apps/api/dist/index.js                                                                                                                                                                         
-  EnvironmentFile=/opt/chatconstituicao/apps/api/.env             
-  Restart=always                                                                                                                                                                                                         
-  RestartSec=5  
-                                                                                                                                                                                                                         
-  [Install]                                                       
-  WantedBy=multi-user.target
-                            
-  sudo systemctl daemon-reload
-  sudo systemctl enable --now chatconstituicao-api                                                                                                                                                                       
-   
-  7. Configure Caddy — /etc/caddy/Caddyfile:                                                                                                                                                                             
-  api.chatconstituicao.pt {                                       
-      reverse_proxy localhost:3088                                                                                                                                                                                       
-  }                                                                                                                                                                                                                      
-   
-  sudo systemctl reload caddy                                                                                                                                                                                            
-                                                                                                                                                                                                                         
-  8. DNS — Point api.chatconstituicao.pt to your Hetzner server's IP with an A record. Caddy will automatically get an HTTPS certificate from Let's Encrypt.                                                             
-                                                                                                                                                                                                                         
-  To redeploy after changes:                                                                                                                                                                                             
-                                                                  
-  cd /opt/chatconstituicao                                                                                                                                                                                               
-  sudo git pull                                                   
-  pnpm install                                                                                                                                                                                                           
-  pnpm build                                                                                                                                                                                                             
-  sudo systemctl restart chatconstituicao-api
+The repo now builds two legal-document frontends and one shared API.
+
+## DNS
+
+Point these records to the VPS:
+
+```text
+chatconstituicao.pt           A 95.216.185.20
+api.chatconstituicao.pt       A 95.216.185.20
+chatcodigocivil.pt            A 95.216.185.20
+www.chatcodigocivil.pt        A 95.216.185.20
+api.chatcodigocivil.pt        A 95.216.185.20
+```
+
+## API env
+
+Create `/opt/chatlegal/apps/api/.env`:
+
+```env
+PORT=3088
+VERCEL_AI_GATEWAY_API_KEY=
+SUPABASE_URL=
+SUPABASE_SECRET_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+ANON_LIMIT=3
+ALLOWED_ORIGINS=https://chatconstituicao.pt,https://www.chatconstituicao.pt,https://chatcodigocivil.pt,https://www.chatcodigocivil.pt
+APP_HOST_DOCUMENT_MAP=api.chatconstituicao.pt:constituicao,api.chatcodigocivil.pt:codigo-civil
+APP_HOST_FRONTEND_MAP=api.chatconstituicao.pt:https://chatconstituicao.pt,api.chatcodigocivil.pt:https://chatcodigocivil.pt
+```
+
+## Frontend env
+
+Build the Constituição site with:
+
+```sh
+VITE_DOCUMENT_ID=constituicao \
+VITE_API_URL=https://api.chatconstituicao.pt \
+VITE_SUPABASE_URL=... \
+VITE_SUPABASE_PUBLISHABLE_KEY=... \
+VITE_STRIPE_PUBLISHABLE_KEY=... \
+pnpm --filter @chatconstituicao/web build
+```
+
+Build the Código Civil site with:
+
+```sh
+VITE_DOCUMENT_ID=codigo-civil \
+VITE_API_URL=https://api.chatcodigocivil.pt \
+VITE_SUPABASE_URL=... \
+VITE_SUPABASE_PUBLISHABLE_KEY=... \
+VITE_STRIPE_PUBLISHABLE_KEY=... \
+pnpm --filter @chatconstituicao/web build
+```
+
+Copy the resulting `apps/web/dist` to separate deploy directories, for example:
+
+```text
+/opt/chatlegal/apps/web/dist-constituicao
+/opt/chatlegal/apps/web/dist-codigo-civil
+```
+
+## systemd
+
+`/etc/systemd/system/chatlegal-api.service`:
+
+```ini
+[Unit]
+Description=ChatLegal API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/chatlegal
+ExecStart=/usr/bin/node apps/api/dist/index.js
+EnvironmentFile=/opt/chatlegal/apps/api/.env
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+## Caddy
+
+```caddy
+chatconstituicao.pt, www.chatconstituicao.pt {
+  root * /opt/chatlegal/apps/web/dist-constituicao
+  try_files {path} /index.html
+  file_server
+}
+
+chatcodigocivil.pt, www.chatcodigocivil.pt {
+  root * /opt/chatlegal/apps/web/dist-codigo-civil
+  try_files {path} /index.html
+  file_server
+}
+
+api.chatconstituicao.pt, api.chatcodigocivil.pt {
+  reverse_proxy localhost:3088
+}
+```
+
+## Verification
+
+```sh
+curl https://api.chatconstituicao.pt/api/health
+curl https://api.chatcodigocivil.pt/api/health
+```

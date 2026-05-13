@@ -8,12 +8,12 @@ import {
 import {
   Message,
   MessageContent,
-  MessageResponse,
 } from "@/components/ai-elements/message";
 import { SourcePill } from "./SourcePill";
 import { PaymentBanner } from "./PaymentBanner";
 import { parseSourceMarkers } from "@/lib/sources";
 import type { SourceSnippet } from "@chatconstituicao/shared";
+import { documentConfig } from "@/lib/document";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
@@ -83,8 +83,8 @@ export function ChatPanel({
         <ConversationContent className="px-6 py-6 gap-6">
           {messages.length === 0 && !isLoading && (
             <ConversationEmptyState
-              title="Chat Constituicao"
-              description="Faca perguntas sobre a Constituicao da Republica Portuguesa. As respostas incluem referencias directas aos artigos relevantes."
+              title={documentConfig.productName}
+              description={documentConfig.emptyDescription}
               className="font-serif"
             />
           )}
@@ -103,20 +103,18 @@ export function ChatPanel({
             }
 
             const { segments } = parseSourceMarkers(content);
-            const textOnly = segments
-              .filter((s): s is string => typeof s === "string")
-              .join("");
-            const sources = segments.filter(
-              (s): s is SourceSnippet => typeof s !== "string"
-            );
 
             return (
               <Message key={msg.id} from="assistant">
                 <MessageContent className="font-mono text-sm leading-[1.8]">
-                  <MessageResponse>{textOnly}</MessageResponse>
-                  {sources.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {sources.map((source, i) => (
+                  <div className="whitespace-pre-wrap">
+                    {segments.map((segment, i) => {
+                      if (typeof segment === "string") {
+                        return <span key={i}>{segment}</span>;
+                      }
+
+                      const source = segment as SourceSnippet;
+                      return (
                         <SourcePill
                           key={i}
                           articleId={source.articleId}
@@ -124,9 +122,9 @@ export function ChatPanel({
                           breadcrumb={source.breadcrumb}
                           onClick={(id) => onSourceClick(id, source.quotedText)}
                         />
-                      ))}
-                    </div>
-                  )}
+                      );
+                    })}
+                  </div>
                 </MessageContent>
               </Message>
             );
@@ -179,7 +177,7 @@ export function ChatPanel({
             placeholder={
               isExhausted
                 ? "Limite de perguntas atingido"
-                : "Faca uma pergunta sobre a Constituicao..."
+                : documentConfig.inputPlaceholder
             }
             className="flex-1 resize-none bg-transparent text-sm text-ink placeholder:text-ink-faint/60 outline-none py-1 font-mono disabled:opacity-40 disabled:cursor-not-allowed"
           />

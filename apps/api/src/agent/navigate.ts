@@ -1,7 +1,7 @@
 import { generateObject } from "ai";
 import { gateway } from "ai";
-import type { ConstitutionNode } from "@chatconstituicao/shared";
-import { CONSTITUICAO } from "../data/constituicao.js";
+import type { LegalDocumentNode } from "@chatconstituicao/shared";
+import type { LegalDocumentConfig } from "../data/documents.js";
 import { NavigationDecision } from "./schemas.js";
 import { buildNavigationPrompt } from "./prompt.js";
 
@@ -14,9 +14,9 @@ export type NavigationResult = {
 };
 
 function findNodeById(
-  root: ConstitutionNode,
+  root: LegalDocumentNode,
   id: string
-): ConstitutionNode | null {
+): LegalDocumentNode | null {
   if (root.id === id) return root;
   for (const child of root.children ?? []) {
     const found = findNodeById(child, id);
@@ -26,9 +26,9 @@ function findNodeById(
 }
 
 function getNodeByPath(
-  root: ConstitutionNode,
+  root: LegalDocumentNode,
   path: string[]
-): ConstitutionNode {
+): LegalDocumentNode {
   let node = root;
   for (const id of path) {
     const child = node.children?.find((c) => c.id === id);
@@ -38,31 +38,39 @@ function getNodeByPath(
   return node;
 }
 
-function collectLeafArticles(node: ConstitutionNode): ConstitutionNode[] {
+function collectLeafArticles(node: LegalDocumentNode): LegalDocumentNode[] {
   if (node.content && node.articleNumber) return [node];
-  const articles: ConstitutionNode[] = [];
+  const articles: LegalDocumentNode[] = [];
   for (const child of node.children ?? []) {
     articles.push(...collectLeafArticles(child));
   }
   return articles;
 }
 
-function searchArticles(root: ConstitutionNode, query: string, limit = 5): ConstitutionNode[] {
+function searchArticles(root: LegalDocumentNode, query: string, limit = 8): LegalDocumentNode[] {
   const allArticles = collectLeafArticles(root);
-  const re = new RegExp(query, "i");
+  let re: RegExp;
+  try {
+    re = new RegExp(query, "i");
+  } catch {
+    re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+  }
   return allArticles.filter((a) => re.test(a.content ?? "") || re.test(a.title)).slice(0, limit);
 }
 
-export async function navigateConstitution(
+export async function navigateLegalDocument(
+  document: LegalDocumentConfig,
   question: string
 ): Promise<NavigationResult> {
-  let currentNode = CONSTITUICAO;
+  const root = document.root;
+  let currentNode = root;
   const path: string[] = [];
   const collected: Map<string, { title: string; content: string }> = new Map();
 
   for (let step = 0; step < MAX_STEPS; step++) {
     const prompt = buildNavigationPrompt(
       question,
+      document,
       currentNode,
       path,
       [...collected.values()].map((c) => c.title)
@@ -91,12 +99,12 @@ export async function navigateConstitution(
     } else if (decision.action === "back") {
       if (path.length === 0) continue;
       path.pop();
-      currentNode = getNodeByPath(CONSTITUICAO, path);
+      currentNode = getNodeByPath(root, path);
     } else if (decision.action === "collect") {
       for (const artId of decision.articleIds) {
         // Try to find in current node's subtree first, then globally
         let node = findNodeById(currentNode, artId);
-        if (!node) node = findNodeById(CONSTITUICAO, artId);
+        if (!node) node = findNodeById(root, artId);
         if (node?.content) {
           collected.set(node.id, {
             title: node.title,
@@ -105,7 +113,7 @@ export async function navigateConstitution(
         }
       }
     } else if (decision.action === "search") {
-      const results = searchArticles(CONSTITUICAO, decision.query);
+      const results = searchArticles(root, decision.query);
       for (const node of results) {
         if (node.content) {
           collected.set(node.id, {

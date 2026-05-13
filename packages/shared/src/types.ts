@@ -1,11 +1,13 @@
-export type ConstitutionNode = {
+export type LegalDocumentNode = {
   id: string;
   title: string;
-  children?: ConstitutionNode[];
+  children?: LegalDocumentNode[];
   content?: string;
   articleNumber?: number;
   pdfPage?: number;
 };
+
+export type ConstitutionNode = LegalDocumentNode;
 
 export type SourceSnippet = {
   articleId: string;

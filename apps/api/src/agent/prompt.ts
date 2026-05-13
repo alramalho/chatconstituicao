@@ -1,6 +1,7 @@
-import type { ConstitutionNode } from "@chatconstituicao/shared";
+import type { LegalDocumentNode } from "@chatconstituicao/shared";
+import type { LegalDocumentConfig } from "../data/documents.js";
 
-function describeChildren(node: ConstitutionNode): string {
+function describeChildren(node: LegalDocumentNode): string {
   if (!node.children?.length) return "(sem filhos — nó folha)";
   return node.children
     .map((c) => `- [${c.id}] ${c.title}${c.content ? " (artigo com texto)" : ` (${c.children?.length ?? 0} filhos)`}`)
@@ -9,7 +10,8 @@ function describeChildren(node: ConstitutionNode): string {
 
 export function buildNavigationPrompt(
   question: string,
-  currentNode: ConstitutionNode,
+  document: LegalDocumentConfig,
+  currentNode: LegalDocumentNode,
   path: string[],
   collectedSoFar: string[]
 ): string {
@@ -23,7 +25,7 @@ export function buildNavigationPrompt(
       ? `\n\nArtigos já recolhidos (${collectedSoFar.length}):\n${collectedSoFar.map((c) => c.slice(0, 80) + "...").join("\n")}`
       : "";
 
-  return `Estás a navegar a Constituição da República Portuguesa para encontrar artigos relevantes à pergunta do utilizador.
+  return `Estás a navegar ${document.title} para encontrar artigos relevantes à pergunta do utilizador.
 
 Pergunta: "${question}"
 
@@ -39,13 +41,14 @@ Decide a próxima ação:
 - "navigate": entra num filho para explorar mais fundo
 - "back": volta ao nó pai (se não estás na raiz)
 - "collect": recolhe artigos específicos deste nível (indica os IDs dos artigos folha)
-- "search": pesquisa por regex em todos os artigos da Constituição (ex: "direitos.*trabalhadores", "imposto|tributo")
+- "search": pesquisa por regex em todos os ${document.articlePlural} (ex: "direitos.*trabalhadores", "imposto|tributo")
 - "answer": já tens contexto suficiente, termina a navegação
 
 Nota: podes recolher artigos e continuar a navegar. Usa "answer" quando tiveres artigos suficientes.`;
 }
 
-export const ANSWER_SYSTEM_PROMPT = `Ès um especialista em direito constitucional português. Respondes a perguntas sobre a Constituição da República Portuguesa de forma clara, precisa e acessível.
+export function buildAnswerSystemPrompt(document: LegalDocumentConfig): string {
+  return `És um ${document.specialistRole}. Respondes a perguntas sobre ${document.title} de forma clara, precisa e acessível.
 
 REGRAS:
 - Responde SEMPRE em português
@@ -55,3 +58,4 @@ REGRAS:
 - Se não encontrares informação relevante nos artigos fornecidos, diz isso claramente
 - Sê conciso mas completo
 - Usa linguagem acessível, evita jargão jurídico desnecessário`;
+}

@@ -1,9 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import type { QuotaInfo } from "@chatconstituicao/shared";
+import { documentConfig } from "@/lib/document";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 const ANON_LIMIT = 3;
-const LS_KEY = "chatconstituicao_anon_used";
+const LS_KEY = documentConfig.anonStorageKey;
 
 function getAnonUsed(): number {
   try {
