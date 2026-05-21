@@ -61,7 +61,10 @@ function buildCoverageHint(question: string): string {
     hints.push("responsabilidade civil: verifica facto ilícito/culpa, prova da culpa, nexo causal, medida da indemnização e culpa do lesado");
   }
   if (/defeit|v[ií]cio|problema|usar|normalmente/i.test(question)) {
-    hints.push("locação com defeito: verifica vício da coisa, causas de exclusão da responsabilidade e dever de aviso do locatário");
+    hints.push("locação com defeito: responde em termos de depende; verifica condições do vício da coisa, causas de exclusão da responsabilidade e dever de aviso do locatário");
+  }
+  if (/renda|senhorio|mora|atras/i.test(question)) {
+    hints.push("renda em atraso: verifica obrigação de pagar, indemnização por mora, prazo de 8 dias e modo direto de fazer cessar a mora; evita regimes judiciais laterais se não forem perguntados");
   }
 
   return hints.length ? `\nOrientação de cobertura: ${hints.join("; ")}.\n` : "";
