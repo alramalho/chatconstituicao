@@ -63,25 +63,31 @@ const selectorStopwords = new Set([
 ]);
 
 const queryExpansions: [RegExp, string[]][] = [
-  [/herd|heran|testament|morre|morte|falec|conjuge|filh/i, ["sucessao", "sucessiveis", "heranca", "conjuge", "descendentes", "filhos", "partilha"]],
+  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, ["sucessao", "sucessiveis", "heranca", "conjuge", "descendentes", "filhos", "partilha"]],
+  [/defeit|vicio|problema|usar|usad|normalmente/i, ["vicio", "defeito", "qualidades", "locada", "locador", "locatario", "aviso"]],
   [/renda|senhorio|arrend|loca/i, ["locacao", "locatario", "locador", "arrendamento", "arrendatario", "senhorio", "renda", "mora", "denuncia"]],
   [/senhorio|precis|viver|sair|desocup/i, ["denuncia", "necessidade", "habitacao", "proprio", "descendentes", "desocupacao"]],
   [/menor|filho|idade|autoriz/i, ["menor", "maioridade", "incapacidade", "anulabilidade"]],
-  [/acidente|dano|indemn|culpa/i, ["responsabilidade", "dano", "culpa", "indemnizacao", "lesado"]],
+  [/acidente|culpa|lesado/i, ["responsabilidade", "dano", "culpa", "indemnizacao", "lesado"]],
+  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, ["devedor", "credor", "cumprimento", "defeituoso", "auxiliares", "representantes"]],
   [/divida|pag|juros|mora|prazo|data certa/i, ["obrigacao", "mora", "juros", "pecuniaria", "cumprimento", "prazo", "interpelacao"]],
   [/foto|imagem|retrato|privacidade/i, ["retrato", "imagem", "intimidade", "reserva", "honra"]],
   [/casamento|comunhao|matrimonio|bens/i, ["casamento", "comunhao", "adquiridos", "bens", "proprios"]],
 ];
 
 const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]][] = [
+  [/defeit|vicio|problema|usar|usad|normalmente/i, [{ min: 1032, max: 1038, boost: 55 }]],
   [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
   [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
   [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
-  [/acidente|dano|indemn|culpa/i, [{ min: 483, max: 498, boost: 20 }, { min: 562, max: 572, boost: 20 }]],
-  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 25 }]],
+  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 570, boost: 28 }]],
+  [/contribu|ambos|dois/i, [{ min: 570, max: 570, boost: 45 }]],
+  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, [{ min: 798, max: 800, boost: 55 }]],
+  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 45 }]],
   [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
   [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
-  [/herd|heran|testament|morre|morte|falec|conjuge|filh/i, [{ min: 2131, max: 2148, boost: 25 }]],
+  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, [{ min: 2131, max: 2148, boost: 35 }]],
+  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2139, boost: 55 }]],
 ];
 
 function findNodeById(
