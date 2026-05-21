@@ -80,14 +80,14 @@ const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]
   [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
   [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
   [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
-  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 570, boost: 28 }]],
+  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 563, boost: 42 }, { min: 570, max: 570, boost: 42 }, { min: 564, max: 569, boost: 18 }]],
   [/contribu|ambos|dois/i, [{ min: 570, max: 570, boost: 45 }]],
   [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, [{ min: 798, max: 800, boost: 55 }]],
   [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 45 }]],
   [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
   [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
   [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, [{ min: 2131, max: 2148, boost: 35 }]],
-  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2139, boost: 55 }]],
+  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2134, boost: 70 }, { min: 2139, max: 2139, boost: 70 }, { min: 2135, max: 2138, boost: 35 }]],
 ];
 
 function findNodeById(
