@@ -75,66 +75,6 @@ const queryExpansions: [RegExp, string[]][] = [
   [/casamento|comunhao|matrimonio|bens/i, ["casamento", "comunhao", "adquiridos", "bens", "proprios"]],
 ];
 
-const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]][] = [
-  [/defeit|vicio|problema|usar|usad|normalmente/i, [{ min: 1032, max: 1038, boost: 55 }]],
-  [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
-  [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
-  [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
-  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 563, boost: 42 }, { min: 570, max: 570, boost: 42 }, { min: 564, max: 569, boost: 18 }]],
-  [/contribu|ambos|dois/i, [{ min: 570, max: 570, boost: 45 }]],
-  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, [{ min: 798, max: 800, boost: 55 }]],
-  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 45 }]],
-  [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
-  [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
-  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, [{ min: 2131, max: 2148, boost: 35 }]],
-  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2134, boost: 70 }, { min: 2139, max: 2139, boost: 70 }, { min: 2135, max: 2138, boost: 35 }]],
-];
-
-const anchorArticleIds: [RegExp, string[]][] = [
-  [
-    /acidente|culpa|contribu|lesado/i,
-    [
-      "codigo-civil.art-483",
-      "codigo-civil.art-487",
-      "codigo-civil.art-562",
-      "codigo-civil.art-563",
-      "codigo-civil.art-570",
-    ],
-  ],
-  [
-    /herd|heran|testament|morre|morte|falec|c[oô]njuge|filhos|descendentes|divide/i,
-    [
-      "codigo-civil.art-2133",
-      "codigo-civil.art-2134",
-      "codigo-civil.art-2139",
-    ],
-  ],
-  [
-    /defeit|v[ií]cio|problema|usar|usad|normalmente/i,
-    [
-      "codigo-civil.art-1032",
-      "codigo-civil.art-1033",
-      "codigo-civil.art-1038",
-    ],
-  ],
-  [
-    /menor|filho|idade|autoriz/i,
-    [
-      "codigo-civil.art-125",
-      "codigo-civil.art-127",
-      "codigo-civil.art-130",
-    ],
-  ],
-  [
-    /casamento|comunh[aã]o|matrim[oó]nio|bens/i,
-    [
-      "codigo-civil.art-1721",
-      "codigo-civil.art-1722",
-      "codigo-civil.art-1724",
-    ],
-  ],
-];
-
 function findNodeById(
   root: LegalDocumentNode,
   id: string
@@ -192,32 +132,13 @@ function expandedQuestionTokens(question: string): string[] {
   return [...new Set(tokens)];
 }
 
-function articleNumberAsNumber(article: LegalDocumentNode): number | null {
-  const number = String(article.articleNumber ?? "").match(/\d+/)?.[0];
-  return number ? Number.parseInt(number, 10) : null;
-}
-
-function articleRangeBoost(question: string, article: LegalDocumentNode): number {
-  const articleNumber = articleNumberAsNumber(article);
-  if (articleNumber === null) return 0;
-
-  let boost = 0;
-  for (const [pattern, ranges] of articleRangeBoosts) {
-    if (!pattern.test(question)) continue;
-    for (const range of ranges) {
-      if (articleNumber >= range.min && articleNumber <= range.max) boost += range.boost;
-    }
-  }
-  return boost;
-}
-
 function selectLocalCandidateArticles(root: LegalDocumentNode, question: string, limit: number): LegalDocumentNode[] {
   const tokens = expandedQuestionTokens(question);
   const articles = collectLeafArticles(root);
   const scored = articles.map((article, index) => {
     const title = normalizeSelectorText(article.title);
     const content = normalizeSelectorText(article.content ?? "");
-    let score = articleRangeBoost(question, article);
+    let score = 0;
 
     for (const token of tokens) {
       if (title.includes(token)) score += 12;
@@ -259,20 +180,6 @@ function addArticleToCollected(
     title: article.title,
     content: article.content,
   });
-}
-
-function addAnchorArticles(
-  root: LegalDocumentNode,
-  question: string,
-  collected: Map<string, { title: string; content: string }>,
-): void {
-  for (const [pattern, articleIds] of anchorArticleIds) {
-    if (!pattern.test(question)) continue;
-    for (const articleId of articleIds) {
-      const article = findNodeById(root, articleId);
-      if (article) addArticleToCollected(collected, article);
-    }
-  }
 }
 
 function buildFlatArticleIndex(articles: LegalDocumentNode[]): string {
@@ -355,8 +262,6 @@ export async function retrieveLegalDocumentCandidates(
   for (const article of selectLocalCandidateArticles(root, question, options.localSeedLimit ?? 8)) {
     addArticleToCollected(collected, article);
   }
-
-  addAnchorArticles(root, question, collected);
 
   expandCollectedArticles(
     root,

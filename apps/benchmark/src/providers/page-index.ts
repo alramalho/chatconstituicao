@@ -8,7 +8,6 @@ import {
 import { buildAnswerSystemPrompt } from "../../../api/src/agent/prompt.js";
 import { hybridSearchArticles } from "../../../api/src/agent/hybrid-search.js";
 import { LEGAL_DOCUMENTS } from "../../../api/src/data/documents.js";
-import { citationsToArticleIds } from "../article-utils.js";
 import { benchmarkModel, defaultModel } from "../model.js";
 import type { BenchmarkQuestion, Provider } from "../types.js";
 
@@ -42,167 +41,11 @@ const RerankOutput = z.object({
 });
 
 type ArticleRef = { id: string; title: string; content: string };
-type AnswerCitation = z.infer<typeof AnswerOutput>["citations"][number];
-
-const citationCompletionRules: [RegExp, { articleId: string; sourceQuote: string }[]][] = [
-  [
-    /renda|senhorio|mora|atras/i,
-    [
-      { articleId: "codigo-civil.art-1038", sourceQuote: "Pagar a renda ou aluguer;" },
-    ],
-  ],
-  [
-    /defeit|v[ií]cio|problema|usar|normalmente/i,
-    [
-      { articleId: "codigo-civil.art-1038", sourceQuote: "Avisar imediatamente o locador, sempre que tenha conhecimento de vícios na coisa" },
-    ],
-  ],
-  [
-    /\bmenor(?:es)?\b|autoriz/i,
-    [
-      { articleId: "codigo-civil.art-130", sourceQuote: "Aquele que perfizer dezoito anos de idade adquire plena capacidade de exercício de direitos" },
-    ],
-  ],
-  [
-    /acidente|culpa|contribu|lesado|dano/i,
-    [
-      { articleId: "codigo-civil.art-487", sourceQuote: "É ao lesado que incumbe provar a culpa do autor da lesão" },
-    ],
-  ],
-  [
-    /casamento|comunh[aã]o|matrim[oó]nio|bens/i,
-    [
-      { articleId: "codigo-civil.art-1724", sourceQuote: "Fazem parte da comunhão:" },
-    ],
-  ],
-  [
-    /d[ií]vida|pag|juros|mora|prazo|data certa/i,
-    [
-      { articleId: "codigo-civil.art-804", sourceQuote: "A simples mora constitui o devedor na obrigação de reparar os danos causados ao credor." },
-    ],
-  ],
-  [
-    /herd|heran|testament|morre|morte|falec|c[oô]njuge|filhos|descendentes|divide/i,
-    [
-      { articleId: "codigo-civil.art-2134", sourceQuote: "Os herdeiros de cada uma das classes de sucessíveis preferem às classes imediatas." },
-    ],
-  ],
-  [
-    /foto|imagem|retrato|privacidade|intimidade/i,
-    [
-      { articleId: "codigo-civil.art-80", sourceQuote: "Todos devem guardar reserva quanto à intimidade da vida privada de outrem." },
-    ],
-  ],
-];
 
 function buildContext(articleRefs: ArticleRef[]): string {
   return articleRefs
     .map((article) => `[${article.id}] ${article.title}:\n${article.content}`)
     .join("\n\n---\n\n");
-}
-
-function completeCitations(question: string, articleRefs: ArticleRef[], citations: AnswerCitation[]): AnswerCitation[] {
-  const byId = new Map(articleRefs.map((article) => [article.id, article]));
-  const existing = new Set(citationsToArticleIds(citations));
-  const completed = [...citations];
-
-  for (const [pattern, additions] of citationCompletionRules) {
-    if (!pattern.test(question)) continue;
-    for (const addition of additions) {
-      if (existing.has(addition.articleId) || !byId.has(addition.articleId)) continue;
-      completed.push({
-        articleId: addition.articleId,
-        articleNumber: addition.articleId.match(/art-(\d+[a-z]?)/i)?.[1] ?? addition.articleId,
-        sourceQuote: addition.sourceQuote,
-      });
-      existing.add(addition.articleId);
-    }
-  }
-
-  if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
-    const allowed = new Set(["codigo-civil.art-798", "codigo-civil.art-799", "codigo-civil.art-800"]);
-    return completed.filter((citation) => allowed.has(citationsToArticleIds([citation])[0] ?? ""));
-  }
-
-  return completed;
-}
-
-function completeAnswer(question: string, articleRefs: ArticleRef[], answer: string): string {
-  const retrieved = new Set(articleRefs.map((article) => article.id));
-  const additions: string[] = [];
-  let completedAnswer = answer;
-
-  if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
-    completedAnswer = completedAnswer.replace(
-      /\n\nQuanto à consequência prática,[\s\S]*?(?=\n\nA única ressalva|\n\n[^]*$)/,
-      "",
-    );
-  }
-
-  if (/\bmenor(?:es)?\b|autoriz/i.test(question)) {
-    if (
-      retrieved.has("codigo-civil.art-125") &&
-      !/confirma[cç][aã]o do progenitor|confirma[cç][aã]o .*tutor|representante do menor/i.test(completedAnswer)
-    ) {
-      additions.push("A anulabilidade também pode ser sanada por confirmação do progenitor, tutor ou administrador de bens quando pudesse celebrar o ato como representante do menor.");
-    }
-    if (
-      retrieved.has("codigo-civil.art-127") &&
-      !/maior de (dezasseis|16).*trabalho|profiss[aã]o, arte ou of[ií]cio/i.test(completedAnswer)
-    ) {
-      additions.push("Nas exceções de validade contam ainda atos sobre bens adquiridos pelo trabalho do maior de 16 anos e atos relativos a profissão, arte ou ofício autorizado.");
-    }
-  }
-
-  if (/acidente|contribu|lesado/i.test(question) && retrieved.has("codigo-civil.art-570")) {
-    if (!/totalmente concedida|integralmente concedida|manter .*indemniza/i.test(completedAnswer)) {
-      additions.push("Mesmo havendo culpa do lesado, o tribunal pode manter a indemnização integral, reduzi-la ou excluí-la, conforme a gravidade das culpas e as consequências.");
-    }
-    if (!/presun[cç][aã]o de culpa|presumida/i.test(completedAnswer)) {
-      additions.push("Se a responsabilidade se basear apenas numa presunção de culpa, a culpa do lesado pode excluir o dever de indemnizar, salvo disposição em contrário.");
-    }
-  }
-
-  if (/foto|imagem|retrato|privacidade|intimidade/i.test(question)) {
-    if (!/dispensad[ao]|dispensa.*consentimento|sem consentimento em certos casos/i.test(completedAnswer)) {
-      additions.push("A exceção para imagem enquadrada em lugares públicos ou factos de interesse público pode dispensar consentimento em certos casos, mas não automaticamente nem quando houver prejuízo para honra, reputação, decoro ou intimidade.");
-    }
-    if (!/intimidade da vida privada|reserva .*vida privada/i.test(completedAnswer)) {
-      additions.push("Além disso, todos devem guardar reserva quanto à intimidade da vida privada de outrem.");
-    }
-  }
-
-  return additions.length ? `${completedAnswer}\n\n${additions.join(" ")}` : completedAnswer;
-}
-
-function buildCoverageHint(question: string): string {
-  const hints: string[] = [];
-  if (/foto|imagem|retrato|privacidade|intimidade/i.test(question)) {
-    hints.push("imagem/retrato: cobre consentimento, exceções do art. 79/2, limite honra/decoro e reserva da vida privada");
-  }
-  if (/menor|filho|idade|autoriz/i.test(question)) {
-    hints.push("menoridade: cobre anulabilidade, legitimidade e prazos incluindo herdeiro, exceções de validade e confirmação");
-  }
-  if (/acidente|culpa|contribu|lesado|dano/i.test(question)) {
-    hints.push("responsabilidade civil: cobre 483, 487, 562, 563 e 570; não uses regras laterais sobre prova da culpa do lesado");
-  }
-  if (/defeit|v[ií]cio|problema|usar|normalmente/i.test(question)) {
-    hints.push("locação com defeito: cobre 1032, exclusões 1033 incluindo garantia/dolo quando defeito era reconhecível, e dever de aviso imediato do 1038");
-  }
-  if (/senhorio|precis|viver|sair|desocup/i.test(question)) {
-    hints.push("denúncia para habitação: começa por dizer que 1101 vale para contrato de duração indeterminada; cobre um ano de renda, titularidade/sucessão e falta de casa adequada");
-  }
-  if (/renda|senhorio|mora|atras/i.test(question)) {
-    hints.push("renda em atraso: cobre indemnização de 20% salvo resolução por falta de pagamento, prazo de 8 dias e consignação se houver recusa");
-  }
-  if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
-    hints.push("auxiliares no cumprimento: cobre responsabilidade do devedor, presunção de culpa e possível exclusão/limitação convencional válida");
-  }
-  if (/herd|heran|testament|morre|morte|falec|c[oô]njuge|filhos|descendentes|divide/i.test(question)) {
-    hints.push("sucessão cônjuge e filhos: diz partilha por cabeça com mínimo de um quarto para cônjuge; evita dizer simplesmente partes iguais");
-  }
-
-  return hints.length ? `\nOrientação de cobertura: ${hints.join("; ")}.\n` : "";
 }
 
 async function rerankArticleRefs(question: BenchmarkQuestion, articleRefs: ArticleRef[]): Promise<ArticleRef[]> {
@@ -288,7 +131,6 @@ ${context || "Nenhum artigo relevante encontrado."}`,
         {
           role: "user",
           content: `Responde à pergunta de forma prática e fundamentada.
-${buildCoverageHint(question.question)}
 
 Devolve também citações estruturadas. Cada citação deve apontar para um artigo efetivamente usado na resposta e incluir:
 - articleId, se estiver visível no contexto;
@@ -304,14 +146,11 @@ Pergunta: ${question.question}`,
       ],
     });
 
-    const answer = completeAnswer(question.question, answerArticleRefs, object.answer);
-    const citations = completeCitations(question.question, answerArticleRefs, object.citations);
-
     return {
-      answer,
-      citations,
+      answer: object.answer,
+      citations: object.citations,
       retrievedArticles: answerArticleRefs.map((article) => article.id),
-      selectedSourceArticles: citationsToArticleIds(citations),
+      selectedSourceArticles: object.citations.map((citation) => citation.articleId).filter(Boolean),
     };
   }
 }
