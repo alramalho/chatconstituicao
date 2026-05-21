@@ -90,6 +90,19 @@ const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]
   [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2134, boost: 70 }, { min: 2139, max: 2139, boost: 70 }, { min: 2135, max: 2138, boost: 35 }]],
 ];
 
+const anchorArticleIds: [RegExp, string[]][] = [
+  [
+    /acidente|culpa|contribu|lesado/i,
+    [
+      "codigo-civil.art-483",
+      "codigo-civil.art-487",
+      "codigo-civil.art-562",
+      "codigo-civil.art-563",
+      "codigo-civil.art-570",
+    ],
+  ],
+];
+
 function findNodeById(
   root: LegalDocumentNode,
   id: string
@@ -216,6 +229,20 @@ function addArticleToCollected(
   });
 }
 
+function addAnchorArticles(
+  root: LegalDocumentNode,
+  question: string,
+  collected: Map<string, { title: string; content: string }>,
+): void {
+  for (const [pattern, articleIds] of anchorArticleIds) {
+    if (!pattern.test(question)) continue;
+    for (const articleId of articleIds) {
+      const article = findNodeById(root, articleId);
+      if (article) addArticleToCollected(collected, article);
+    }
+  }
+}
+
 function buildFlatArticleIndex(articles: LegalDocumentNode[]): string {
   return articles
     .map((article) => {
@@ -296,6 +323,8 @@ export async function retrieveLegalDocumentCandidates(
   for (const article of selectLocalCandidateArticles(root, question, options.localSeedLimit ?? 8)) {
     addArticleToCollected(collected, article);
   }
+
+  addAnchorArticles(root, question, collected);
 
   expandCollectedArticles(
     root,
