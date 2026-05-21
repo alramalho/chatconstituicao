@@ -52,6 +52,7 @@ Citation recall checks whether the provider cited the expected article ids. Quot
 ```sh
 pnpm benchmark:codigo-civil -- --providers page-index,raw-gpt --limit 5
 pnpm benchmark:codigo-civil -- --providers page-index --questions cc-q01,cc-q02
+pnpm benchmark:codigo-civil -- --providers page-index,raw-gpt --probe raw-wins
 pnpm benchmark:codigo-civil -- --providers raw-gpt --skip-judge
 pnpm benchmark:codigo-civil -- --providers page-index,raw-gpt --concurrency 2 --judge-concurrency 3
 pnpm --filter @chatlegal/benchmark eval:probe
