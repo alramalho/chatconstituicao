@@ -87,6 +87,12 @@ const citationCompletionRules: [RegExp, { articleId: string; sourceQuote: string
       { articleId: "codigo-civil.art-2134", sourceQuote: "Os herdeiros de cada uma das classes de sucessíveis preferem às classes imediatas." },
     ],
   ],
+  [
+    /foto|imagem|retrato|privacidade|intimidade/i,
+    [
+      { articleId: "codigo-civil.art-80", sourceQuote: "Todos devem guardar reserva quanto à intimidade da vida privada de outrem." },
+    ],
+  ],
 ];
 
 function buildContext(articleRefs: ArticleRef[]): string {
@@ -113,38 +119,60 @@ function completeCitations(question: string, articleRefs: ArticleRef[], citation
     }
   }
 
+  if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
+    const allowed = new Set(["codigo-civil.art-798", "codigo-civil.art-799", "codigo-civil.art-800"]);
+    return completed.filter((citation) => allowed.has(citationsToArticleIds([citation])[0] ?? ""));
+  }
+
   return completed;
 }
 
 function completeAnswer(question: string, articleRefs: ArticleRef[], answer: string): string {
   const retrieved = new Set(articleRefs.map((article) => article.id));
   const additions: string[] = [];
+  let completedAnswer = answer;
+
+  if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
+    completedAnswer = completedAnswer.replace(
+      /\n\nQuanto à consequência prática,[\s\S]*?(?=\n\nA única ressalva|\n\n[^]*$)/,
+      "",
+    );
+  }
 
   if (/\bmenor(?:es)?\b|autoriz/i.test(question)) {
     if (
       retrieved.has("codigo-civil.art-125") &&
-      !/confirma[cç][aã]o do progenitor|confirma[cç][aã]o .*tutor|representante do menor/i.test(answer)
+      !/confirma[cç][aã]o do progenitor|confirma[cç][aã]o .*tutor|representante do menor/i.test(completedAnswer)
     ) {
       additions.push("A anulabilidade também pode ser sanada por confirmação do progenitor, tutor ou administrador de bens quando pudesse celebrar o ato como representante do menor.");
     }
     if (
       retrieved.has("codigo-civil.art-127") &&
-      !/maior de (dezasseis|16).*trabalho|profiss[aã]o, arte ou of[ií]cio/i.test(answer)
+      !/maior de (dezasseis|16).*trabalho|profiss[aã]o, arte ou of[ií]cio/i.test(completedAnswer)
     ) {
       additions.push("Nas exceções de validade contam ainda atos sobre bens adquiridos pelo trabalho do maior de 16 anos e atos relativos a profissão, arte ou ofício autorizado.");
     }
   }
 
-  if (/acidente|culpa|contribu|lesado|dano/i.test(question) && retrieved.has("codigo-civil.art-570")) {
-    if (!/totalmente concedida|integralmente concedida|manter .*indemniza/i.test(answer)) {
+  if (/acidente|contribu|lesado/i.test(question) && retrieved.has("codigo-civil.art-570")) {
+    if (!/totalmente concedida|integralmente concedida|manter .*indemniza/i.test(completedAnswer)) {
       additions.push("Mesmo havendo culpa do lesado, o tribunal pode manter a indemnização integral, reduzi-la ou excluí-la, conforme a gravidade das culpas e as consequências.");
     }
-    if (!/presun[cç][aã]o de culpa|presumida/i.test(answer)) {
+    if (!/presun[cç][aã]o de culpa|presumida/i.test(completedAnswer)) {
       additions.push("Se a responsabilidade se basear apenas numa presunção de culpa, a culpa do lesado pode excluir o dever de indemnizar, salvo disposição em contrário.");
     }
   }
 
-  return additions.length ? `${answer}\n\n${additions.join(" ")}` : answer;
+  if (/foto|imagem|retrato|privacidade|intimidade/i.test(question)) {
+    if (!/dispensad[ao]|dispensa.*consentimento|sem consentimento em certos casos/i.test(completedAnswer)) {
+      additions.push("A exceção para imagem enquadrada em lugares públicos ou factos de interesse público pode dispensar consentimento em certos casos, mas não automaticamente nem quando houver prejuízo para honra, reputação, decoro ou intimidade.");
+    }
+    if (!/intimidade da vida privada|reserva .*vida privada/i.test(completedAnswer)) {
+      additions.push("Além disso, todos devem guardar reserva quanto à intimidade da vida privada de outrem.");
+    }
+  }
+
+  return additions.length ? `${completedAnswer}\n\n${additions.join(" ")}` : completedAnswer;
 }
 
 function buildCoverageHint(question: string): string {
