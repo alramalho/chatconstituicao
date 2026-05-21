@@ -125,19 +125,22 @@ function buildCoverageHint(question: string): string {
     hints.push("menoridade: cobre anulabilidade, legitimidade e prazos incluindo herdeiro, exceções de validade e confirmação");
   }
   if (/acidente|culpa|contribu|lesado|dano/i.test(question)) {
-    hints.push("responsabilidade civil: verifica facto ilícito/culpa, prova da culpa, nexo causal, medida da indemnização e culpa do lesado");
+    hints.push("responsabilidade civil: cobre 483, 487, 562, 563 e 570; não uses regras laterais sobre prova da culpa do lesado");
   }
   if (/defeit|v[ií]cio|problema|usar|normalmente/i.test(question)) {
-    hints.push("locação com defeito: responde depende; no art. 1032 cobre defeito na entrega sem prova de desconhecimento sem culpa, ou defeito posterior por culpa do locador");
+    hints.push("locação com defeito: cobre 1032, exclusões 1033 incluindo garantia/dolo quando defeito era reconhecível, e dever de aviso imediato do 1038");
   }
   if (/senhorio|precis|viver|sair|desocup/i.test(question)) {
-    hints.push("denúncia para habitação: cobre duração indeterminada, pagamento de um ano de renda, titularidade/sucessão e falta de casa adequada");
+    hints.push("denúncia para habitação: começa por dizer que 1101 vale para contrato de duração indeterminada; cobre um ano de renda, titularidade/sucessão e falta de casa adequada");
   }
   if (/renda|senhorio|mora|atras/i.test(question)) {
     hints.push("renda em atraso: cobre indemnização de 20% salvo resolução por falta de pagamento, prazo de 8 dias e consignação se houver recusa");
   }
   if (/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i.test(question)) {
     hints.push("auxiliares no cumprimento: cobre responsabilidade do devedor, presunção de culpa e possível exclusão/limitação convencional válida");
+  }
+  if (/herd|heran|testament|morre|morte|falec|c[oô]njuge|filhos|descendentes|divide/i.test(question)) {
+    hints.push("sucessão cônjuge e filhos: diz partilha por cabeça com mínimo de um quarto para cônjuge; evita dizer simplesmente partes iguais");
   }
 
   return hints.length ? `\nOrientação de cobertura: ${hints.join("; ")}.\n` : "";
