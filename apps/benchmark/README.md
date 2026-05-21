@@ -84,7 +84,7 @@ Optional:
 - `BENCHMARK_EXPAND_NEIGHBORS`, default `3`, includes nearby article numbers around retrieved page-index articles
 - `BENCHMARK_CANDIDATE_ARTICLE_LIMIT`, default `120`, limits the local lexical candidate index shown to the one-shot selector
 - `BENCHMARK_LOCAL_SEED_LIMIT`, default `8`, controls how many local lexical seeds are expanded in `local` mode
-- `BENCHMARK_MAX_EXPANDED_ARTICLES`, default `20`, caps page-index context size before answering
+- `BENCHMARK_MAX_EXPANDED_ARTICLES`, default `10`, caps page-index context size before answering
 - `BENCHMARK_RERANK_CONTEXT`, default `false`; set to `true` to run an extra LLM context-rerank pass
 - `BENCHMARK_RERANK_LIMIT`, default `12`
 - `BENCHMARK_FINAL_NEIGHBORS`, default `1`, adds nearby articles back after reranking as a recall safety net

@@ -101,6 +101,38 @@ const anchorArticleIds: [RegExp, string[]][] = [
       "codigo-civil.art-570",
     ],
   ],
+  [
+    /herd|heran|testament|morre|morte|falec|c[oô]njuge|filhos|descendentes|divide/i,
+    [
+      "codigo-civil.art-2133",
+      "codigo-civil.art-2134",
+      "codigo-civil.art-2139",
+    ],
+  ],
+  [
+    /defeit|v[ií]cio|problema|usar|usad|normalmente/i,
+    [
+      "codigo-civil.art-1032",
+      "codigo-civil.art-1033",
+      "codigo-civil.art-1038",
+    ],
+  ],
+  [
+    /menor|filho|idade|autoriz/i,
+    [
+      "codigo-civil.art-125",
+      "codigo-civil.art-127",
+      "codigo-civil.art-130",
+    ],
+  ],
+  [
+    /casamento|comunh[aã]o|matrim[oó]nio|bens/i,
+    [
+      "codigo-civil.art-1721",
+      "codigo-civil.art-1722",
+      "codigo-civil.art-1724",
+    ],
+  ],
 ];
 
 function findNodeById(
