@@ -138,6 +138,8 @@ Devolve também citações estruturadas. Cada citação deve apontar para um art
 - se não conseguires identificar o articleId, usa string vazia;
 - articleNumber;
 - sourceQuote: uma frase curta copiada literalmente do artigo citado.
+Inclui uma citação para cada artigo que dê uma regra, requisito, exceção, prazo, ónus de prova ou consequência necessária para responder ao caso. Não pares no primeiro artigo útil quando os artigos seguintes completam a solução.
+Antes de concluir, verifica se a resposta cobriu: regra principal, exceções ou requisitos, prazos/procedimento, ónus/imputabilidade e consequência prática, quando esses pontos aparecerem nos artigos fornecidos.
 
 Pergunta: ${question.question}`,
         },
