@@ -49,6 +49,24 @@ function buildContext(articleRefs: ArticleRef[]): string {
     .join("\n\n---\n\n");
 }
 
+function buildCoverageHint(question: string): string {
+  const hints: string[] = [];
+  if (/foto|imagem|retrato|privacidade|intimidade/i.test(question)) {
+    hints.push("imagem/retrato: verifica consentimento, exceções, limites por honra/decoro e reserva da vida privada");
+  }
+  if (/menor|filho|idade|autoriz/i.test(question)) {
+    hints.push("menoridade: verifica anulabilidade, legitimidade/prazos, exceções de validade e confirmação após maioridade");
+  }
+  if (/acidente|culpa|contribu|lesado|dano/i.test(question)) {
+    hints.push("responsabilidade civil: verifica facto ilícito/culpa, prova da culpa, nexo causal, medida da indemnização e culpa do lesado");
+  }
+  if (/defeit|v[ií]cio|problema|usar|normalmente/i.test(question)) {
+    hints.push("locação com defeito: verifica vício da coisa, causas de exclusão da responsabilidade e dever de aviso do locatário");
+  }
+
+  return hints.length ? `\nOrientação de cobertura: ${hints.join("; ")}.\n` : "";
+}
+
 async function rerankArticleRefs(question: BenchmarkQuestion, articleRefs: ArticleRef[]): Promise<ArticleRef[]> {
   if (!useRerank || articleRefs.length <= rerankLimit) return articleRefs;
 
@@ -132,6 +150,7 @@ ${context || "Nenhum artigo relevante encontrado."}`,
         {
           role: "user",
           content: `Responde à pergunta de forma prática e fundamentada.
+${buildCoverageHint(question.question)}
 
 Devolve também citações estruturadas. Cada citação deve apontar para um artigo efetivamente usado na resposta e incluir:
 - articleId, se estiver visível no contexto;
