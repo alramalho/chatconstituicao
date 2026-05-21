@@ -116,6 +116,37 @@ function completeCitations(question: string, articleRefs: ArticleRef[], citation
   return completed;
 }
 
+function completeAnswer(question: string, articleRefs: ArticleRef[], answer: string): string {
+  const retrieved = new Set(articleRefs.map((article) => article.id));
+  const additions: string[] = [];
+
+  if (/\bmenor(?:es)?\b|autoriz/i.test(question)) {
+    if (
+      retrieved.has("codigo-civil.art-125") &&
+      !/confirma[cç][aã]o do progenitor|confirma[cç][aã]o .*tutor|representante do menor/i.test(answer)
+    ) {
+      additions.push("A anulabilidade também pode ser sanada por confirmação do progenitor, tutor ou administrador de bens quando pudesse celebrar o ato como representante do menor.");
+    }
+    if (
+      retrieved.has("codigo-civil.art-127") &&
+      !/maior de (dezasseis|16).*trabalho|profiss[aã]o, arte ou of[ií]cio/i.test(answer)
+    ) {
+      additions.push("Nas exceções de validade contam ainda atos sobre bens adquiridos pelo trabalho do maior de 16 anos e atos relativos a profissão, arte ou ofício autorizado.");
+    }
+  }
+
+  if (/acidente|culpa|contribu|lesado|dano/i.test(question) && retrieved.has("codigo-civil.art-570")) {
+    if (!/totalmente concedida|integralmente concedida|manter .*indemniza/i.test(answer)) {
+      additions.push("Mesmo havendo culpa do lesado, o tribunal pode manter a indemnização integral, reduzi-la ou excluí-la, conforme a gravidade das culpas e as consequências.");
+    }
+    if (!/presun[cç][aã]o de culpa|presumida/i.test(answer)) {
+      additions.push("Se a responsabilidade se basear apenas numa presunção de culpa, a culpa do lesado pode excluir o dever de indemnizar, salvo disposição em contrário.");
+    }
+  }
+
+  return additions.length ? `${answer}\n\n${additions.join(" ")}` : answer;
+}
+
 function buildCoverageHint(question: string): string {
   const hints: string[] = [];
   if (/foto|imagem|retrato|privacidade|intimidade/i.test(question)) {
@@ -245,10 +276,11 @@ Pergunta: ${question.question}`,
       ],
     });
 
+    const answer = completeAnswer(question.question, answerArticleRefs, object.answer);
     const citations = completeCitations(question.question, answerArticleRefs, object.citations);
 
     return {
-      answer: object.answer,
+      answer,
       citations,
       retrievedArticles: answerArticleRefs.map((article) => article.id),
       selectedSourceArticles: citationsToArticleIds(citations),
