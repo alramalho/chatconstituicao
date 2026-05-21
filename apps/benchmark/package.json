@@ -9,6 +9,7 @@
     "eval:raw": "tsx src/index.ts --providers raw-gpt",
     "eval:page-index": "tsx src/index.ts --providers page-index",
     "eval:probe": "tsx src/index.ts --providers page-index,raw-gpt --questions cc-q01-renda-em-atraso,cc-q02-senhorio-precisa-da-casa,cc-q07-divida-paga-tarde --concurrency 2 --judge-concurrency 3",
+    "eval:probe:raw-wins": "tsx src/index.ts --providers page-index,raw-gpt --questions cc-q05-acidente-com-culpa-dos-dois,cc-q09-casa-anterior-ao-casamento --concurrency 2 --judge-concurrency 2",
     "diagnose:retrieval": "tsx src/diagnose.ts",
     "typecheck": "tsc --noEmit",
     "validate": "tsx src/validate.ts"

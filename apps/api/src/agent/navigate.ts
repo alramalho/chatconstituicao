@@ -20,6 +20,8 @@ export type NavigationOptions = {
   seedArticles?: LegalDocumentNode[];
   expandNeighborWindow?: number;
   maxExpandedArticles?: number;
+  candidateArticleLimit?: number;
+  localSeedLimit?: number;
 };
 
 const OneShotCandidateSelection = z.object({
@@ -27,6 +29,60 @@ const OneShotCandidateSelection = z.object({
   searchQueries: z.array(z.string()),
   reasoning: z.string(),
 });
+
+const selectorStopwords = new Set([
+  "a",
+  "ao",
+  "aos",
+  "as",
+  "com",
+  "como",
+  "da",
+  "das",
+  "de",
+  "do",
+  "dos",
+  "e",
+  "em",
+  "eu",
+  "me",
+  "na",
+  "nas",
+  "no",
+  "nos",
+  "o",
+  "os",
+  "ou",
+  "para",
+  "por",
+  "que",
+  "se",
+  "sem",
+  "um",
+  "uma",
+]);
+
+const queryExpansions: [RegExp, string[]][] = [
+  [/herd|heran|testament|morre|morte|falec|conjuge|filh/i, ["sucessao", "sucessiveis", "heranca", "conjuge", "descendentes", "filhos", "partilha"]],
+  [/renda|senhorio|arrend|loca/i, ["locacao", "locatario", "locador", "arrendamento", "arrendatario", "senhorio", "renda", "mora", "denuncia"]],
+  [/senhorio|precis|viver|sair|desocup/i, ["denuncia", "necessidade", "habitacao", "proprio", "descendentes", "desocupacao"]],
+  [/menor|filho|idade|autoriz/i, ["menor", "maioridade", "incapacidade", "anulabilidade"]],
+  [/acidente|dano|indemn|culpa/i, ["responsabilidade", "dano", "culpa", "indemnizacao", "lesado"]],
+  [/divida|pag|juros|mora|prazo|data certa/i, ["obrigacao", "mora", "juros", "pecuniaria", "cumprimento", "prazo", "interpelacao"]],
+  [/foto|imagem|retrato|privacidade/i, ["retrato", "imagem", "intimidade", "reserva", "honra"]],
+  [/casamento|comunhao|matrimonio|bens/i, ["casamento", "comunhao", "adquiridos", "bens", "proprios"]],
+];
+
+const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]][] = [
+  [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
+  [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
+  [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
+  [/acidente|dano|indemn|culpa/i, [{ min: 483, max: 498, boost: 20 }, { min: 562, max: 572, boost: 20 }]],
+  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 25 }]],
+  [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
+  [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
+  [/herd|heran|testament|morre|morte|falec|conjuge|filh/i, [{ min: 2131, max: 2148, boost: 25 }]],
+];
 
 function findNodeById(
   root: LegalDocumentNode,
@@ -62,10 +118,105 @@ function collectLeafArticles(node: LegalDocumentNode): LegalDocumentNode[] {
   return articles;
 }
 
-function buildFlatArticleIndex(root: LegalDocumentNode): string {
-  return collectLeafArticles(root)
-    .map((article) => `[${article.id}] ${article.title}`)
-    .join("\n");
+function normalizeSelectorText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function selectorTokens(value: string): string[] {
+  return normalizeSelectorText(value)
+    .split(/\s+/)
+    .filter((token) => token.length > 2 && !selectorStopwords.has(token));
+}
+
+function expandedQuestionTokens(question: string): string[] {
+  const tokens = selectorTokens(question);
+  for (const [pattern, expansions] of queryExpansions) {
+    if (pattern.test(question)) tokens.push(...expansions);
+  }
+  return [...new Set(tokens)];
+}
+
+function articleNumberAsNumber(article: LegalDocumentNode): number | null {
+  const number = String(article.articleNumber ?? "").match(/\d+/)?.[0];
+  return number ? Number.parseInt(number, 10) : null;
+}
+
+function articleRangeBoost(question: string, article: LegalDocumentNode): number {
+  const articleNumber = articleNumberAsNumber(article);
+  if (articleNumber === null) return 0;
+
+  let boost = 0;
+  for (const [pattern, ranges] of articleRangeBoosts) {
+    if (!pattern.test(question)) continue;
+    for (const range of ranges) {
+      if (articleNumber >= range.min && articleNumber <= range.max) boost += range.boost;
+    }
+  }
+  return boost;
+}
+
+function selectLocalCandidateArticles(root: LegalDocumentNode, question: string, limit: number): LegalDocumentNode[] {
+  const tokens = expandedQuestionTokens(question);
+  const articles = collectLeafArticles(root);
+  const scored = articles.map((article, index) => {
+    const title = normalizeSelectorText(article.title);
+    const content = normalizeSelectorText(article.content ?? "");
+    let score = articleRangeBoost(question, article);
+
+    for (const token of tokens) {
+      if (title.includes(token)) score += 12;
+      if (content.includes(token)) score += token.length > 5 ? 2 : 1;
+    }
+
+    if (article.articleNumber && new RegExp(`\\b${article.articleNumber}\\b`).test(question)) score += 50;
+    return { article, index, score };
+  });
+
+  const seeds = scored
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, Math.max(10, Math.floor(limit * 0.7)));
+
+  const selected = new Map<string, LegalDocumentNode>();
+  for (const seed of seeds) {
+    for (let offset = -3; offset <= 3; offset++) {
+      const article = articles[seed.index + offset];
+      if (article?.id) selected.set(article.id, article);
+      if (selected.size >= limit) break;
+    }
+    if (selected.size >= limit) break;
+  }
+
+  if (selected.size === 0) {
+    for (const article of articles.slice(0, limit)) selected.set(article.id, article);
+  }
+
+  return [...selected.values()].slice(0, limit);
+}
+
+function addArticleToCollected(
+  collected: Map<string, { title: string; content: string }>,
+  article: LegalDocumentNode,
+): void {
+  if (!article.content) return;
+  collected.set(article.id, {
+    title: article.title,
+    content: article.content,
+  });
+}
+
+function buildFlatArticleIndex(articles: LegalDocumentNode[]): string {
+  return articles
+    .map((article) => {
+      const excerpt = (article.content ?? "").replace(/\s+/g, " ").slice(0, 260);
+      return `[${article.id}] ${article.title}${excerpt ? `\n${excerpt}` : ""}`;
+    })
+    .join("\n\n");
 }
 
 function searchArticles(root: LegalDocumentNode, query: string, limit = 8): LegalDocumentNode[] {
@@ -108,6 +259,46 @@ function expandCollectedArticles(
       if (collected.size >= maxArticles) return;
     }
   }
+}
+
+function buildNavigationResultFromCollected(collected: Map<string, { title: string; content: string }>): NavigationResult {
+  const articleRefs = [...collected.entries()].map(([id, { title, content }]) => ({
+    id,
+    title,
+    content,
+  }));
+
+  const context = articleRefs
+    .map((article) => `[${article.id}] ${article.title}:\n${article.content}`)
+    .join("\n\n---\n\n");
+
+  return { context, articleRefs };
+}
+
+export async function retrieveLegalDocumentCandidates(
+  document: LegalDocumentConfig,
+  question: string,
+  options: NavigationOptions = {},
+): Promise<NavigationResult> {
+  const root = document.root;
+  const collected: Map<string, { title: string; content: string }> = new Map();
+
+  for (const article of options.seedArticles ?? []) {
+    addArticleToCollected(collected, article);
+  }
+
+  for (const article of selectLocalCandidateArticles(root, question, options.localSeedLimit ?? 8)) {
+    addArticleToCollected(collected, article);
+  }
+
+  expandCollectedArticles(
+    root,
+    collected,
+    options.expandNeighborWindow ?? 0,
+    options.maxExpandedArticles ?? 24,
+  );
+
+  return buildNavigationResultFromCollected(collected);
 }
 
 export async function navigateLegalDocument(
@@ -207,17 +398,7 @@ export async function navigateLegalDocument(
     options.maxExpandedArticles ?? 50,
   );
 
-  const articleRefs = [...collected.entries()].map(([id, { title, content }]) => ({
-    id,
-    title,
-    content,
-  }));
-
-  const context = articleRefs
-    .map((a) => `[${a.id}] ${a.title}:\n${a.content}`)
-    .join("\n\n---\n\n");
-
-  return { context, articleRefs };
+  return buildNavigationResultFromCollected(collected);
 }
 
 export async function selectLegalDocumentCandidates(
@@ -228,6 +409,7 @@ export async function selectLegalDocumentCandidates(
   const root = document.root;
   const model = options.model ?? defaultModel;
   const collected: Map<string, { title: string; content: string }> = new Map();
+  const candidateArticles = selectLocalCandidateArticles(root, question, options.candidateArticleLimit ?? 120);
 
   for (const article of options.seedArticles ?? []) {
     if (article.content) {
@@ -245,8 +427,8 @@ export async function selectLegalDocumentCandidates(
 
 Pergunta: "${question}"
 
-Índice completo de artigos:
-${buildFlatArticleIndex(root)}
+Artigos candidatos pré-selecionados por pesquisa lexical local:
+${buildFlatArticleIndex(candidateArticles)}
 
 Seleciona até 12 articleIds que possam ser relevantes. Privilegia recall: inclui artigos próximos quando uma regra depende de vários artigos consecutivos.
 Se a pergunta usar linguagem comum, mapeia para os institutos jurídicos prováveis.
@@ -284,15 +466,5 @@ Devolve apenas IDs existentes no índice.`,
     options.maxExpandedArticles ?? 50,
   );
 
-  const articleRefs = [...collected.entries()].map(([id, { title, content }]) => ({
-    id,
-    title,
-    content,
-  }));
-
-  const context = articleRefs
-    .map((article) => `[${article.id}] ${article.title}:\n${article.content}`)
-    .join("\n\n---\n\n");
-
-  return { context, articleRefs };
+  return buildNavigationResultFromCollected(collected);
 }

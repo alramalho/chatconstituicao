@@ -1,6 +1,10 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { navigateLegalDocument, selectLegalDocumentCandidates } from "../../../api/src/agent/navigate.js";
+import {
+  navigateLegalDocument,
+  retrieveLegalDocumentCandidates,
+  selectLegalDocumentCandidates,
+} from "../../../api/src/agent/navigate.js";
 import { buildAnswerSystemPrompt } from "../../../api/src/agent/prompt.js";
 import { hybridSearchArticles } from "../../../api/src/agent/hybrid-search.js";
 import { LEGAL_DOCUMENTS } from "../../../api/src/data/documents.js";
@@ -12,10 +16,14 @@ const document = LEGAL_DOCUMENTS["codigo-civil"];
 const navigationModel = process.env.BENCHMARK_NAVIGATION_MODEL ?? defaultModel("google/gemini-3-flash");
 const answerModel = process.env.BENCHMARK_ANSWER_MODEL ?? defaultModel("openai/gpt-5.4-mini");
 const useHybridSearch = process.env.BENCHMARK_HYBRID_SEARCH === "true";
-const expandNeighborWindow = Number.parseInt(process.env.BENCHMARK_EXPAND_NEIGHBORS ?? "8", 10);
-const useOneShotSelection = process.env.BENCHMARK_ONE_SHOT_NAVIGATION !== "false";
-const useRerank = process.env.BENCHMARK_RERANK_CONTEXT !== "false";
+const retrievalMode = process.env.BENCHMARK_RETRIEVAL_MODE ?? "local";
+const expandNeighborWindow = Number.parseInt(process.env.BENCHMARK_EXPAND_NEIGHBORS ?? "3", 10);
+const useRerank = process.env.BENCHMARK_RERANK_CONTEXT === "true";
 const rerankLimit = Number.parseInt(process.env.BENCHMARK_RERANK_LIMIT ?? "12", 10);
+const candidateArticleLimit = Number.parseInt(process.env.BENCHMARK_CANDIDATE_ARTICLE_LIMIT ?? "120", 10);
+const localSeedLimit = Number.parseInt(process.env.BENCHMARK_LOCAL_SEED_LIMIT ?? "8", 10);
+const maxExpandedArticles = Number.parseInt(process.env.BENCHMARK_MAX_EXPANDED_ARTICLES ?? "24", 10);
+const finalNeighborWindow = Number.parseInt(process.env.BENCHMARK_FINAL_NEIGHBORS ?? "1", 10);
 
 const AnswerOutput = z.object({
   answer: z.string(),
@@ -71,19 +79,45 @@ Escolhe até ${rerankLimit} articleIds. Mantém artigos complementares quando a 
   return selected.length ? selected : articleRefs.slice(0, rerankLimit);
 }
 
+function expandSelectedArticleRefs(selected: ArticleRef[], candidates: ArticleRef[], window: number): ArticleRef[] {
+  if (window <= 0) return selected;
+
+  const candidateIndex = new Map(candidates.map((article, index) => [article.id, index]));
+  const expanded = new Map(selected.map((article) => [article.id, article]));
+
+  for (const article of selected) {
+    const index = candidateIndex.get(article.id);
+    if (index === undefined) continue;
+    for (let offset = -window; offset <= window; offset++) {
+      const neighbor = candidates[index + offset];
+      if (neighbor) expanded.set(neighbor.id, neighbor);
+    }
+  }
+
+  return [...expanded.values()];
+}
+
 export class PageIndexProvider implements Provider {
   name = "page-index";
 
   async answer(question: BenchmarkQuestion) {
     const seedArticles = useHybridSearch ? hybridSearchArticles(document, question.question) : [];
-    const navigate = useOneShotSelection ? selectLegalDocumentCandidates : navigateLegalDocument;
+    const navigate =
+      retrievalMode === "selector"
+        ? selectLegalDocumentCandidates
+        : retrievalMode === "tree"
+          ? navigateLegalDocument
+          : retrieveLegalDocumentCandidates;
     const { articleRefs } = await navigate(document, question.question, {
       model: benchmarkModel(navigationModel),
       seedArticles,
       expandNeighborWindow,
-      maxExpandedArticles: 50,
+      maxExpandedArticles,
+      candidateArticleLimit,
+      localSeedLimit,
     });
-    const answerArticleRefs = await rerankArticleRefs(question, articleRefs);
+    const rerankedArticleRefs = await rerankArticleRefs(question, articleRefs);
+    const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, articleRefs, finalNeighborWindow);
     const context = buildContext(answerArticleRefs);
 
     const { object } = await generateObject({
