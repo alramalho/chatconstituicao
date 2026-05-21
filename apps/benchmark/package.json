@@ -1,0 +1,28 @@
+{
+  "name": "@chatlegal/benchmark",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "eval": "tsx src/index.ts",
+    "eval:quick": "tsx src/index.ts --limit 5",
+    "eval:raw": "tsx src/index.ts --providers raw-gpt",
+    "eval:page-index": "tsx src/index.ts --providers page-index",
+    "eval:probe": "tsx src/index.ts --providers page-index,raw-gpt --questions cc-q01-renda-em-atraso,cc-q02-senhorio-precisa-da-casa,cc-q07-divida-paga-tarde --concurrency 2 --judge-concurrency 3",
+    "diagnose:retrieval": "tsx src/diagnose.ts",
+    "typecheck": "tsc --noEmit",
+    "validate": "tsx src/validate.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.47",
+    "@chatconstituicao/shared": "workspace:*",
+    "ai": "^6.0.0",
+    "dotenv": "^16.4.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

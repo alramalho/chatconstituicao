@@ -44,6 +44,7 @@ Decide a próxima ação:
 - "search": pesquisa por regex em todos os ${document.articlePlural} (ex: "direitos.*trabalhadores", "imposto|tributo")
 - "answer": já tens contexto suficiente, termina a navegação
 
+Preenche sempre todos os campos do objeto estruturado. Para campos que não se aplicam à ação escolhida, usa string vazia ou lista vazia.
 Nota: podes recolher artigos e continuar a navegar. Usa "answer" quando tiveres artigos suficientes.`;
 }
 

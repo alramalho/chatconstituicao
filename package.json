@@ -8,6 +8,7 @@
     "build:codigo-civil": "node tools/build-codigo-civil.mjs",
     "build:web:constituicao": "VITE_DOCUMENT_ID=constituicao pnpm --filter @chatconstituicao/web build",
     "build:web:codigo-civil": "VITE_DOCUMENT_ID=codigo-civil pnpm --filter @chatconstituicao/web build",
+    "benchmark:codigo-civil": "pnpm --filter @chatlegal/benchmark eval",
     "clean": "turbo clean"
   },
   "devDependencies": {

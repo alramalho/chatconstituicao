@@ -8,20 +8,21 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "express": "^5.0.0",
-    "cors": "^2.8.5",
-    "ai": "^6.0.0",
+    "@chatconstituicao/shared": "workspace:*",
     "@supabase/supabase-js": "^2.49.0",
-    "stripe": "^17.7.0",
-    "zod": "^3.24.0",
+    "ai": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.0",
-    "@chatconstituicao/shared": "workspace:*"
+    "express": "^5.0.0",
+    "sqlite-vec": "^0.1.9",
+    "stripe": "^17.7.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
-    "tsx": "^4.19.0",
-    "@types/express": "^5.0.0",
     "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
     "typescript": "^5.7.0"
   }
 }

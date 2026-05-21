@@ -1,0 +1,92 @@
+[
+  {
+    "id": "cc-q01-renda-em-atraso",
+    "question": "Estou atrasado no pagamento da renda. O senhorio pode pedir mais dinheiro além das rendas em falta? E ainda posso evitar a resolução?",
+    "expectedAnswer": "O locatário tem a obrigação de pagar a renda. Se entrar em mora, o senhorio pode exigir, além das rendas em atraso, uma indemnização igual a 20% do que for devido, salvo se resolver o contrato com base na falta de pagamento. O direito à indemnização ou à resolução cessa se o locatário fizer cessar a mora no prazo de oito dias a contar do seu começo. Para fazer cessar a mora, o locatário pode oferecer o pagamento das rendas em atraso e da indemnização; se o senhorio recusar, pode recorrer à consignação em depósito.",
+    "expectedArticles": ["codigo-civil.art-1038", "codigo-civil.art-1041", "codigo-civil.art-1042"],
+    "category": "arrendamento",
+    "difficulty": "medium",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q02-senhorio-precisa-da-casa",
+    "question": "O meu senhorio diz que precisa da casa para viver e quer que eu saia. Basta ele dizer isso?",
+    "expectedAnswer": "Não. A denúncia pelo senhorio por necessidade de habitação só está prevista para contratos de duração indeterminada e depende do fundamento do artigo 1101.º. Para habitação própria ou de descendente em primeiro grau, exige ainda pagamento de montante equivalente a um ano de renda e requisitos sobre titularidade do prédio e falta de casa própria adequada. A denúncia justificada deve ser comunicada ao arrendatário com pelo menos seis meses de antecedência, indicando expressamente o fundamento, sob pena de ineficácia.",
+    "expectedArticles": ["codigo-civil.art-1101", "codigo-civil.art-1102", "codigo-civil.art-1103"],
+    "category": "arrendamento",
+    "difficulty": "hard",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q03-casa-arrendada-com-defeito",
+    "question": "Arrendei uma casa, mas havia um problema que impede usá-la normalmente. O senhorio pode dizer que não tem responsabilidade?",
+    "expectedAnswer": "Depende. Se a coisa locada tem vício que impede realizar cabalmente o fim a que se destina, ou carece de qualidades necessárias ou asseguradas, considera-se o contrato não cumprido quando o defeito já existia na entrega e o locador não prova que o desconhecia sem culpa, ou quando surge depois por culpa do locador. Mas o locador pode não responder se o locatário conhecia o defeito, se o defeito era facilmente reconhecível sem garantia ou dolo, se o defeito é responsabilidade do locatário, ou se este não avisou o locador como devia. O locatário também tem o dever de avisar imediatamente o locador quando conheça vícios ou perigos na coisa.",
+    "expectedArticles": ["codigo-civil.art-1032", "codigo-civil.art-1033", "codigo-civil.art-1038"],
+    "category": "locacao",
+    "difficulty": "hard",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q04-menor-compra-cara",
+    "question": "O meu filho menor comprou algo caro sem autorização. O contrato é automaticamente inválido?",
+    "expectedAnswer": "Não é automaticamente nulo. Em regra, os negócios jurídicos celebrados por menor podem ser anulados por quem exerça responsabilidades parentais, tutor ou administrador de bens, pelo próprio menor após a maioridade, ou por herdeiro em certas condições e prazos. A anulabilidade também pode ser sanada por confirmação depois da maioridade ou por confirmação do representante competente. Há exceções: são validos certos atos do maior de 16 anos relativos a bens adquiridos pelo seu trabalho, negócios correntes de pequena importância adequados à sua capacidade natural, e negócios ligados a profissão, arte ou ofício autorizado.",
+    "expectedArticles": ["codigo-civil.art-125", "codigo-civil.art-127", "codigo-civil.art-130"],
+    "category": "capacidade",
+    "difficulty": "hard",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q05-acidente-com-culpa-dos-dois",
+    "question": "Tive um acidente, a outra pessoa teve culpa, mas eu também contribuí para o dano. Ainda posso receber indemnização?",
+    "expectedAnswer": "Pode haver indemnização, mas ela pode ser integral, reduzida ou excluída. A responsabilidade por facto ilícito exige violação ilícita de direito de outrem ou norma protetora, dolo ou mera culpa, e danos resultantes da violação. Em regra, o lesado tem de provar a culpa do autor da lesão, salvo presunção legal. A reparação procura reconstituir a situação que existiria sem o evento danoso e só abrange danos que provavelmente não teriam ocorrido sem a lesão. Se o facto culposo do lesado concorreu para produzir ou agravar os danos, o tribunal decide, segundo a gravidade das culpas e consequências, se a indemnização é mantida, reduzida ou excluída.",
+    "expectedArticles": ["codigo-civil.art-483", "codigo-civil.art-487", "codigo-civil.art-562", "codigo-civil.art-563", "codigo-civil.art-570"],
+    "category": "responsabilidade-civil",
+    "difficulty": "hard",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q06-falha-de-subcontratado",
+    "question": "Contratei uma empresa, ela usou outra pessoa para fazer o trabalho, e o trabalho ficou mal feito. A empresa pode dizer que a culpa foi do subcontratado?",
+    "expectedAnswer": "Em regra, não basta passar a culpa para o subcontratado ou auxiliar. O devedor que falta culposamente ao cumprimento torna-se responsável pelo prejuízo causado ao credor. Cabe ao devedor provar que a falta de cumprimento ou o cumprimento defeituoso não procede de culpa sua. Além disso, o devedor responde perante o credor pelos atos dos seus representantes legais ou das pessoas que utilize para cumprir a obrigação como se fossem praticados por si, sem prejuízo de eventual exclusão ou limitação convencional válida.",
+    "expectedArticles": ["codigo-civil.art-798", "codigo-civil.art-799", "codigo-civil.art-800"],
+    "category": "obrigacoes",
+    "difficulty": "medium",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q07-divida-paga-tarde",
+    "question": "Alguém devia pagar-me numa data certa e só pagou muito depois. Tenho direito a juros ou a indemnização?",
+    "expectedAnswer": "Sim, se houver mora imputável ao devedor. Há mora quando a prestação, ainda possível, não é efetuada no tempo devido por causa imputável ao devedor; a simples mora obriga a reparar os danos causados ao credor. Em regra, o devedor só fica em mora depois de interpelação judicial ou extrajudicial, mas não é necessária interpelação se a obrigação tiver prazo certo. Nas obrigações pecuniárias, a indemnização corresponde aos juros desde a constituição em mora; em certos casos pode haver indemnização suplementar se o credor provar dano superior.",
+    "expectedArticles": ["codigo-civil.art-804", "codigo-civil.art-805", "codigo-civil.art-806"],
+    "category": "obrigacoes",
+    "difficulty": "hard",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q08-foto-publicada-sem-consentimento",
+    "question": "Tiraram-me uma foto num evento público e publicaram-na para promover um negócio. Isso é permitido só por ter sido num lugar público?",
+    "expectedAnswer": "Não automaticamente. O retrato de uma pessoa não pode ser exposto, reproduzido ou lançado no comércio sem consentimento. O consentimento pode ser dispensado em situações como notoriedade, cargo, exigências de polícia ou justiça, fins científicos, didáticos ou culturais, ou quando a imagem esteja enquadrada em lugares públicos ou factos de interesse público ou ocorridos publicamente. Mesmo nesses casos, a imagem não pode ser usada se daí resultar prejuízo para honra, reputação ou simples decoro da pessoa retratada. A reserva sobre a intimidade da vida privada também deve ser respeitada conforme a natureza do caso e condição das pessoas.",
+    "expectedArticles": ["codigo-civil.art-79", "codigo-civil.art-80"],
+    "category": "direitos-de-personalidade",
+    "difficulty": "medium",
+    "reasoningType": "two_article"
+  },
+  {
+    "id": "cc-q09-casa-anterior-ao-casamento",
+    "question": "Casei em comunhão de adquiridos. A casa que eu já tinha antes do casamento passa a ser dos dois?",
+    "expectedAnswer": "Não. Se o regime for a comunhão de adquiridos, aplicam-se os artigos seguintes ao artigo 1721.º. O artigo 1722.º considera próprios de cada cônjuge os bens que já tinha ao tempo da celebração do casamento, os bens recebidos depois por sucessão ou doação, e bens adquiridos por direito próprio anterior. Em contraste, entram na comunhão o produto do trabalho dos cônjuges e os bens adquiridos na constância do matrimónio que não sejam exceptuados por lei.",
+    "expectedArticles": ["codigo-civil.art-1721", "codigo-civil.art-1722", "codigo-civil.art-1724"],
+    "category": "familia",
+    "difficulty": "medium",
+    "reasoningType": "multi_article"
+  },
+  {
+    "id": "cc-q10-heranca-conjuge-e-filhos",
+    "question": "Uma pessoa morreu sem testamento, deixando cônjuge e filhos. Quem herda e como se divide?",
+    "expectedAnswer": "Na sucessão legítima, cônjuge e descendentes formam a primeira classe de sucessíveis. Dentro das classes, os herdeiros de classe anterior preferem aos das classes seguintes. Quando há cônjuge e filhos, a partilha faz-se por cabeça, dividindo-se a herança em tantas partes quantos forem os herdeiros; mas a quota do cônjuge não pode ser inferior a um quarto da herança.",
+    "expectedArticles": ["codigo-civil.art-2133", "codigo-civil.art-2134", "codigo-civil.art-2139"],
+    "category": "sucessoes",
+    "difficulty": "medium",
+    "reasoningType": "multi_article"
+  }
+]
