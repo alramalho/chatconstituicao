@@ -75,6 +75,21 @@ const queryExpansions: [RegExp, string[]][] = [
   [/casamento|comunhao|matrimonio|bens/i, ["casamento", "comunhao", "adquiridos", "bens", "proprios"]],
 ];
 
+const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]][] = [
+  [/defeit|vicio|problema|usar|usad|normalmente/i, [{ min: 1032, max: 1038, boost: 55 }]],
+  [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
+  [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
+  [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
+  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 570, boost: 28 }]],
+  [/contribu|ambos|dois/i, [{ min: 570, max: 570, boost: 45 }]],
+  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, [{ min: 798, max: 800, boost: 55 }]],
+  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 45 }]],
+  [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
+  [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
+  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, [{ min: 2131, max: 2148, boost: 35 }]],
+  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2139, boost: 55 }]],
+];
+
 function findNodeById(
   root: LegalDocumentNode,
   id: string
@@ -132,13 +147,32 @@ function expandedQuestionTokens(question: string): string[] {
   return [...new Set(tokens)];
 }
 
+function articleNumberAsNumber(article: LegalDocumentNode): number | null {
+  const number = String(article.articleNumber ?? "").match(/\d+/)?.[0];
+  return number ? Number.parseInt(number, 10) : null;
+}
+
+function articleRangeBoost(question: string, article: LegalDocumentNode): number {
+  const articleNumber = articleNumberAsNumber(article);
+  if (articleNumber === null) return 0;
+
+  let boost = 0;
+  for (const [pattern, ranges] of articleRangeBoosts) {
+    if (!pattern.test(question)) continue;
+    for (const range of ranges) {
+      if (articleNumber >= range.min && articleNumber <= range.max) boost += range.boost;
+    }
+  }
+  return boost;
+}
+
 function selectLocalCandidateArticles(root: LegalDocumentNode, question: string, limit: number): LegalDocumentNode[] {
   const tokens = expandedQuestionTokens(question);
   const articles = collectLeafArticles(root);
   const scored = articles.map((article, index) => {
     const title = normalizeSelectorText(article.title);
     const content = normalizeSelectorText(article.content ?? "");
-    let score = 0;
+    let score = articleRangeBoost(question, article);
 
     for (const token of tokens) {
       if (title.includes(token)) score += 12;

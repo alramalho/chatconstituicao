@@ -21,7 +21,7 @@ const useRerank = process.env.BENCHMARK_RERANK_CONTEXT === "true";
 const rerankLimit = Number.parseInt(process.env.BENCHMARK_RERANK_LIMIT ?? "12", 10);
 const candidateArticleLimit = Number.parseInt(process.env.BENCHMARK_CANDIDATE_ARTICLE_LIMIT ?? "120", 10);
 const localSeedLimit = Number.parseInt(process.env.BENCHMARK_LOCAL_SEED_LIMIT ?? "8", 10);
-const maxExpandedArticles = Number.parseInt(process.env.BENCHMARK_MAX_EXPANDED_ARTICLES ?? "10", 10);
+const maxExpandedArticles = Number.parseInt(process.env.BENCHMARK_MAX_EXPANDED_ARTICLES ?? "24", 10);
 const finalNeighborWindow = Number.parseInt(process.env.BENCHMARK_FINAL_NEIGHBORS ?? "1", 10);
 
 const AnswerOutput = z.object({
