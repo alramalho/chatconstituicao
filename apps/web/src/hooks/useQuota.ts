@@ -22,10 +22,15 @@ function setAnonUsed(n: number) {
   }
 }
 
-export function useQuota(token: string | undefined) {
+export function useQuota(token: string | undefined, enabled = true) {
   const [quota, setQuota] = useState<QuotaInfo | null>(null);
 
   const refreshQuota = useCallback(async () => {
+    if (!enabled) {
+      setQuota(null);
+      return;
+    }
+
     if (!token) {
       const used = getAnonUsed();
       setQuota({ questionsUsed: used, questionsLimit: ANON_LIMIT, authenticated: false });
@@ -43,22 +48,24 @@ export function useQuota(token: string | undefined) {
     } catch {
       // silently fail
     }
-  }, [token]);
+  }, [token, enabled]);
 
   useEffect(() => {
     refreshQuota();
   }, [refreshQuota]);
 
   const incrementAnon = useCallback(() => {
+    if (!enabled) return;
     const next = getAnonUsed() + 1;
     setAnonUsed(next);
     setQuota({ questionsUsed: next, questionsLimit: ANON_LIMIT, authenticated: false });
-  }, []);
+  }, [enabled]);
 
   const resetAnon = useCallback(() => {
+    if (!enabled) return;
     setAnonUsed(0);
     setQuota({ questionsUsed: 0, questionsLimit: ANON_LIMIT, authenticated: false });
-  }, []);
+  }, [enabled]);
 
   const isExhausted = quota
     ? quota.questionsUsed >= quota.questionsLimit

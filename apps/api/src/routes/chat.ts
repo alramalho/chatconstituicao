@@ -7,6 +7,7 @@ import { buildAnswerSystemPrompt } from "../agent/prompt.js";
 import { getDocumentForHost } from "../data/documents.js";
 
 const router = Router();
+const quotaGateEnabled = process.env.QUOTA_GATE_ENABLED === "true";
 
 router.post("/", authMiddleware, async (req, res) => {
   const { messages } = req.body;
@@ -14,10 +15,12 @@ router.post("/", authMiddleware, async (req, res) => {
   const userId = req.user?.id ?? null;
   const document = getDocumentForHost(req.headers.host);
 
-  const quota = await checkQuota(userId, ip);
-  if (quota.questionsUsed >= quota.questionsLimit) {
-    res.status(429).json({ error: "Quota exceeded" });
-    return;
+  if (quotaGateEnabled) {
+    const quota = await checkQuota(userId, ip);
+    if (quota.questionsUsed >= quota.questionsLimit) {
+      res.status(429).json({ error: "Quota exceeded" });
+      return;
+    }
   }
 
   const lastUserMessage = [...messages]
@@ -39,7 +42,9 @@ ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
 
 ${context || "Nenhum artigo relevante encontrado."}`;
 
-  await decrementQuota(userId, ip);
+  if (quotaGateEnabled) {
+    await decrementQuota(userId, ip);
+  }
 
   const result = streamText({
     model: gateway("google/gemini-3-flash"),

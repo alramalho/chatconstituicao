@@ -12,18 +12,21 @@ import { documentConfig } from "./lib/document";
 
 const PDF_WIDTH = 612;
 const API_URL = import.meta.env.VITE_API_URL as string;
+const quotaGateEnabled = import.meta.env.VITE_QUOTA_GATE_ENABLED === "true";
 
 export default function App() {
   const { user, session, signIn, signUp, signOut } = useAuth();
   const token = session?.access_token;
-  const { quota, refreshQuota, isExhausted, incrementAnon, resetAnon } = useQuota(token);
+  const { quota, refreshQuota, isExhausted, incrementAnon, resetAnon } = useQuota(token, quotaGateEnabled);
 
   useEffect(() => {
+    if (!quotaGateEnabled) return;
+
     const params = new URLSearchParams(window.location.search);
     if (params.get("refill") === "chapim") {
       resetAnon();
       const headers: Record<string, string> = {};
-      if (token) headers["Authorization"] = `Bearer ${token}`;
+      if (token) headers.Authorization = `Bearer ${token}`;
       fetch(`${API_URL}/api/refill-chapim`, { method: "POST", headers })
         .then(() => refreshQuota())
         .finally(() => {
@@ -51,6 +54,7 @@ export default function App() {
   const drawerPdfRef = useRef<PdfViewerHandle>(null);
 
   const handleMessageSent = useCallback(() => {
+    if (!quotaGateEnabled) return;
     if (!token) {
       incrementAnon();
     } else {
@@ -92,7 +96,9 @@ export default function App() {
               onLoginClick={() => setShowAuth(true)}
               onLogout={signOut}
             />
-            <QuotaBar quota={quota} onClick={() => setShowQuota(true)} />
+            {quotaGateEnabled && (
+              <QuotaBar quota={quota} onClick={() => setShowQuota(true)} />
+            )}
           </div>
         </div>
 
@@ -103,7 +109,7 @@ export default function App() {
               <div className="h-full border border-ink flex flex-col">
                 <ChatPanel
                   token={token}
-                  isExhausted={isExhausted}
+                  isExhausted={quotaGateEnabled && isExhausted}
                   isAuthenticated={!!user}
                   onSourceClick={handleSourceClick}
                   onMessageSent={handleMessageSent}
@@ -138,14 +144,15 @@ export default function App() {
         </Drawer.Portal>
       </Drawer.Root>
 
-      {/* Quota dialog */}
-      <QuotaDialog
-        open={showQuota}
-        onOpenChange={setShowQuota}
-        quota={quota}
-        onLoginClick={() => setShowAuth(true)}
-        token={token}
-      />
+      {quotaGateEnabled && (
+        <QuotaDialog
+          open={showQuota}
+          onOpenChange={setShowQuota}
+          quota={quota}
+          onLoginClick={() => setShowAuth(true)}
+          token={token}
+        />
+      )}
 
       {showAuth && (
         <AuthModal
