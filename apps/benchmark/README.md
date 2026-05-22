@@ -79,12 +79,20 @@ Optional:
 - `BENCHMARK_OPENAI_PROVIDER_NAME`, default `vibeproxy`
 - `BENCHMARK_VIBEPROXY_MODEL`, default `gpt-5.4-mini` when `BENCHMARK_OPENAI_BASE_URL` is set
 - `BENCHMARK_OPENAI_STRUCTURED_OUTPUTS`, set to `false` if the OpenAI-compatible endpoint rejects structured-output requests
-- `BENCHMARK_HYBRID_SEARCH=true`, experimental sqlite-vec/FTS seeding for the page-index provider
-- `BENCHMARK_RETRIEVAL_MODE`, default `local`; set to `selector` for the one-shot LLM selector or `tree` for the older multi-step navigator
+- `LEGAL_EMBEDDING_BASE_URL` or `BENCHMARK_OPENAI_BASE_URL`, OpenAI-compatible embeddings endpoint for sqlite-vec semantic retrieval; defaults to Vercel AI Gateway when `AI_GATEWAY_API_KEY` is present
+- `LEGAL_EMBEDDING_API_KEY`, defaults to `BENCHMARK_OPENAI_API_KEY`, `AI_GATEWAY_API_KEY`, `OPENAI_API_KEY`, then `vibeproxy`
+- `LEGAL_EMBEDDING_MODEL` or `BENCHMARK_EMBEDDING_MODEL`, default `openai/text-embedding-3-small` on AI Gateway, otherwise `text-embedding-3-small`
+- `LEGAL_EMBEDDING_DIMENSIONS` or `BENCHMARK_EMBEDDING_DIMENSIONS`, default `1536`
+- `LEGAL_EMBEDDING_BATCH_SIZE` or `BENCHMARK_EMBEDDING_BATCH_SIZE`, default `64`
+- `LEGAL_SEARCH_DB_PATH`, sqlite-vec cache path; defaults to `apps/api/.data/legal-search.sqlite`
+- `BENCHMARK_EXPAND_SOURCE`, default `index-hybrid`; supported values are `index`, `hybrid`, `index-hybrid`
+- `BENCHMARK_EXPAND_CONTRACT`, default `true`; set to `false` to skip the LLM contraction pass
 - `BENCHMARK_EXPAND_NEIGHBORS`, default `3`, includes nearby article numbers around retrieved page-index articles
-- `BENCHMARK_CANDIDATE_ARTICLE_LIMIT`, default `120`, limits the local lexical candidate index shown to the one-shot selector
-- `BENCHMARK_LOCAL_SEED_LIMIT`, default `8`, controls how many local lexical seeds are expanded in `local` mode
-- `BENCHMARK_MAX_EXPANDED_ARTICLES`, default `10`, caps page-index context size before answering
+- `BENCHMARK_LOCAL_SEED_LIMIT`, default `8`, controls how many local lexical seeds orient the index navigator
+- `BENCHMARK_MAX_EXPANDED_ARTICLES`, default `24`, caps index-selected article context before hybrid union
+- `BENCHMARK_HYBRID_CANDIDATE_LIMIT`, default `18`, controls how many BM25 + semantic candidates hybrid retrieval contributes
+- `BENCHMARK_HYBRID_LAMBDA`, default `0`, minimum hybrid score threshold
+- `BENCHMARK_CONTRACT_LIMIT`, default `14`, caps the LLM-selected article set before final-neighbor expansion
 - `BENCHMARK_RERANK_CONTEXT`, default `false`; set to `true` to run an extra LLM context-rerank pass
 - `BENCHMARK_RERANK_LIMIT`, default `12`
 - `BENCHMARK_FINAL_NEIGHBORS`, default `1`, adds nearby articles back after reranking as a recall safety net

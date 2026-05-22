@@ -145,10 +145,10 @@ async function expandArticleRefs(question: BenchmarkQuestion): Promise<ExpandRes
       })).articleRefs
     : [];
   const hybridArticleRefs = hybridEnabled
-    ? hybridSearchArticleCandidates(document, question.question, {
+    ? (await hybridSearchArticleCandidates(document, question.question, {
         limit: hybridCandidateLimit,
         minScore: hybridLambda,
-      }).map((candidate) => candidate.article)
+      })).map((candidate) => candidate.article)
     : [];
 
   return {

@@ -93,12 +93,17 @@ for (const question of questions) {
     : Number.NaN;
   if (!Number.isNaN(currentExpanded)) currentExpandedScores.push(currentExpanded);
 
-  const rowScores = ks.map((k) => {
-    const retrieved = hybridSearchArticles(document, question.question, k).map((article) => article.id);
-    const score = recall(retrieved, question.expectedArticles);
-    hybridScores[k].push(score);
-    return { k, score, retrieved };
+  const rowPromises = ks.map((k) => {
+    return { k, promise: hybridSearchArticles(document, question.question, k) };
   });
+  const rowScores = await Promise.all(
+    rowPromises.map(async ({ k, promise }) => {
+      const retrieved = (await promise).map((article) => article.id);
+      const score = recall(retrieved, question.expectedArticles);
+      hybridScores[k].push(score);
+      return { k, score, retrieved };
+    }),
+  );
 
   const retrievedAt40 = rowScores.find((row) => row.k === 40)?.retrieved ?? [];
   const misses = question.expectedArticles.filter((id) => !retrievedAt40.includes(id));
