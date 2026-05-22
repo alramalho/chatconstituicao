@@ -2,6 +2,7 @@ import { generateObject } from "ai";
 import { gateway } from "ai";
 import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
+import codigoCivilIndex from "../data/codigo-civil.index.json" with { type: "json" };
 import { NavigationDecision } from "./schemas.js";
 import { buildNavigationPrompt } from "./prompt.js";
 import { z } from "zod";
@@ -27,6 +28,11 @@ export type NavigationOptions = {
 const OneShotCandidateSelection = z.object({
   articleIds: z.array(z.string()),
   searchQueries: z.array(z.string()),
+  reasoning: z.string(),
+});
+
+const IndexSectionSelection = z.object({
+  sectionIds: z.array(z.string()),
   reasoning: z.string(),
 });
 
@@ -63,31 +69,6 @@ const selectorStopwords = new Set([
 ]);
 
 const queryExpansions: [RegExp, string[]][] = [
-  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, ["sucessao", "sucessiveis", "heranca", "conjuge", "descendentes", "filhos", "partilha"]],
-  [/defeit|vicio|problema|usar|usad|normalmente/i, ["vicio", "defeito", "qualidades", "locada", "locador", "locatario", "aviso"]],
-  [/renda|senhorio|arrend|loca/i, ["locacao", "locatario", "locador", "arrendamento", "arrendatario", "senhorio", "renda", "mora", "denuncia"]],
-  [/senhorio|precis|viver|sair|desocup/i, ["denuncia", "necessidade", "habitacao", "proprio", "descendentes", "desocupacao"]],
-  [/menor|filho|idade|autoriz/i, ["menor", "maioridade", "incapacidade", "anulabilidade"]],
-  [/acidente|culpa|lesado/i, ["responsabilidade", "dano", "culpa", "indemnizacao", "lesado"]],
-  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, ["devedor", "credor", "cumprimento", "defeituoso", "auxiliares", "representantes"]],
-  [/divida|pag|juros|mora|prazo|data certa/i, ["obrigacao", "mora", "juros", "pecuniaria", "cumprimento", "prazo", "interpelacao"]],
-  [/foto|imagem|retrato|privacidade/i, ["retrato", "imagem", "intimidade", "reserva", "honra"]],
-  [/casamento|comunhao|matrimonio|bens/i, ["casamento", "comunhao", "adquiridos", "bens", "proprios"]],
-];
-
-const articleRangeBoosts: [RegExp, { min: number; max: number; boost: number }[]][] = [
-  [/defeit|vicio|problema|usar|usad|normalmente/i, [{ min: 1032, max: 1038, boost: 55 }]],
-  [/renda|mora|atras/i, [{ min: 1038, max: 1042, boost: 45 }]],
-  [/senhorio|arrend|loca|desocup/i, [{ min: 1022, max: 1113, boost: 30 }]],
-  [/divida|pag|juros|mora|prazo|data certa/i, [{ min: 798, max: 806, boost: 35 }, { min: 559, max: 561, boost: 8 }]],
-  [/acidente|culpa|lesado/i, [{ min: 483, max: 487, boost: 35 }, { min: 562, max: 570, boost: 28 }]],
-  [/contribu|ambos|dois/i, [{ min: 570, max: 570, boost: 45 }]],
-  [/subcontrat|empresa|trabalho|auxiliar|defeituos|mal feito/i, [{ min: 798, max: 800, boost: 55 }]],
-  [/menor|filho|idade|autoriz/i, [{ min: 122, max: 130, boost: 45 }]],
-  [/foto|imagem|retrato|privacidade/i, [{ min: 70, max: 81, boost: 25 }]],
-  [/casamento|comunhao|matrimonio|bens/i, [{ min: 1717, max: 1733, boost: 25 }]],
-  [/herd|heran|testament|morre|morte|falec|conjuge|divide/i, [{ min: 2131, max: 2148, boost: 35 }]],
-  [/morre|sem testamento|herda|divide/i, [{ min: 2133, max: 2139, boost: 55 }]],
 ];
 
 function findNodeById(
@@ -147,32 +128,22 @@ function expandedQuestionTokens(question: string): string[] {
   return [...new Set(tokens)];
 }
 
-function articleNumberAsNumber(article: LegalDocumentNode): number | null {
-  const number = String(article.articleNumber ?? "").match(/\d+/)?.[0];
-  return number ? Number.parseInt(number, 10) : null;
-}
-
-function articleRangeBoost(question: string, article: LegalDocumentNode): number {
-  const articleNumber = articleNumberAsNumber(article);
-  if (articleNumber === null) return 0;
-
-  let boost = 0;
-  for (const [pattern, ranges] of articleRangeBoosts) {
-    if (!pattern.test(question)) continue;
-    for (const range of ranges) {
-      if (articleNumber >= range.min && articleNumber <= range.max) boost += range.boost;
-    }
-  }
-  return boost;
-}
-
 function selectLocalCandidateArticles(root: LegalDocumentNode, question: string, limit: number): LegalDocumentNode[] {
   const tokens = expandedQuestionTokens(question);
   const articles = collectLeafArticles(root);
+  const sectionScores = scoreIndexSections(root, tokens);
+  const articleSectionBoosts = new Map<string, number>();
+
+  for (const [section, sectionScore] of sectionScores.slice(0, Math.max(4, Math.ceil(limit / 2)))) {
+    for (const articleId of section.articleIds) {
+      articleSectionBoosts.set(articleId, (articleSectionBoosts.get(articleId) ?? 0) + sectionScore);
+    }
+  }
+
   const scored = articles.map((article, index) => {
     const title = normalizeSelectorText(article.title);
     const content = normalizeSelectorText(article.content ?? "");
-    let score = articleRangeBoost(question, article);
+    let score = articleSectionBoosts.get(article.id) ?? 0;
 
     for (const token of tokens) {
       if (title.includes(token)) score += 12;
@@ -202,6 +173,122 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
     for (const article of articles.slice(0, limit)) selected.set(article.id, article);
   }
 
+  return [...selected.values()].slice(0, limit);
+}
+
+type CodigoCivilIndexSection = (typeof codigoCivilIndex.sections)[number];
+
+function buildIndexPrompt(question: string, sections: CodigoCivilIndexSection[]): string {
+  return `Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
+
+Pergunta:
+${question}
+
+Secções candidatas:
+${sections
+  .map((section) => {
+    const headings = section.articleTitles
+      .map((article) => `${article.id.replace("codigo-civil.", "")} ${article.title}`)
+      .join("; ");
+    return `[${section.id}] ${section.title}
+Termos: ${section.terms.slice(0, 18).join(", ")}
+Artigos: ${headings}`;
+  })
+  .join("\n")}
+
+Escolhe até 6 sectionIds. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
+}
+
+function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilIndexSection, number][] {
+  if (root.id !== "codigo-civil" || tokens.length === 0) return [];
+
+  return codigoCivilIndex.sections
+    .map((section) => {
+      const title = normalizeSelectorText(section.title);
+      const text = normalizeSelectorText(section.text);
+      const terms = new Set(section.terms);
+      let score = 0;
+
+      for (const token of tokens) {
+        if (terms.has(token)) score += 20;
+        if (title.includes(token)) score += 8;
+        if (text.includes(token)) score += token.length > 5 ? 3 : 1;
+      }
+
+      return [section, score] as [CodigoCivilIndexSection, number];
+    })
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1]);
+}
+
+async function selectIndexedCandidateArticles(
+  root: LegalDocumentNode,
+  question: string,
+  model: NavigationModel,
+  limit: number,
+): Promise<LegalDocumentNode[]> {
+  if (root.id !== "codigo-civil") return selectLocalCandidateArticles(root, question, limit);
+
+  const tokens = expandedQuestionTokens(question);
+  const articles = collectLeafArticles(root);
+  const byId = new Map(articles.map((article) => [article.id, article]));
+  const selectedSectionScores = new Map<string, number>();
+  const candidateSections = scoreIndexSections(root, tokens).slice(0, 36).map(([section]) => section);
+
+  try {
+    const { object } = await generateObject({
+      model,
+      schema: IndexSectionSelection,
+      prompt: buildIndexPrompt(question, candidateSections.length ? candidateSections : [...codigoCivilIndex.sections].slice(0, 36)),
+    });
+
+    object.sectionIds.slice(0, 8).forEach((sectionId, index) => {
+      selectedSectionScores.set(sectionId, 80 - index * 8);
+    });
+  } catch {
+    // If section selection fails, fall back to deterministic index scoring.
+  }
+
+  if (selectedSectionScores.size === 0) {
+    for (const [section, score] of scoreIndexSections(root, tokens).slice(0, 6)) {
+      selectedSectionScores.set(section.id, score);
+    }
+  }
+
+  const articleSectionBoosts = new Map<string, number>();
+  for (const section of codigoCivilIndex.sections) {
+    const sectionScore = selectedSectionScores.get(section.id);
+    if (!sectionScore) continue;
+    for (const articleId of section.articleIds) {
+      articleSectionBoosts.set(articleId, (articleSectionBoosts.get(articleId) ?? 0) + sectionScore);
+    }
+  }
+
+  const scored = [...articleSectionBoosts.entries()]
+    .map(([articleId, sectionScore]) => {
+      const article = byId.get(articleId);
+      if (!article) return null;
+      const title = normalizeSelectorText(article.title);
+      const content = normalizeSelectorText(article.content ?? "");
+      let score = sectionScore;
+
+      for (const token of tokens) {
+        if (title.includes(token)) score += 12;
+        if (content.includes(token)) score += token.length > 5 ? 2 : 1;
+      }
+
+      if (article.articleNumber && new RegExp(`\\b${article.articleNumber}\\b`).test(question)) score += 50;
+      return { article, score };
+    })
+    .filter((item): item is { article: LegalDocumentNode; score: number } => Boolean(item))
+    .sort((a, b) => b.score - a.score);
+
+  const selected = new Map<string, LegalDocumentNode>();
+  for (const seed of scored.slice(0, Math.max(10, Math.floor(limit * 0.7)))) {
+    selected.set(seed.article.id, seed.article);
+  }
+
+  if (selected.size === 0) return selectLocalCandidateArticles(root, question, limit);
   return [...selected.values()].slice(0, limit);
 }
 
@@ -293,7 +380,12 @@ export async function retrieveLegalDocumentCandidates(
     addArticleToCollected(collected, article);
   }
 
-  for (const article of selectLocalCandidateArticles(root, question, options.localSeedLimit ?? 8)) {
+  for (const article of await selectIndexedCandidateArticles(
+    root,
+    question,
+    options.model ?? defaultModel,
+    options.localSeedLimit ?? 8,
+  )) {
     addArticleToCollected(collected, article);
   }
 
