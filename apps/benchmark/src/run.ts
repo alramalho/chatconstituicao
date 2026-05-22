@@ -77,7 +77,13 @@ async function runProvider(
         latencyMs: Date.now() - startedAt,
         ...result,
       };
-      console.log(`    ok ${Date.now() - startedAt}ms`);
+      const expandDebug = result.retrievalDebug?.expand as
+        | { indexCount?: number; hybridCount?: number; unionCount?: number; contractedCount?: number; finalCount?: number }
+        | undefined;
+      const expandLabel = expandDebug
+        ? ` index=${expandDebug.indexCount ?? 0} hybrid=${expandDebug.hybridCount ?? 0} union=${expandDebug.unionCount ?? 0} contracted=${expandDebug.contractedCount ?? 0} final=${expandDebug.finalCount ?? 0}`
+        : "";
+      console.log(`    ok ${Date.now() - startedAt}ms${expandLabel}`);
       return answer;
     } catch (err) {
       const answer: ProviderAnswer = {

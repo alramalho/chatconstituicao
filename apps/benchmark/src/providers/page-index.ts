@@ -1,12 +1,8 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import {
-  navigateLegalDocument,
-  retrieveLegalDocumentCandidates,
-  selectLegalDocumentCandidates,
-} from "../../../api/src/agent/navigate.js";
+import { retrieveLegalDocumentCandidates } from "../../../api/src/agent/navigate.js";
 import { buildAnswerSystemPrompt } from "../../../api/src/agent/prompt.js";
-import { hybridSearchArticleCandidates, hybridSearchArticles } from "../../../api/src/agent/hybrid-search.js";
+import { hybridSearchArticleCandidates } from "../../../api/src/agent/hybrid-search.js";
 import { LEGAL_DOCUMENTS } from "../../../api/src/data/documents.js";
 import { benchmarkModel, defaultModel } from "../model.js";
 import type { BenchmarkQuestion, Provider } from "../types.js";
@@ -14,16 +10,14 @@ import type { BenchmarkQuestion, Provider } from "../types.js";
 const document = LEGAL_DOCUMENTS["codigo-civil"];
 const navigationModel = process.env.BENCHMARK_NAVIGATION_MODEL ?? defaultModel("google/gemini-3-flash");
 const answerModel = process.env.BENCHMARK_ANSWER_MODEL ?? defaultModel("openai/gpt-5.4-mini");
-const useHybridSearch = process.env.BENCHMARK_HYBRID_SEARCH === "true";
-const retrievalMode = process.env.BENCHMARK_RETRIEVAL_MODE ?? "local";
 const expandNeighborWindow = Number.parseInt(process.env.BENCHMARK_EXPAND_NEIGHBORS ?? "3", 10);
 const useRerank = process.env.BENCHMARK_RERANK_CONTEXT === "true";
 const rerankLimit = Number.parseInt(process.env.BENCHMARK_RERANK_LIMIT ?? "12", 10);
-const candidateArticleLimit = Number.parseInt(process.env.BENCHMARK_CANDIDATE_ARTICLE_LIMIT ?? "120", 10);
 const localSeedLimit = Number.parseInt(process.env.BENCHMARK_LOCAL_SEED_LIMIT ?? "8", 10);
 const maxExpandedArticles = Number.parseInt(process.env.BENCHMARK_MAX_EXPANDED_ARTICLES ?? "24", 10);
 const finalNeighborWindow = Number.parseInt(process.env.BENCHMARK_FINAL_NEIGHBORS ?? "1", 10);
 const useExpandContract = process.env.BENCHMARK_EXPAND_CONTRACT !== "false";
+const expandSource = process.env.BENCHMARK_EXPAND_SOURCE ?? "index-hybrid";
 const hybridCandidateLimit = Number.parseInt(process.env.BENCHMARK_HYBRID_CANDIDATE_LIMIT ?? "18", 10);
 const hybridLambda = Number.parseFloat(process.env.BENCHMARK_HYBRID_LAMBDA ?? "0");
 const contractLimit = Number.parseInt(process.env.BENCHMARK_CONTRACT_LIMIT ?? "14", 10);
@@ -51,6 +45,11 @@ const ContractOutput = z.object({
 });
 
 type ArticleRef = { id: string; title: string; content: string };
+type ExpandResult = {
+  articleRefs: ArticleRef[];
+  indexArticleRefs: ArticleRef[];
+  hybridArticleRefs: ArticleRef[];
+};
 
 function buildContext(articleRefs: ArticleRef[]): string {
   return articleRefs
@@ -133,34 +132,38 @@ function expandSelectedArticleRefs(selected: ArticleRef[], candidates: ArticleRe
   return [...expanded.values()];
 }
 
+async function expandArticleRefs(question: BenchmarkQuestion): Promise<ExpandResult> {
+  const indexEnabled = expandSource === "index" || expandSource === "index-hybrid";
+  const hybridEnabled = expandSource === "hybrid" || expandSource === "index-hybrid";
+
+  const indexArticleRefs = indexEnabled
+    ? (await retrieveLegalDocumentCandidates(document, question.question, {
+        model: benchmarkModel(navigationModel),
+        expandNeighborWindow,
+        maxExpandedArticles,
+        localSeedLimit,
+      })).articleRefs
+    : [];
+  const hybridArticleRefs = hybridEnabled
+    ? hybridSearchArticleCandidates(document, question.question, {
+        limit: hybridCandidateLimit,
+        minScore: hybridLambda,
+      }).map((candidate) => candidate.article)
+    : [];
+
+  return {
+    articleRefs: mergeArticleRefs(indexArticleRefs, hybridArticleRefs),
+    indexArticleRefs,
+    hybridArticleRefs: mergeArticleRefs(hybridArticleRefs),
+  };
+}
+
 export class PageIndexProvider implements Provider {
   name = "page-index";
 
   async answer(question: BenchmarkQuestion) {
-    const seedArticles = useHybridSearch ? hybridSearchArticles(document, question.question) : [];
-    const navigate =
-      retrievalMode === "selector"
-        ? selectLegalDocumentCandidates
-        : retrievalMode === "tree"
-          ? navigateLegalDocument
-          : retrieveLegalDocumentCandidates;
-    const { articleRefs } = await navigate(document, question.question, {
-      model: benchmarkModel(navigationModel),
-      seedArticles,
-      expandNeighborWindow,
-      maxExpandedArticles,
-      candidateArticleLimit,
-      localSeedLimit,
-    });
-    const expandedArticleRefs = useExpandContract
-      ? mergeArticleRefs(
-          articleRefs,
-          hybridSearchArticleCandidates(document, question.question, {
-            limit: hybridCandidateLimit,
-            minScore: hybridLambda,
-          }).map((candidate) => candidate.article),
-        )
-      : articleRefs;
+    const expanded = await expandArticleRefs(question);
+    const expandedArticleRefs = expanded.articleRefs;
     const contractedArticleRefs = await contractArticleRefs(question, expandedArticleRefs);
     const rerankedArticleRefs = await rerankArticleRefs(question, contractedArticleRefs);
     const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, expandedArticleRefs, finalNeighborWindow);
@@ -198,6 +201,19 @@ Pergunta: ${question.question}`,
       citations: object.citations,
       retrievedArticles: answerArticleRefs.map((article) => article.id),
       selectedSourceArticles: object.citations.map((citation) => citation.articleId).filter(Boolean),
+      retrievalDebug: {
+        expand: {
+          source: expandSource,
+          indexCount: expanded.indexArticleRefs.length,
+          hybridCount: expanded.hybridArticleRefs.length,
+          unionCount: expandedArticleRefs.length,
+          contractedCount: contractedArticleRefs.length,
+          finalCount: answerArticleRefs.length,
+          indexArticleIds: expanded.indexArticleRefs.map((article) => article.id),
+          hybridArticleIds: expanded.hybridArticleRefs.map((article) => article.id),
+          contractedArticleIds: contractedArticleRefs.map((article) => article.id),
+        },
+      },
     };
   }
 }

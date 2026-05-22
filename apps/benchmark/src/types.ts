@@ -24,6 +24,7 @@ export type ProviderAnswer = {
   citations?: AnswerCitation[];
   selectedSourceArticles?: string[];
   retrievedArticles?: string[];
+  retrievalDebug?: Record<string, unknown>;
 };
 
 export type JudgeResult = {
