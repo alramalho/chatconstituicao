@@ -6,7 +6,7 @@ import {
   selectLegalDocumentCandidates,
 } from "../../../api/src/agent/navigate.js";
 import { buildAnswerSystemPrompt } from "../../../api/src/agent/prompt.js";
-import { hybridSearchArticles } from "../../../api/src/agent/hybrid-search.js";
+import { hybridSearchArticleCandidates, hybridSearchArticles } from "../../../api/src/agent/hybrid-search.js";
 import { LEGAL_DOCUMENTS } from "../../../api/src/data/documents.js";
 import { benchmarkModel, defaultModel } from "../model.js";
 import type { BenchmarkQuestion, Provider } from "../types.js";
@@ -23,6 +23,10 @@ const candidateArticleLimit = Number.parseInt(process.env.BENCHMARK_CANDIDATE_AR
 const localSeedLimit = Number.parseInt(process.env.BENCHMARK_LOCAL_SEED_LIMIT ?? "8", 10);
 const maxExpandedArticles = Number.parseInt(process.env.BENCHMARK_MAX_EXPANDED_ARTICLES ?? "24", 10);
 const finalNeighborWindow = Number.parseInt(process.env.BENCHMARK_FINAL_NEIGHBORS ?? "1", 10);
+const useExpandContract = process.env.BENCHMARK_EXPAND_CONTRACT !== "false";
+const hybridCandidateLimit = Number.parseInt(process.env.BENCHMARK_HYBRID_CANDIDATE_LIMIT ?? "18", 10);
+const hybridLambda = Number.parseFloat(process.env.BENCHMARK_HYBRID_LAMBDA ?? "0");
+const contractLimit = Number.parseInt(process.env.BENCHMARK_CONTRACT_LIMIT ?? "14", 10);
 
 const AnswerOutput = z.object({
   answer: z.string(),
@@ -37,6 +41,12 @@ const AnswerOutput = z.object({
 
 const RerankOutput = z.object({
   articleIds: z.array(z.string()),
+  reasoning: z.string(),
+});
+
+const ContractOutput = z.object({
+  selectedArticleIds: z.array(z.string()),
+  rejectedArticleIds: z.array(z.string()),
   reasoning: z.string(),
 });
 
@@ -78,6 +88,33 @@ Escolhe até ${rerankLimit} articleIds. Mantém artigos complementares quando a 
   return selected.length ? selected : articleRefs.slice(0, rerankLimit);
 }
 
+async function contractArticleRefs(question: BenchmarkQuestion, articleRefs: ArticleRef[]): Promise<ArticleRef[]> {
+  if (!useExpandContract || articleRefs.length <= contractLimit) return articleRefs;
+
+  const { object } = await generateObject({
+    model: benchmarkModel(navigationModel),
+    schema: ContractOutput,
+    prompt: `Seleciona os artigos do Código Civil necessários para responder à pergunta.
+
+Pergunta:
+${question.question}
+
+Artigos candidatos completos:
+${articleRefs
+  .map((article) => `[${article.id}] ${article.title}\n${article.content}`)
+  .join("\n\n---\n\n")}
+
+Devolve até ${contractLimit} selectedArticleIds. Mantém todos os artigos necessários para regra principal, exceções, prazos, ónus de prova, imputabilidade, consequências e reconciliação entre normas. Remove artigos claramente laterais. Usa apenas IDs presentes acima.`,
+  });
+
+  const byId = new Map(articleRefs.map((article) => [article.id, article]));
+  const selected = object.selectedArticleIds
+    .map((id) => byId.get(id))
+    .filter((article): article is ArticleRef => Boolean(article));
+
+  return selected.length ? selected : articleRefs.slice(0, contractLimit);
+}
+
 function expandSelectedArticleRefs(selected: ArticleRef[], candidates: ArticleRef[], window: number): ArticleRef[] {
   if (window <= 0) return selected;
 
@@ -115,8 +152,18 @@ export class PageIndexProvider implements Provider {
       candidateArticleLimit,
       localSeedLimit,
     });
-    const rerankedArticleRefs = await rerankArticleRefs(question, articleRefs);
-    const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, articleRefs, finalNeighborWindow);
+    const expandedArticleRefs = useExpandContract
+      ? mergeArticleRefs(
+          articleRefs,
+          hybridSearchArticleCandidates(document, question.question, {
+            limit: hybridCandidateLimit,
+            minScore: hybridLambda,
+          }).map((candidate) => candidate.article),
+        )
+      : articleRefs;
+    const contractedArticleRefs = await contractArticleRefs(question, expandedArticleRefs);
+    const rerankedArticleRefs = await rerankArticleRefs(question, contractedArticleRefs);
+    const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, expandedArticleRefs, finalNeighborWindow);
     const context = buildContext(answerArticleRefs);
 
     const { object } = await generateObject({
@@ -153,4 +200,19 @@ Pergunta: ${question.question}`,
       selectedSourceArticles: object.citations.map((citation) => citation.articleId).filter(Boolean),
     };
   }
+}
+
+function mergeArticleRefs(...groups: (ArticleRef[] | { id: string; title: string; content?: string }[])[]): ArticleRef[] {
+  const merged = new Map<string, ArticleRef>();
+  for (const group of groups) {
+    for (const article of group) {
+      if (!article.content) continue;
+      merged.set(article.id, {
+        id: article.id,
+        title: article.title,
+        content: article.content,
+      });
+    }
+  }
+  return [...merged.values()];
 }

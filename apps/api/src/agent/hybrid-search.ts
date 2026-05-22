@@ -53,6 +53,16 @@ type IndexedDocument = {
   articleByRowid: Map<number, LegalDocumentNode>;
 };
 
+export type HybridSearchOptions = {
+  limit?: number;
+  minScore?: number;
+};
+
+export type ScoredLegalDocumentArticle = {
+  article: LegalDocumentNode;
+  score: number;
+};
+
 const indexes = new WeakMap<LegalDocumentConfig, IndexedDocument>();
 
 function collectArticles(node: LegalDocumentNode, out: LegalDocumentNode[] = []): LegalDocumentNode[] {
@@ -194,10 +204,20 @@ export function hybridSearchArticles(
   question: string,
   limit = DEFAULT_LIMIT,
 ): LegalDocumentNode[] {
+  return hybridSearchArticleCandidates(document, question, { limit }).map((candidate) => candidate.article);
+}
+
+export function hybridSearchArticleCandidates(
+  document: LegalDocumentConfig,
+  question: string,
+  options: HybridSearchOptions = {},
+): ScoredLegalDocumentArticle[] {
   const { db, articleByRowid } = getIndex(document);
   const prefix = document.id.replace(/[^a-z0-9_]/gi, "_");
   const ftsTable = `${prefix}_articles_fts`;
   const vecTable = `${prefix}_article_vecs`;
+  const limit = options.limit ?? DEFAULT_LIMIT;
+  const minScore = options.minScore ?? 0;
   const scores = new Map<number, number>();
 
   const vectorRows = db
@@ -236,8 +256,12 @@ export function hybridSearchArticles(
   }
 
   return [...scores.entries()]
+    .filter(([, score]) => score >= minScore)
     .sort((a, b) => b[1] - a[1])
     .slice(0, limit)
-    .map(([rowid]) => articleByRowid.get(rowid))
-    .filter((article): article is LegalDocumentNode => Boolean(article));
+    .map(([rowid, score]) => {
+      const article = articleByRowid.get(rowid);
+      return article ? { article, score } : null;
+    })
+    .filter((candidate): candidate is ScoredLegalDocumentArticle => Boolean(candidate));
 }

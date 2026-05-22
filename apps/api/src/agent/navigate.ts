@@ -2,7 +2,7 @@ import { generateObject } from "ai";
 import { gateway } from "ai";
 import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
-import codigoCivilIndex from "../data/codigo-civil.index.json" with { type: "json" };
+import codigoCivilStructure from "../data/codigo-civil.structure.json" with { type: "json" };
 import { NavigationDecision } from "./schemas.js";
 import { buildNavigationPrompt } from "./prompt.js";
 import { z } from "zod";
@@ -176,9 +176,9 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
   return [...selected.values()].slice(0, limit);
 }
 
-type CodigoCivilIndexSection = (typeof codigoCivilIndex.sections)[number];
+type CodigoCivilStructureNode = (typeof codigoCivilStructure.nodes)[number];
 
-function buildIndexPrompt(question: string, sections: CodigoCivilIndexSection[]): string {
+function buildIndexPrompt(question: string, sections: CodigoCivilStructureNode[]): string {
   return `Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
 
 Pergunta:
@@ -186,36 +186,27 @@ ${question}
 
 Secções candidatas:
 ${sections
-  .map((section) => {
-    const headings = section.articleTitles
-      .map((article) => `${article.id.replace("codigo-civil.", "")} ${article.title}`)
-      .join("; ");
-    return `[${section.id}] ${section.title}
-Termos: ${section.terms.slice(0, 18).join(", ")}
-Artigos: ${headings}`;
-  })
+  .map((section) => `[${section.id}] ${section.path.join(" > ")} (${section.firstArticleNumber}.º-${section.lastArticleNumber}.º)`)
   .join("\n")}
 
 Escolhe até 6 sectionIds. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
 }
 
-function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilIndexSection, number][] {
+function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilStructureNode, number][] {
   if (root.id !== "codigo-civil" || tokens.length === 0) return [];
 
-  return codigoCivilIndex.sections
+  return codigoCivilStructure.nodes
     .map((section) => {
       const title = normalizeSelectorText(section.title);
-      const text = normalizeSelectorText(section.text);
-      const terms = new Set(section.terms);
+      const text = normalizeSelectorText(section.path.join(" "));
       let score = 0;
 
       for (const token of tokens) {
-        if (terms.has(token)) score += 20;
         if (title.includes(token)) score += 8;
         if (text.includes(token)) score += token.length > 5 ? 3 : 1;
       }
 
-      return [section, score] as [CodigoCivilIndexSection, number];
+      return [section, score] as [CodigoCivilStructureNode, number];
     })
     .filter(([, score]) => score > 0)
     .sort((a, b) => b[1] - a[1]);
@@ -233,13 +224,13 @@ async function selectIndexedCandidateArticles(
   const articles = collectLeafArticles(root);
   const byId = new Map(articles.map((article) => [article.id, article]));
   const selectedSectionScores = new Map<string, number>();
-  const candidateSections = scoreIndexSections(root, tokens).slice(0, 36).map(([section]) => section);
+  const candidateSections = [...codigoCivilStructure.nodes];
 
   try {
     const { object } = await generateObject({
       model,
       schema: IndexSectionSelection,
-      prompt: buildIndexPrompt(question, candidateSections.length ? candidateSections : [...codigoCivilIndex.sections].slice(0, 36)),
+      prompt: buildIndexPrompt(question, candidateSections),
     });
 
     object.sectionIds.slice(0, 8).forEach((sectionId, index) => {
@@ -256,7 +247,7 @@ async function selectIndexedCandidateArticles(
   }
 
   const articleSectionBoosts = new Map<string, number>();
-  for (const section of codigoCivilIndex.sections) {
+  for (const section of codigoCivilStructure.nodes) {
     const sectionScore = selectedSectionScores.get(section.id);
     if (!sectionScore) continue;
     for (const articleId of section.articleIds) {
