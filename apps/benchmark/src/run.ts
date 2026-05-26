@@ -152,6 +152,13 @@ function average(values: number[]): number {
   return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
+function median(values: number[]): number {
+  if (!values.length) return 0;
+  const sorted = values.slice().sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2 === 0 ? (sorted[middle - 1] + sorted[middle]) / 2 : sorted[middle];
+}
+
 function groupedAverage(
   questions: BenchmarkQuestion[],
   results: JudgeResult[],
@@ -193,6 +200,7 @@ function summarize(questions: BenchmarkQuestion[], answers: ProviderAnswer[], re
     averageRetrievalPrecision: retrievalPrecisionValues.length ? average(retrievalPrecisionValues) : undefined,
     averageRetrievalF2: retrievalF2Values.length ? average(retrievalF2Values) : undefined,
     averageLatencyMs: average(answers.map((answer) => answer.latencyMs)),
+    medianLatencyMs: median(answers.map((answer) => answer.latencyMs)),
     byDifficulty: groupedAverage(questions, results, "difficulty"),
     byReasoningType: groupedAverage(questions, results, "reasoningType"),
   };
@@ -216,7 +224,8 @@ function printSummary(runs: RunResult[]): void {
     if (run.summary.averageRetrievalF2 !== undefined) {
       console.log(`  retrieval F2: ${(run.summary.averageRetrievalF2 * 100).toFixed(1)}%`);
     }
-    console.log(`  latency: ${run.summary.averageLatencyMs.toFixed(0)}ms`);
+    console.log(`  latency avg: ${run.summary.averageLatencyMs.toFixed(0)}ms`);
+    console.log(`  latency median: ${run.summary.medianLatencyMs.toFixed(0)}ms`);
   }
   console.log("=".repeat(72));
 }

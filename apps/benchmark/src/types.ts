@@ -56,6 +56,7 @@ export type RunResult = {
     averageRetrievalPrecision?: number;
     averageRetrievalF2?: number;
     averageLatencyMs: number;
+    medianLatencyMs: number;
     byDifficulty: Record<string, { count: number; avgOverallScore: number }>;
     byReasoningType: Record<string, { count: number; avgOverallScore: number }>;
   };
