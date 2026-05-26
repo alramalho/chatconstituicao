@@ -22,6 +22,7 @@ const expandSource = process.env.BENCHMARK_EXPAND_SOURCE ?? "index-hybrid";
 const hybridCandidateLimit = Number.parseInt(process.env.BENCHMARK_HYBRID_CANDIDATE_LIMIT ?? "18", 10);
 const hybridLambda = Number.parseFloat(process.env.BENCHMARK_HYBRID_LAMBDA ?? "0");
 const contractLimit = Number.parseInt(process.env.BENCHMARK_CONTRACT_LIMIT ?? "14", 10);
+const indexTimeoutMs = Number.parseInt(process.env.BENCHMARK_INDEX_TIMEOUT_MS ?? "12000", 10);
 
 const AnswerOutput = z.object({
   answer: z.string(),
@@ -50,6 +51,8 @@ type ExpandResult = {
   articleRefs: ArticleRef[];
   indexArticleRefs: ArticleRef[];
   hybridArticleRefs: ArticleRef[];
+  indexTimedOut: boolean;
+  indexError?: string;
 };
 type StageTimings = Record<string, number>;
 
@@ -73,6 +76,22 @@ async function timeStage<T>(timings: StageTimings, name: string, fn: () => Promi
     return await fn();
   } finally {
     timings[name] = Date.now() - startedAt;
+  }
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  if (timeoutMs <= 0) return promise;
+
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
   }
 }
 
@@ -159,26 +178,48 @@ function expandSelectedArticleRefs(selected: ArticleRef[], window: number): Arti
 async function expandArticleRefs(question: BenchmarkQuestion): Promise<ExpandResult> {
   const indexEnabled = expandSource === "index" || expandSource === "index-hybrid";
   const hybridEnabled = expandSource === "hybrid" || expandSource === "index-hybrid";
+  let indexTimedOut = false;
+  let indexError: string | undefined;
 
-  const indexArticleRefs = indexEnabled
-    ? (await retrieveLegalDocumentCandidates(document, question.question, {
-        model: benchmarkModel(navigationModel),
-        expandNeighborWindow,
-        maxExpandedArticles,
-        localSeedLimit,
-      })).articleRefs
-    : [];
-  const hybridArticleRefs = hybridEnabled
-    ? (await hybridSearchArticleCandidates(document, question.question, {
+  const indexPromise = indexEnabled
+    ? withTimeout(
+        retrieveLegalDocumentCandidates(document, question.question, {
+          model: benchmarkModel(navigationModel),
+          expandNeighborWindow,
+          maxExpandedArticles,
+          localSeedLimit,
+        }),
+        indexTimeoutMs,
+        "index expansion",
+      )
+    : undefined;
+  const hybridPromise = hybridEnabled
+    ? hybridSearchArticleCandidates(document, question.question, {
         limit: hybridCandidateLimit,
         minScore: hybridLambda,
-      })).map((candidate) => candidate.article)
-    : [];
+      })
+    : undefined;
+
+  const [indexResult, hybridResult] = await Promise.allSettled([indexPromise, hybridPromise]);
+  const indexArticleRefs =
+    indexResult.status === "fulfilled" && indexResult.value ? indexResult.value.articleRefs : [];
+  if (indexResult.status === "rejected") {
+    indexError = indexResult.reason instanceof Error ? indexResult.reason.message : String(indexResult.reason);
+    indexTimedOut = indexError.includes("timed out");
+  }
+
+  const hybridArticleRefs =
+    hybridResult.status === "fulfilled" && hybridResult.value
+      ? hybridResult.value.map((candidate) => candidate.article)
+      : [];
+  if (hybridResult.status === "rejected") throw hybridResult.reason;
 
   return {
     articleRefs: mergeArticleRefs(indexArticleRefs, hybridArticleRefs),
     indexArticleRefs,
     hybridArticleRefs: mergeArticleRefs(hybridArticleRefs),
+    indexTimedOut,
+    indexError,
   };
 }
 
@@ -244,6 +285,8 @@ Pergunta: ${question.question}`,
           hybridArticleIds: expanded.hybridArticleRefs.map((article) => article.id),
           contractedArticleIds: contractedArticleRefs.map((article) => article.id),
           finalArticleIds: answerArticleRefs.map((article) => article.id),
+          indexTimedOut: expanded.indexTimedOut,
+          indexError: expanded.indexError,
         },
         timings,
       },
