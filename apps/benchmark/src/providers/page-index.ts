@@ -5,6 +5,7 @@ import { buildAnswerSystemPrompt } from "../../../api/src/agent/prompt.js";
 import { hybridSearchArticleCandidates } from "../../../api/src/agent/hybrid-search.js";
 import { LEGAL_DOCUMENTS } from "../../../api/src/data/documents.js";
 import { benchmarkModel, defaultModel } from "../model.js";
+import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { BenchmarkQuestion, Provider } from "../types.js";
 
 const document = LEGAL_DOCUMENTS["codigo-civil"];
@@ -50,11 +51,29 @@ type ExpandResult = {
   indexArticleRefs: ArticleRef[];
   hybridArticleRefs: ArticleRef[];
 };
+type StageTimings = Record<string, number>;
+
+const allDocumentArticleRefs = collectArticleRefs(document.root);
+const documentArticleIndexById = new Map(allDocumentArticleRefs.map((article, index) => [article.id, index]));
 
 function buildContext(articleRefs: ArticleRef[]): string {
   return articleRefs
     .map((article) => `[${article.id}] ${article.title}:\n${article.content}`)
     .join("\n\n---\n\n");
+}
+
+function collectArticleRefs(node: LegalDocumentNode): ArticleRef[] {
+  if (node.content) return [{ id: node.id, title: node.title, content: node.content }];
+  return (node.children ?? []).flatMap((child) => collectArticleRefs(child));
+}
+
+async function timeStage<T>(timings: StageTimings, name: string, fn: () => Promise<T>): Promise<T> {
+  const startedAt = Date.now();
+  try {
+    return await fn();
+  } finally {
+    timings[name] = Date.now() - startedAt;
+  }
 }
 
 async function rerankArticleRefs(question: BenchmarkQuestion, articleRefs: ArticleRef[]): Promise<ArticleRef[]> {
@@ -114,22 +133,27 @@ Devolve até ${contractLimit} selectedArticleIds. Mantém todos os artigos neces
   return selected.length ? selected : articleRefs.slice(0, contractLimit);
 }
 
-function expandSelectedArticleRefs(selected: ArticleRef[], candidates: ArticleRef[], window: number): ArticleRef[] {
+function sortArticleRefsByDocumentOrder(articleRefs: ArticleRef[]): ArticleRef[] {
+  return articleRefs
+    .slice()
+    .sort((a, b) => (documentArticleIndexById.get(a.id) ?? Number.MAX_SAFE_INTEGER) - (documentArticleIndexById.get(b.id) ?? Number.MAX_SAFE_INTEGER));
+}
+
+function expandSelectedArticleRefs(selected: ArticleRef[], window: number): ArticleRef[] {
   if (window <= 0) return selected;
 
-  const candidateIndex = new Map(candidates.map((article, index) => [article.id, index]));
   const expanded = new Map(selected.map((article) => [article.id, article]));
 
   for (const article of selected) {
-    const index = candidateIndex.get(article.id);
+    const index = documentArticleIndexById.get(article.id);
     if (index === undefined) continue;
     for (let offset = -window; offset <= window; offset++) {
-      const neighbor = candidates[index + offset];
+      const neighbor = allDocumentArticleRefs[index + offset];
       if (neighbor) expanded.set(neighbor.id, neighbor);
     }
   }
 
-  return [...expanded.values()];
+  return sortArticleRefsByDocumentOrder([...expanded.values()]);
 }
 
 async function expandArticleRefs(question: BenchmarkQuestion): Promise<ExpandResult> {
@@ -162,25 +186,31 @@ export class PageIndexProvider implements Provider {
   name = "page-index";
 
   async answer(question: BenchmarkQuestion) {
-    const expanded = await expandArticleRefs(question);
+    const timings: StageTimings = {};
+    const expanded = await timeStage(timings, "expandMs", () => expandArticleRefs(question));
     const expandedArticleRefs = expanded.articleRefs;
-    const contractedArticleRefs = await contractArticleRefs(question, expandedArticleRefs);
-    const rerankedArticleRefs = await rerankArticleRefs(question, contractedArticleRefs);
-    const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, expandedArticleRefs, finalNeighborWindow);
+    const contractedArticleRefs = await timeStage(timings, "contractMs", () =>
+      contractArticleRefs(question, expandedArticleRefs),
+    );
+    const rerankedArticleRefs = await timeStage(timings, "rerankMs", () =>
+      rerankArticleRefs(question, contractedArticleRefs),
+    );
+    const answerArticleRefs = expandSelectedArticleRefs(rerankedArticleRefs, finalNeighborWindow);
     const context = buildContext(answerArticleRefs);
 
-    const { object } = await generateObject({
-      model: benchmarkModel(answerModel),
-      schema: AnswerOutput,
-      system: `${buildAnswerSystemPrompt(document)}
+    const { object } = await timeStage(timings, "answerMs", () =>
+      generateObject({
+        model: benchmarkModel(answerModel),
+        schema: AnswerOutput,
+        system: `${buildAnswerSystemPrompt(document)}
 
 ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
 
 ${context || "Nenhum artigo relevante encontrado."}`,
-      messages: [
-        {
-          role: "user",
-          content: `Responde à pergunta de forma prática e fundamentada.
+        messages: [
+          {
+            role: "user",
+            content: `Responde à pergunta de forma prática e fundamentada.
 
 Devolve também citações estruturadas. Cada citação deve apontar para um artigo efetivamente usado na resposta e incluir:
 - articleId, se estiver visível no contexto;
@@ -192,9 +222,10 @@ Inclui uma citação para cada artigo que dê uma regra, requisito, exceção, p
 Antes de concluir, verifica se a resposta cobriu: regra principal, exceções ou requisitos, prazos/procedimento, ónus/imputabilidade e consequência prática, quando esses pontos aparecerem nos artigos fornecidos.
 
 Pergunta: ${question.question}`,
-        },
-      ],
-    });
+          },
+        ],
+      }),
+    );
 
     return {
       answer: object.answer,
@@ -212,7 +243,9 @@ Pergunta: ${question.question}`,
           indexArticleIds: expanded.indexArticleRefs.map((article) => article.id),
           hybridArticleIds: expanded.hybridArticleRefs.map((article) => article.id),
           contractedArticleIds: contractedArticleRefs.map((article) => article.id),
+          finalArticleIds: answerArticleRefs.map((article) => article.id),
         },
+        timings,
       },
     };
   }
