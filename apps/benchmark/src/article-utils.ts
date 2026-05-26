@@ -51,6 +51,11 @@ export function citationsToArticleIds(citations: AnswerCitation[] | undefined): 
   ];
 }
 
+export function normalizeArticleIds(ids: string[] | undefined): string[] {
+  if (!ids?.length) return [];
+  return [...new Set(ids.filter((id) => articleById.has(id)))];
+}
+
 export function buildExpectedSources(ids: string[]): string {
   return ids
     .map((id) => {

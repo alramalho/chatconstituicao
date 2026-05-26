@@ -1,6 +1,15 @@
 import { generateObject } from "ai";
 import { z } from "zod";
-import { buildExpectedSources, citationRecall, quoteSupport, retrievalF2, retrievalPrecision, retrievalRecall } from "./article-utils.js";
+import {
+  buildExpectedSources,
+  citationRecall,
+  citationsToArticleIds,
+  normalizeArticleIds,
+  quoteSupport,
+  retrievalF2,
+  retrievalPrecision,
+  retrievalRecall,
+} from "./article-utils.js";
 import { benchmarkModel, defaultModel } from "./model.js";
 import type { BenchmarkQuestion, JudgeResult, ProviderAnswer } from "./types.js";
 
@@ -14,9 +23,12 @@ const JudgeOutput = z.object({
 export async function judge(question: BenchmarkQuestion, answer: ProviderAnswer): Promise<JudgeResult> {
   const deterministicCitationScore = citationRecall(answer.citations, question.expectedArticles);
   const deterministicQuoteSupport = quoteSupport(answer.citations);
-  const deterministicRetrievalRecall = retrievalRecall(answer.retrievedArticles, question.expectedArticles);
-  const deterministicRetrievalPrecision = retrievalPrecision(answer.retrievedArticles, question.expectedArticles);
-  const deterministicRetrievalF2 = retrievalF2(answer.retrievedArticles, question.expectedArticles);
+  const selectedSources = normalizeArticleIds(answer.selectedSourceArticles);
+  const citedSources = citationsToArticleIds(answer.citations);
+  const sourceArticles = selectedSources.length ? selectedSources : citedSources.length ? citedSources : answer.retrievedArticles;
+  const deterministicRetrievalRecall = retrievalRecall(sourceArticles, question.expectedArticles);
+  const deterministicRetrievalPrecision = retrievalPrecision(sourceArticles, question.expectedArticles);
+  const deterministicRetrievalF2 = retrievalF2(sourceArticles, question.expectedArticles);
 
   const { object } = await generateObject({
     model: benchmarkModel(judgeModel),

@@ -45,7 +45,7 @@ Providers return structured citations:
 }
 ```
 
-Citation recall checks whether the provider cited the expected article ids. Quote support checks whether each `sourceQuote` appears in the cited article text after normalization. Retrieval/source-selection metrics are computed from observable selected sources: page-index context articles for `page-index`, and structured citation articles for `raw-gpt`.
+Citation recall checks whether the provider cited the expected article ids. Quote support checks whether each `sourceQuote` appears in the cited article text after normalization. Retrieval/source-selection metrics are computed from final used source articles: `selectedSourceArticles` when present, otherwise structured citations, and only then provider context articles as a fallback.
 
 ## Running
 

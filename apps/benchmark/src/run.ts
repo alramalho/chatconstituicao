@@ -13,6 +13,17 @@ const maxBackoffMs = 30_000;
 const defaultConcurrency = Number.parseInt(process.env.BENCHMARK_CONCURRENCY ?? "2", 10);
 const defaultJudgeConcurrency = Number.parseInt(process.env.BENCHMARK_JUDGE_CONCURRENCY ?? "3", 10);
 
+async function sourceArticleIds(answer: ProviderAnswer): Promise<string[] | undefined> {
+  const { citationsToArticleIds, normalizeArticleIds } = await import("./article-utils.js");
+  const selected = normalizeArticleIds(answer.selectedSourceArticles);
+  if (selected.length) return selected;
+
+  const cited = citationsToArticleIds(answer.citations);
+  if (cited.length) return cited;
+
+  return answer.retrievedArticles;
+}
+
 async function withRetry<T>(fn: () => Promise<T>, label: string): Promise<T> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
@@ -108,23 +119,24 @@ async function judgeAnswers(
 
   if (skipJudge) {
     const { citationRecall, quoteSupport, retrievalF2, retrievalPrecision, retrievalRecall } = await import("./article-utils.js");
-    return answers.map((answer) => {
+    return Promise.all(answers.map(async (answer) => {
       const question = questionsById.get(answer.questionId)!;
       const citationScore = citationRecall(answer.citations, question.expectedArticles);
       const quoteSupportScore = quoteSupport(answer.citations);
+      const sourceArticles = await sourceArticleIds(answer);
       return {
         questionId: answer.questionId,
         provider: answer.provider,
         answerScore: 0,
         citationScore,
         quoteSupportScore,
-        retrievalRecall: retrievalRecall(answer.retrievedArticles, question.expectedArticles),
-        retrievalPrecision: retrievalPrecision(answer.retrievedArticles, question.expectedArticles),
-        retrievalF2: retrievalF2(answer.retrievedArticles, question.expectedArticles),
+        retrievalRecall: retrievalRecall(sourceArticles, question.expectedArticles),
+        retrievalPrecision: retrievalPrecision(sourceArticles, question.expectedArticles),
+        retrievalF2: retrievalF2(sourceArticles, question.expectedArticles),
         overallScore: 0.67 * citationScore + 0.33 * quoteSupportScore,
-        explanation: "Judge skipped; overallScore combines deterministic citation and quote support scores.",
+        explanation: "Judge skipped; retrieval metrics use final selected/cited source articles.",
       };
-    });
+    }));
   }
 
   return mapWithConcurrency(answers, concurrency, async (answer) => {
