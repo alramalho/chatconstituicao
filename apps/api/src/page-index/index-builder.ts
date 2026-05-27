@@ -1,4 +1,5 @@
 import codigoCivilStructure from "../data/codigo-civil.structure.json" with { type: "json" };
+import dedent from "dedent";
 
 export type CodigoCivilStructureNode = (typeof codigoCivilStructure.nodes)[number];
 
@@ -26,13 +27,17 @@ export function buildCompactCodigoCivilIndex(question: string, sections = codigo
     })
     .join("\n");
 
-  return `Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
+  return dedent`
+    Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
 
-Pergunta:
-${question}
+    Pergunta:
+    ${question}
 
-Índice compacto. A indentação indica hierarquia; os números entre parênteses são intervalos de artigos:
-${sectionLines}
+    Índice compacto. A indentação indica hierarquia; os números entre parênteses são intervalos de artigos:
+    ${sectionLines}
 
-Escolhe até 6 sectionIds, usando ids como s123. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
+    Escolhe até 6 sectionIds, usando ids como s123.
+    Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares.
+    Devolve apenas ids existentes no índice.
+  `;
 }

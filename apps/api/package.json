@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "@chatconstituicao/shared": "workspace:*",
-    "@supabase/supabase-js": "^2.49.0",
     "ai": "^6.0.0",
     "cors": "^2.8.5",
+    "dedent": "^1.7.2",
     "dotenv": "^16.4.0",
     "express": "^5.0.0",
     "sqlite-vec": "^0.1.9",
