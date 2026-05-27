@@ -178,18 +178,31 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
 
 type CodigoCivilStructureNode = (typeof codigoCivilStructure.nodes)[number];
 
+const structureNodeByShortId = new Map<string, CodigoCivilStructureNode>(
+  codigoCivilStructure.nodes.map((section, index) => [`s${index + 1}`, section] as const),
+);
+const shortIdByStructureNodeId = new Map<string, string>(
+  codigoCivilStructure.nodes.map((section, index) => [section.id, `s${index + 1}`] as const),
+);
+
 function buildIndexPrompt(question: string, sections: CodigoCivilStructureNode[]): string {
+  const sectionLines = sections
+    .map((section) => {
+      const shortId = shortIdByStructureNodeId.get(section.id) ?? section.id;
+      const depth = Math.max(0, section.path.length - 1);
+      return `${"  ".repeat(depth)}${shortId} ${section.title} (${section.firstArticleNumber}-${section.lastArticleNumber})`;
+    })
+    .join("\n");
+
   return `Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
 
 Pergunta:
 ${question}
 
-Secções candidatas:
-${sections
-  .map((section) => `[${section.id}] ${section.path.join(" > ")} (${section.firstArticleNumber}.º-${section.lastArticleNumber}.º)`)
-  .join("\n")}
+Índice compacto. A indentação indica hierarquia; os números entre parênteses são intervalos de artigos:
+${sectionLines}
 
-Escolhe até 6 sectionIds. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
+Escolhe até 6 sectionIds, usando ids como s123. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
 }
 
 function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilStructureNode, number][] {
@@ -234,7 +247,8 @@ async function selectIndexedCandidateArticles(
     });
 
     object.sectionIds.slice(0, 8).forEach((sectionId, index) => {
-      selectedSectionScores.set(sectionId, 80 - index * 8);
+      const section = structureNodeByShortId.get(sectionId) ?? codigoCivilStructure.nodes.find((node) => node.id === sectionId);
+      if (section) selectedSectionScores.set(section.id, 80 - index * 8);
     });
   } catch {
     // If section selection fails, fall back to deterministic index scoring.
