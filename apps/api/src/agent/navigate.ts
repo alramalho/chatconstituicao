@@ -2,7 +2,12 @@ import { generateObject } from "ai";
 import { gateway } from "ai";
 import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
-import codigoCivilStructure from "../data/codigo-civil.structure.json" with { type: "json" };
+import {
+  buildCompactCodigoCivilIndex,
+  getCodigoCivilStructureNodes,
+  resolveCodigoCivilSectionId,
+  type CodigoCivilStructureNode,
+} from "../page-index/index-builder.js";
 import { NavigationDecision } from "./schemas.js";
 import { buildNavigationPrompt } from "./prompt.js";
 import { z } from "zod";
@@ -176,39 +181,14 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
   return [...selected.values()].slice(0, limit);
 }
 
-type CodigoCivilStructureNode = (typeof codigoCivilStructure.nodes)[number];
-
-const structureNodeByShortId = new Map<string, CodigoCivilStructureNode>(
-  codigoCivilStructure.nodes.map((section, index) => [`s${index + 1}`, section] as const),
-);
-const shortIdByStructureNodeId = new Map<string, string>(
-  codigoCivilStructure.nodes.map((section, index) => [section.id, `s${index + 1}`] as const),
-);
-
 function buildIndexPrompt(question: string, sections: CodigoCivilStructureNode[]): string {
-  const sectionLines = sections
-    .map((section) => {
-      const shortId = shortIdByStructureNodeId.get(section.id) ?? section.id;
-      const depth = Math.max(0, section.path.length - 1);
-      return `${"  ".repeat(depth)}${shortId} ${section.title} (${section.firstArticleNumber}-${section.lastArticleNumber})`;
-    })
-    .join("\n");
-
-  return `Seleciona as secções do índice do Código Civil mais prováveis para responder à pergunta.
-
-Pergunta:
-${question}
-
-Índice compacto. A indentação indica hierarquia; os números entre parênteses são intervalos de artigos:
-${sectionLines}
-
-Escolhe até 6 sectionIds, usando ids como s123. Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares. Devolve apenas ids existentes no índice.`;
+  return buildCompactCodigoCivilIndex(question, sections);
 }
 
 function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilStructureNode, number][] {
   if (root.id !== "codigo-civil" || tokens.length === 0) return [];
 
-  return codigoCivilStructure.nodes
+  return getCodigoCivilStructureNodes()
     .map((section) => {
       const title = normalizeSelectorText(section.title);
       const text = normalizeSelectorText(section.path.join(" "));
@@ -237,7 +217,7 @@ async function selectIndexedCandidateArticles(
   const articles = collectLeafArticles(root);
   const byId = new Map(articles.map((article) => [article.id, article]));
   const selectedSectionScores = new Map<string, number>();
-  const candidateSections = [...codigoCivilStructure.nodes];
+  const candidateSections = getCodigoCivilStructureNodes();
 
   try {
     const { object } = await generateObject({
@@ -247,8 +227,8 @@ async function selectIndexedCandidateArticles(
     });
 
     object.sectionIds.slice(0, 8).forEach((sectionId, index) => {
-      const section = structureNodeByShortId.get(sectionId) ?? codigoCivilStructure.nodes.find((node) => node.id === sectionId);
-      if (section) selectedSectionScores.set(section.id, 80 - index * 8);
+      const resolvedSectionId = resolveCodigoCivilSectionId(sectionId);
+      if (resolvedSectionId) selectedSectionScores.set(resolvedSectionId, 80 - index * 8);
     });
   } catch {
     // If section selection fails, fall back to deterministic index scoring.
@@ -261,7 +241,7 @@ async function selectIndexedCandidateArticles(
   }
 
   const articleSectionBoosts = new Map<string, number>();
-  for (const section of codigoCivilStructure.nodes) {
+  for (const section of getCodigoCivilStructureNodes()) {
     const sectionScore = selectedSectionScores.get(section.id);
     if (!sectionScore) continue;
     for (const articleId of section.articleIds) {

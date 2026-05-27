@@ -2,9 +2,9 @@ import { Router } from "express";
 import { streamText, gateway } from "ai";
 import { authMiddleware } from "../middleware/auth.js";
 import { checkQuota, decrementQuota } from "../services/quota.js";
-import { navigateLegalDocument } from "../agent/navigate.js";
 import { buildAnswerSystemPrompt } from "../agent/prompt.js";
 import { getDocumentForHost } from "../data/documents.js";
+import { pageIndexSettingsFromEnv, preparePageIndexContext } from "../page-index/algorithm.js";
 
 const router = Router();
 const quotaGateEnabled = process.env.QUOTA_GATE_ENABLED === "true";
@@ -31,23 +31,33 @@ router.post("/", authMiddleware, async (req, res) => {
     return;
   }
 
-  const { context, articleRefs } = await navigateLegalDocument(
+  const model = gateway("google/gemini-3-flash");
+  const pageIndexContext = await preparePageIndexContext({
     document,
-    lastUserMessage.content
-  );
+    question: lastUserMessage.content,
+    models: {
+      index: model,
+      rerank: model,
+      answer: model,
+    },
+    settings: pageIndexSettingsFromEnv(),
+    logger: (event) => {
+      console.log(`[page-index] ${event.stage}: ${event.message}`, event.data ?? {});
+    },
+  });
 
   const systemWithContext = `${buildAnswerSystemPrompt(document)}
 
 ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
 
-${context || "Nenhum artigo relevante encontrado."}`;
+${pageIndexContext.context || "Nenhum artigo relevante encontrado."}`;
 
   if (quotaGateEnabled) {
     await decrementQuota(userId, ip);
   }
 
   const result = streamText({
-    model: gateway("google/gemini-3-flash"),
+    model,
     system: systemWithContext,
     messages,
   });
