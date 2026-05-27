@@ -2,15 +2,10 @@ import { useState } from "react";
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
-type PaymentBannerProps = {
-  token: string | undefined;
-};
-
-export function PaymentBanner({ token }: PaymentBannerProps) {
+export function PaymentBanner() {
   const [loading, setLoading] = useState(false);
 
   async function handlePurchase() {
-    if (!token) return;
     setLoading(true);
 
     try {
@@ -18,8 +13,8 @@ export function PaymentBanner({ token }: PaymentBannerProps) {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
 
       if (!res.ok) throw new Error("Erro ao criar sessão de pagamento");
@@ -38,7 +33,7 @@ export function PaymentBanner({ token }: PaymentBannerProps) {
       </p>
       <button
         onClick={handlePurchase}
-        disabled={loading || !token}
+        disabled={loading}
         className="text-xs tracking-wide uppercase text-ink transition-colors disabled:opacity-40 cursor-pointer border-b border-dashed border-ink/40  pb-0.5"
       >
         {loading ? "A processar..." : "Desbloquear 50 perguntas — 5\u20ac"}

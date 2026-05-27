@@ -1,5 +1,5 @@
 import type { QuotaInfo } from "@chatconstituicao/shared";
-import { supabase } from "../lib/supabase.js";
+import { prisma } from "../lib/prisma.js";
 
 const anonymousUsage = new Map<string, number>();
 
@@ -15,22 +15,20 @@ export async function checkQuota(
     return { questionsUsed: used, questionsLimit: ANON_LIMIT, authenticated: false };
   }
 
-  const { data } = await supabase
-    .from("user_quotas")
-    .select("questions_used, questions_limit")
-    .eq("user_id", userId)
-    .single();
+  const data = await prisma.userQuota.findUnique({
+    where: { userId },
+  });
 
   if (!data) {
-    await supabase
-      .from("user_quotas")
-      .insert({ user_id: userId, questions_used: 0, questions_limit: FREE_LIMIT });
+    await prisma.userQuota.create({
+      data: { userId, questionsUsed: 0, questionsLimit: FREE_LIMIT },
+    });
     return { questionsUsed: 0, questionsLimit: FREE_LIMIT, authenticated: true };
   }
 
   return {
-    questionsUsed: data.questions_used,
-    questionsLimit: data.questions_limit,
+    questionsUsed: data.questionsUsed,
+    questionsLimit: data.questionsLimit,
     authenticated: true,
   };
 }
@@ -45,7 +43,11 @@ export async function decrementQuota(
     return;
   }
 
-  await supabase.rpc("increment_questions_used", { uid: userId });
+  await prisma.userQuota.upsert({
+    where: { userId },
+    create: { userId, questionsUsed: 1, questionsLimit: FREE_LIMIT },
+    update: { questionsUsed: { increment: 1 } },
+  });
 }
 
 export async function resetQuota(
@@ -57,15 +59,20 @@ export async function resetQuota(
     return;
   }
 
-  await supabase
-    .from("user_quotas")
-    .update({ questions_used: 0 })
-    .eq("user_id", userId);
+  await prisma.userQuota.upsert({
+    where: { userId },
+    create: { userId, questionsUsed: 0, questionsLimit: FREE_LIMIT },
+    update: { questionsUsed: 0 },
+  });
 }
 
 export async function addQuota(
   userId: string,
   amount: number
 ): Promise<void> {
-  await supabase.rpc("add_questions_limit", { uid: userId, amount });
+  await prisma.userQuota.upsert({
+    where: { userId },
+    create: { userId, questionsUsed: 0, questionsLimit: FREE_LIMIT + amount },
+    update: { questionsLimit: { increment: amount } },
+  });
 }

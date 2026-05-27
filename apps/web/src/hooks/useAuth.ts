@@ -1,52 +1,38 @@
-import { useEffect, useState, useCallback } from "react";
-import type { User, Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { useCallback } from "react";
+import type { AuthUser } from "@chatconstituicao/shared";
+import { authClient } from "@/lib/auth-client";
 
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const session = authClient.useSession();
+  const user = (session.data?.user ?? null) as AuthUser | null;
 
   const signIn = useCallback(
     async (email: string, password: string) => {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      if (error) throw error;
+      const { error } = await authClient.signIn.email({ email, password });
+      if (error) throw new Error(error.message ?? "Ocorreu um erro");
+      await session.refetch();
     },
-    [],
+    [session],
   );
 
   const signUp = useCallback(
     async (email: string, password: string) => {
-      const { error } = await supabase.auth.signUp({ email, password });
-      if (error) throw error;
+      const { error } = await authClient.signUp.email({
+        email,
+        password,
+        name: email,
+      });
+      if (error) throw new Error(error.message ?? "Ocorreu um erro");
+      await session.refetch();
     },
-    [],
+    [session],
   );
 
   const signOut = useCallback(async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  }, []);
+    const { error } = await authClient.signOut();
+    if (error) throw new Error(error.message ?? "Ocorreu um erro");
+    await session.refetch();
+  }, [session]);
 
-  return { user, session, signIn, signUp, signOut, loading };
+  return { user, session: session.data, signIn, signUp, signOut, loading: session.isPending };
 }

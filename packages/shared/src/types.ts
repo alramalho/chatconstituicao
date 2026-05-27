@@ -22,3 +22,10 @@ export type QuotaInfo = {
   questionsLimit: number;
   authenticated: boolean;
 };
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string | null;
+};

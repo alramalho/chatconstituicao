@@ -18,7 +18,6 @@ import { documentConfig } from "@/lib/document";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 type ChatPanelProps = {
-  token: string | undefined;
   isExhausted: boolean;
   isAuthenticated: boolean;
   onSourceClick: (articleId: string, quotedText?: string) => void;
@@ -27,7 +26,6 @@ type ChatPanelProps = {
 };
 
 export function ChatPanel({
-  token,
   isExhausted,
   isAuthenticated,
   onSourceClick,
@@ -38,7 +36,7 @@ export function ChatPanel({
 
   const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
     api: `${API_URL}/api/chat`,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    credentials: "include",
     streamProtocol: "text",
     onFinish: () => {
       onMessageSent();
@@ -152,7 +150,7 @@ export function ChatPanel({
 
       {isExhausted && (
         isAuthenticated
-          ? <PaymentBanner token={token} />
+          ? <PaymentBanner />
           : <div className="mx-8 mb-4 py-4 border-t border-stone/60 text-center">
               <p className="text-xs text-ink mb-3 italic">
                 Limite de perguntas atingido.

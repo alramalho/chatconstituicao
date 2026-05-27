@@ -22,7 +22,7 @@ function setAnonUsed(n: number) {
   }
 }
 
-export function useQuota(token: string | undefined, enabled = true) {
+export function useQuota(authenticated: boolean, enabled = true) {
   const [quota, setQuota] = useState<QuotaInfo | null>(null);
 
   const refreshQuota = useCallback(async () => {
@@ -31,7 +31,7 @@ export function useQuota(token: string | undefined, enabled = true) {
       return;
     }
 
-    if (!token) {
+    if (!authenticated) {
       const used = getAnonUsed();
       setQuota({ questionsUsed: used, questionsLimit: ANON_LIMIT, authenticated: false });
       return;
@@ -39,7 +39,7 @@ export function useQuota(token: string | undefined, enabled = true) {
 
     try {
       const res = await fetch(`${API_URL}/api/quota`, {
-        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include",
       });
       if (res.ok) {
         const data = (await res.json()) as QuotaInfo;
@@ -48,7 +48,7 @@ export function useQuota(token: string | undefined, enabled = true) {
     } catch {
       // silently fail
     }
-  }, [token, enabled]);
+  }, [authenticated, enabled]);
 
   useEffect(() => {
     refreshQuota();

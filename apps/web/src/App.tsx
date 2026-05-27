@@ -16,8 +16,8 @@ const quotaGateEnabled = import.meta.env.VITE_QUOTA_GATE_ENABLED === "true";
 
 export default function App() {
   const { user, session, signIn, signUp, signOut } = useAuth();
-  const token = session?.access_token;
-  const { quota, refreshQuota, isExhausted, incrementAnon, resetAnon } = useQuota(token, quotaGateEnabled);
+  const authenticated = Boolean(session?.user);
+  const { quota, refreshQuota, isExhausted, incrementAnon, resetAnon } = useQuota(authenticated, quotaGateEnabled);
 
   useEffect(() => {
     if (!quotaGateEnabled) return;
@@ -25,9 +25,7 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     if (params.get("refill") === "chapim") {
       resetAnon();
-      const headers: Record<string, string> = {};
-      if (token) headers.Authorization = `Bearer ${token}`;
-      fetch(`${API_URL}/api/refill-chapim`, { method: "POST", headers })
+      fetch(`${API_URL}/api/refill-chapim`, { method: "POST", credentials: "include" })
         .then(() => refreshQuota())
         .finally(() => {
           params.delete("refill");
@@ -35,7 +33,7 @@ export default function App() {
           window.history.replaceState({}, "", window.location.pathname + (clean ? `?${clean}` : ""));
         });
     }
-  }, [token, resetAnon, refreshQuota]);
+  }, [resetAnon, refreshQuota]);
 
   useEffect(() => {
     const dev = {
@@ -55,12 +53,12 @@ export default function App() {
 
   const handleMessageSent = useCallback(() => {
     if (!quotaGateEnabled) return;
-    if (!token) {
+    if (!authenticated) {
       incrementAnon();
     } else {
       refreshQuota();
     }
-  }, [token, incrementAnon, refreshQuota]);
+  }, [authenticated, incrementAnon, refreshQuota]);
 
   const handleSourceClick = useCallback(
     (articleId: string, quotedText?: string) => {
@@ -108,7 +106,6 @@ export default function App() {
             <div className="h-full border-[3px] border-ink p-1">
               <div className="h-full border border-ink flex flex-col">
                 <ChatPanel
-                  token={token}
                   isExhausted={quotaGateEnabled && isExhausted}
                   isAuthenticated={!!user}
                   onSourceClick={handleSourceClick}
@@ -150,7 +147,6 @@ export default function App() {
           onOpenChange={setShowQuota}
           quota={quota}
           onLoginClick={() => setShowAuth(true)}
-          token={token}
         />
       )}
 

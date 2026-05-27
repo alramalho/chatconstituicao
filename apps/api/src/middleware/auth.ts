@@ -1,11 +1,18 @@
 import type { Request, Response, NextFunction } from "express";
-import { supabase } from "../lib/supabase.js";
-import type { User } from "@supabase/supabase-js";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "../lib/auth.js";
+
+type RequestUser = {
+  id: string;
+  email: string;
+  name?: string;
+  image?: string | null;
+};
 
 declare global {
   namespace Express {
     interface Request {
-      user: User | null;
+      user: RequestUser | null;
     }
   }
 }
@@ -15,19 +22,17 @@ export async function authMiddleware(
   _res: Response,
   next: NextFunction
 ) {
-  const header = req.headers.authorization;
-  const token = header?.startsWith("Bearer ") ? header.slice(7) : null;
+  const session = await auth.api.getSession({
+    headers: fromNodeHeaders(req.headers),
+  });
 
-  if (!token) {
-    req.user = null;
-    return next();
-  }
-
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser(token);
-
-  req.user = error ? null : user;
+  req.user = session?.user
+    ? {
+        id: session.user.id,
+        email: session.user.email,
+        name: session.user.name,
+        image: session.user.image,
+      }
+    : null;
   next();
 }

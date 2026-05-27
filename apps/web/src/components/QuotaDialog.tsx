@@ -14,15 +14,13 @@ type QuotaDialogProps = {
   onOpenChange: (open: boolean) => void;
   quota: QuotaInfo | null;
   onLoginClick: () => void;
-  token: string | undefined;
 };
 
 const API_URL = import.meta.env.VITE_API_URL as string;
 
-function QuotaContent({ quota, onLoginClick, token, onClose }: {
+function QuotaContent({ quota, onLoginClick, onClose }: {
   quota: QuotaInfo | null;
   onLoginClick: () => void;
-  token: string | undefined;
   onClose: () => void;
 }) {
   const [loading, setLoading] = useState(false);
@@ -32,15 +30,14 @@ function QuotaContent({ quota, onLoginClick, token, onClose }: {
   const remaining = Math.max(0, quota.questionsLimit - quota.questionsUsed);
 
   async function handlePurchase() {
-    if (!token) return;
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/stripe/create-checkout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
+        credentials: "include",
       });
       if (!res.ok) throw new Error();
       const { url } = (await res.json()) as { url: string };
@@ -116,7 +113,7 @@ function useIsMobile() {
   return mobile;
 }
 
-export function QuotaDialog({ open, onOpenChange, quota, onLoginClick, token }: QuotaDialogProps) {
+export function QuotaDialog({ open, onOpenChange, quota, onLoginClick }: QuotaDialogProps) {
   const isMobile = useIsMobile();
 
   if (isMobile) {
@@ -132,7 +129,6 @@ export function QuotaDialog({ open, onOpenChange, quota, onLoginClick, token }: 
             <QuotaContent
               quota={quota}
               onLoginClick={onLoginClick}
-              token={token}
               onClose={() => onOpenChange(false)}
             />
           </Drawer.Content>
@@ -155,7 +151,6 @@ export function QuotaDialog({ open, onOpenChange, quota, onLoginClick, token }: 
         <QuotaContent
           quota={quota}
           onLoginClick={onLoginClick}
-          token={token}
           onClose={() => onOpenChange(false)}
         />
       </DialogContent>

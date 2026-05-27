@@ -1,8 +1,8 @@
-import type { User } from "@supabase/supabase-js";
+import type { AuthUser } from "@chatconstituicao/shared";
 import { documentConfig } from "@/lib/document";
 
 type HeaderProps = {
-  user: User | null;
+  user: AuthUser | null;
   onLoginClick: () => void;
   onLogout: () => void;
 };
