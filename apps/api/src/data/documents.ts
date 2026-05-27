@@ -1,6 +1,11 @@
 import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import { CONSTITUICAO } from "./constituicao.js";
 import { CODIGO_CIVIL } from "./codigo-civil.js";
+import {
+  CODIGO_CIVIL_INDEX,
+  CONSTITUICAO_INDEX,
+  type LegalDocumentIndex,
+} from "./legal-indexes.js";
 
 export type LegalDocumentId = "constituicao" | "codigo-civil";
 
@@ -11,8 +16,8 @@ export type LegalDocumentConfig = {
   domainLabel: string;
   articlePlural: string;
   specialistRole: string;
-  stripeProductName: string;
   root: LegalDocumentNode;
+  index: LegalDocumentIndex;
 };
 
 export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocumentConfig> = {
@@ -23,8 +28,8 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocumentConfig> = {
     domainLabel: "direito constitucional português",
     articlePlural: "artigos da Constituição",
     specialistRole: "especialista em direito constitucional português",
-    stripeProductName: "50 perguntas — Chat Constituição",
     root: CONSTITUICAO,
+    index: CONSTITUICAO_INDEX,
   },
   "codigo-civil": {
     id: "codigo-civil",
@@ -33,8 +38,8 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocumentConfig> = {
     domainLabel: "direito civil português",
     articlePlural: "artigos do Código Civil",
     specialistRole: "especialista em direito civil português",
-    stripeProductName: "50 perguntas — Chat Código Civil",
     root: CODIGO_CIVIL,
+    index: CODIGO_CIVIL_INDEX,
   },
 };
 

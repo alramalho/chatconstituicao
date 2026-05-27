@@ -15,7 +15,6 @@
     "dotenv": "^16.4.0",
     "express": "^5.0.0",
     "sqlite-vec": "^0.1.9",
-    "stripe": "^17.7.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {

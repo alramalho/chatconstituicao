@@ -10,7 +10,6 @@ import {
   MessageContent,
 } from "@/components/ai-elements/message";
 import { SourcePill } from "./SourcePill";
-import { PaymentBanner } from "./PaymentBanner";
 import { parseSourceMarkers } from "@/lib/sources";
 import type { SourceSnippet } from "@chatconstituicao/shared";
 import { documentConfig } from "@/lib/document";
@@ -18,31 +17,17 @@ import { documentConfig } from "@/lib/document";
 const API_URL = import.meta.env.VITE_API_URL as string;
 
 type ChatPanelProps = {
-  token: string | undefined;
-  isExhausted: boolean;
-  isAuthenticated: boolean;
   onSourceClick: (articleId: string, quotedText?: string) => void;
-  onMessageSent: () => void;
-  onLoginClick: () => void;
 };
 
 export function ChatPanel({
-  token,
-  isExhausted,
-  isAuthenticated,
   onSourceClick,
-  onMessageSent,
-  onLoginClick,
 }: ChatPanelProps) {
   const formRef = useRef<HTMLFormElement>(null);
 
   const { messages, input, setInput, handleSubmit, isLoading, error } = useChat({
     api: `${API_URL}/api/chat`,
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
     streamProtocol: "text",
-    onFinish: () => {
-      onMessageSent();
-    },
   });
 
   const lastMsg = messages[messages.length - 1];
@@ -58,7 +43,7 @@ export function ChatPanel({
 
   function handleSend(e?: React.FormEvent) {
     if (e) e.preventDefault();
-    if (!input.trim() || isLoading || isExhausted) return;
+    if (!input.trim() || isLoading) return;
     handleSubmit(e);
   }
 
@@ -150,22 +135,6 @@ export function ChatPanel({
         </ConversationContent>
       </Conversation>
 
-      {isExhausted && (
-        isAuthenticated
-          ? <PaymentBanner token={token} />
-          : <div className="mx-8 mb-4 py-4 border-t border-stone/60 text-center">
-              <p className="text-xs text-ink mb-3 italic">
-                Limite de perguntas atingido.
-              </p>
-              <button
-                onClick={onLoginClick}
-                className="text-xs tracking-wide uppercase text-ink transition-colors cursor-pointer border-b border-dashed border-ink/40 pb-0.5"
-              >
-                Crie uma conta para continuar
-              </button>
-            </div>
-      )}
-
       <form ref={formRef} onSubmit={handleSend} className="border-t border-ink/10 px-6 pb-5 pt-3">
         <div className="flex items-end gap-3">
           <textarea
@@ -173,12 +142,8 @@ export function ChatPanel({
             value={input}
             onChange={handleChange}
             onKeyDown={handleKeyDown}
-            disabled={isLoading || isExhausted}
-            placeholder={
-              isExhausted
-                ? "Limite de perguntas atingido"
-                : documentConfig.inputPlaceholder
-            }
+            disabled={isLoading}
+            placeholder={documentConfig.inputPlaceholder}
             className="flex-1 resize-none bg-transparent text-sm text-ink placeholder:text-ink-faint/60 outline-none py-1 font-mono disabled:opacity-40 disabled:cursor-not-allowed"
           />
           {chatStatus === "submitted" ? (
@@ -188,7 +153,7 @@ export function ChatPanel({
           ) : (
             <button
               type="submit"
-              disabled={isExhausted || !input.trim() || isLoading}
+              disabled={!input.trim() || isLoading}
               className="shrink-0 text-[11px] uppercase tracking-wider text-ink-light hover:text-ink transition-colors disabled:opacity-20 disabled:cursor-not-allowed cursor-pointer font-mono pb-1"
             >
               enviar

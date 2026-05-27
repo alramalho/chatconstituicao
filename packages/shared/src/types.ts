@@ -16,9 +16,3 @@ export type SourceSnippet = {
   breadcrumb: string;
   pdfPage?: number;
 };
-
-export type QuotaInfo = {
-  questionsUsed: number;
-  questionsLimit: number;
-  authenticated: boolean;
-};

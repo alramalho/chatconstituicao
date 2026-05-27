@@ -49,7 +49,7 @@ export async function fetchCandidates(input: PageIndexInput): Promise<PageIndexF
   let indexTimedOut = false;
   let indexError: string | undefined;
 
-  input.logger?.({ stage: "fetch", message: "starting candidate fetch", data: { expandSource: settings.expandSource } });
+  input.logger?.info({ stage: "fetch", expandSource: settings.expandSource }, "starting candidate fetch");
 
   const indexPromise = indexEnabled
     ? withTimeout(
@@ -85,17 +85,17 @@ export async function fetchCandidates(input: PageIndexInput): Promise<PageIndexF
   if (hybridResult.status === "rejected") throw hybridResult.reason;
 
   const candidates = mergeArticleRefs(indexCandidates, hybridCandidates);
-  input.logger?.({
-    stage: "fetch",
-    message: "finished candidate fetch",
-    data: {
+  input.logger?.info(
+    {
+      stage: "fetch",
       indexCount: indexCandidates.length,
       hybridCount: hybridCandidates.length,
       unionCount: candidates.length,
       indexTimedOut,
       indexError,
     },
-  });
+    "finished candidate fetch",
+  );
 
   return {
     candidates,
@@ -113,7 +113,7 @@ export async function rerankCandidates(
   const settings = resolvePageIndexSettings(input.settings);
   if (candidates.length <= settings.rerankLimit) return candidates;
 
-  input.logger?.({ stage: "rerank", message: "starting candidate rerank", data: { candidateCount: candidates.length } });
+  input.logger?.info({ stage: "rerank", candidateCount: candidates.length }, "starting candidate rerank");
   const { object } = await generateObject({
     model: input.models.rerank,
     schema: RerankOutput,
@@ -130,7 +130,7 @@ export async function rerankCandidates(
     .filter((article): article is PageIndexArticleRef => Boolean(article));
 
   const result = selected.length ? selected : candidates.slice(0, settings.rerankLimit);
-  input.logger?.({ stage: "rerank", message: "finished candidate rerank", data: { selectedCount: result.length } });
+  input.logger?.info({ stage: "rerank", selectedCount: result.length }, "finished candidate rerank");
   return result;
 }
 
@@ -138,7 +138,7 @@ export function injectCandidates(input: PageIndexInput, reranked: PageIndexArtic
   const settings = resolvePageIndexSettings(input.settings);
   const allArticles = collectArticleRefs(input.document.root);
   const answerArticleRefs = expandWithDocumentNeighbors(reranked, allArticles, settings.finalNeighborWindow);
-  input.logger?.({ stage: "inject", message: "prepared answer context", data: { finalCount: answerArticleRefs.length } });
+  input.logger?.info({ stage: "inject", finalCount: answerArticleRefs.length }, "prepared answer context");
   return answerArticleRefs;
 }
 

@@ -56,6 +56,13 @@ type IndexedDocument = {
   embeddingDimensions: number;
 };
 
+type HybridSearchTables = {
+  articlesTable: string;
+  ftsTable: string;
+  vecTable: string;
+  metaTable: string;
+};
+
 export type HybridSearchOptions = {
   limit?: number;
   minScore?: number;
@@ -203,81 +210,122 @@ async function embedTexts(inputs: string[]): Promise<number[][]> {
   return embeddings;
 }
 
-async function getIndex(document: LegalDocumentConfig): Promise<IndexedDocument> {
-  const existing = indexes.get(document);
-  if (existing) return existing;
-
+function openHybridSearchDb(): DatabaseSync {
   mkdirSync(dirname(DB_PATH), { recursive: true });
   const db = new DatabaseSync(DB_PATH, { allowExtension: true });
   sqliteVec.load(db);
+  return db;
+}
 
+function hybridSearchTables(document: LegalDocumentConfig): HybridSearchTables {
   const prefix = document.id.replace(/[^a-z0-9_]/gi, "_");
-  const articlesTable = `${prefix}_articles`;
-  const ftsTable = `${prefix}_articles_fts`;
-  const vecTable = `${prefix}_article_vecs`;
-  const metaTable = `${prefix}_search_meta`;
-  const dimensions = embeddingDimensions();
+  return {
+    articlesTable: `${prefix}_articles`,
+    ftsTable: `${prefix}_articles_fts`,
+    vecTable: `${prefix}_article_vecs`,
+    metaTable: `${prefix}_search_meta`,
+  };
+}
 
+function createHybridSearchSchema(db: DatabaseSync, tables: HybridSearchTables): void {
   db.exec(`
-    create table if not exists ${articlesTable} (
+    create table if not exists ${tables.articlesTable} (
       rowid integer primary key,
       id text not null unique,
       title text not null,
       content text not null
     );
-    create virtual table if not exists ${ftsTable}
-      using fts5(title, content, content='${articlesTable}', content_rowid='rowid', tokenize='unicode61 remove_diacritics 2');
-    create table if not exists ${metaTable} (
+    create virtual table if not exists ${tables.ftsTable}
+      using fts5(title, content, content='${tables.articlesTable}', content_rowid='rowid', tokenize='unicode61 remove_diacritics 2');
+    create table if not exists ${tables.metaTable} (
       key text primary key,
       value text not null
     );
   `);
+}
 
-  const count = db.prepare(`select count(*) as count from ${articlesTable}`).get() as { count: number };
-  const articles = collectArticles(document.root);
-  const articleByRowid = new Map<number, LegalDocumentNode>();
-  const expectedConfig = embeddingConfigKey(articles.length);
+function needsHybridSearchRebuild(
+  db: DatabaseSync,
+  tables: HybridSearchTables,
+  articles: LegalDocumentNode[],
+  expectedConfig: string,
+): boolean {
+  const count = db.prepare(`select count(*) as count from ${tables.articlesTable}`).get() as { count: number };
   const storedConfig = db
-    .prepare(`select value from ${metaTable} where key = 'embedding_config'`)
+    .prepare(`select value from ${tables.metaTable} where key = 'embedding_config'`)
     .get() as { value: string } | undefined;
-  const needsRebuild = count.count !== articles.length || storedConfig?.value !== expectedConfig;
 
-  if (needsRebuild) {
-    const embeddings = await embedTexts(articles.map((article) => `${article.title}\n${article.content ?? ""}`));
+  return count.count !== articles.length || storedConfig?.value !== expectedConfig;
+}
 
-    db.exec(`drop table if exists ${vecTable};`);
-    db.exec(`create virtual table ${vecTable} using vec0(embedding float[${dimensions}]);`);
-    const insertArticle = db.prepare(`insert into ${articlesTable}(rowid, id, title, content) values (?, ?, ?, ?)`);
-    const insertFts = db.prepare(`insert into ${ftsTable}(rowid, title, content) values (?, ?, ?)`);
-    const insertVec = db.prepare(`insert into ${vecTable}(rowid, embedding) values (?, ?)`);
-    const upsertMeta = db.prepare(
-      `insert into ${metaTable}(key, value) values ('embedding_config', ?) on conflict(key) do update set value = excluded.value`,
-    );
+function ensureVectorTable(db: DatabaseSync, tables: HybridSearchTables, dimensions: number): void {
+  db.exec(`create virtual table if not exists ${tables.vecTable} using vec0(embedding float[${dimensions}]);`);
+}
 
-    db.exec("begin");
-    try {
-      db.exec(`delete from ${articlesTable}; delete from ${ftsTable};`);
-      for (let i = 0; i < articles.length; i++) {
-        const rowid = i + 1;
-        const article = articles[i];
-        insertArticle.run(rowid, article.id, article.title, article.content ?? "");
-        insertFts.run(rowid, article.title, article.content ?? "");
-        insertVec.run(BigInt(rowid), embeddingToBuffer(embeddings[i], dimensions));
-      }
-      upsertMeta.run(expectedConfig);
-      db.exec("commit");
-    } catch (err) {
-      db.exec("rollback");
-      throw err;
+async function rebuildHybridSearchIndex(
+  db: DatabaseSync,
+  tables: HybridSearchTables,
+  articles: LegalDocumentNode[],
+  dimensions: number,
+  expectedConfig: string,
+): Promise<void> {
+  const embeddings = await embedTexts(articles.map((article) => `${article.title}\n${article.content ?? ""}`));
+
+  db.exec(`drop table if exists ${tables.vecTable};`);
+  db.exec(`create virtual table ${tables.vecTable} using vec0(embedding float[${dimensions}]);`);
+  const insertArticle = db.prepare(`insert into ${tables.articlesTable}(rowid, id, title, content) values (?, ?, ?, ?)`);
+  const insertFts = db.prepare(`insert into ${tables.ftsTable}(rowid, title, content) values (?, ?, ?)`);
+  const insertVec = db.prepare(`insert into ${tables.vecTable}(rowid, embedding) values (?, ?)`);
+  const upsertMeta = db.prepare(
+    `insert into ${tables.metaTable}(key, value) values ('embedding_config', ?) on conflict(key) do update set value = excluded.value`,
+  );
+
+  db.exec("begin");
+  try {
+    db.exec(`delete from ${tables.articlesTable}; delete from ${tables.ftsTable};`);
+    for (let i = 0; i < articles.length; i++) {
+      const rowid = i + 1;
+      const article = articles[i];
+      insertArticle.run(rowid, article.id, article.title, article.content ?? "");
+      insertFts.run(rowid, article.title, article.content ?? "");
+      insertVec.run(BigInt(rowid), embeddingToBuffer(embeddings[i], dimensions));
     }
-  } else {
-    db.exec(`create virtual table if not exists ${vecTable} using vec0(embedding float[${dimensions}]);`);
+    upsertMeta.run(expectedConfig);
+    db.exec("commit");
+  } catch (err) {
+    db.exec("rollback");
+    throw err;
   }
+}
 
+function buildArticleRowMap(articles: LegalDocumentNode[]): Map<number, LegalDocumentNode> {
+  const articleByRowid = new Map<number, LegalDocumentNode>();
   for (let i = 0; i < articles.length; i++) {
     articleByRowid.set(i + 1, articles[i]);
   }
+  return articleByRowid;
+}
 
+async function ensureHybridSearchIndex(document: LegalDocumentConfig): Promise<IndexedDocument> {
+  const existing = indexes.get(document);
+  if (existing) return existing;
+
+  const db = openHybridSearchDb();
+  const tables = hybridSearchTables(document);
+  const dimensions = embeddingDimensions();
+
+  createHybridSearchSchema(db, tables);
+
+  const articles = collectArticles(document.root);
+  const expectedConfig = embeddingConfigKey(articles.length);
+
+  if (needsHybridSearchRebuild(db, tables, articles, expectedConfig)) {
+    await rebuildHybridSearchIndex(db, tables, articles, dimensions, expectedConfig);
+  } else {
+    ensureVectorTable(db, tables, dimensions);
+  }
+
+  const articleByRowid = buildArticleRowMap(articles);
   const indexed = { db, articleByRowid, embeddingDimensions: dimensions };
   indexes.set(document, indexed);
   return indexed;
@@ -318,10 +366,8 @@ export async function hybridSearchArticleCandidates(
   question: string,
   options: HybridSearchOptions = {},
 ): Promise<ScoredLegalDocumentArticle[]> {
-  const { db, articleByRowid, embeddingDimensions: dimensions } = await getIndex(document);
-  const prefix = document.id.replace(/[^a-z0-9_]/gi, "_");
-  const ftsTable = `${prefix}_articles_fts`;
-  const vecTable = `${prefix}_article_vecs`;
+  const { db, articleByRowid, embeddingDimensions: dimensions } = await ensureHybridSearchIndex(document);
+  const { ftsTable, vecTable } = hybridSearchTables(document);
   const limit = options.limit ?? DEFAULT_LIMIT;
   const minScore = options.minScore ?? 0;
   const scores = new Map<number, number>();

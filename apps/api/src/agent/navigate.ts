@@ -2,17 +2,13 @@ import { generateObject } from "ai";
 import { gateway } from "ai";
 import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
-import {
-  buildCompactCodigoCivilIndex,
-  getCodigoCivilStructureNodes,
-  resolveCodigoCivilSectionId,
-  type CodigoCivilStructureNode,
-} from "../page-index/index-builder.js";
-import { NavigationDecision } from "./schemas.js";
-import { buildNavigationPrompt } from "./prompt.js";
+import type {
+  LegalDocumentIndex,
+  LegalIndexArticleRange,
+  LegalIndexSection,
+} from "../data/legal-indexes.js";
 import { z } from "zod";
 
-const MAX_STEPS = 7;
 const defaultModel = gateway("google/gemini-3-flash");
 type NavigationModel = Parameters<typeof generateObject>[0]["model"];
 
@@ -26,20 +22,24 @@ export type NavigationOptions = {
   seedArticles?: LegalDocumentNode[];
   expandNeighborWindow?: number;
   maxExpandedArticles?: number;
-  candidateArticleLimit?: number;
   localSeedLimit?: number;
 };
-
-const OneShotCandidateSelection = z.object({
-  articleIds: z.array(z.string()),
-  searchQueries: z.array(z.string()),
-  reasoning: z.string(),
-});
 
 const IndexSectionSelection = z.object({
   sectionIds: z.array(z.string()),
   reasoning: z.string(),
 });
+
+type ResolvedIndexSection = {
+  id: string;
+  shortId: string;
+  title: string;
+  number?: string;
+  description?: string;
+  path: string[];
+  depth: number;
+  articles: LegalIndexArticleRange[];
+};
 
 const selectorStopwords = new Set([
   "a",
@@ -73,34 +73,6 @@ const selectorStopwords = new Set([
   "uma",
 ]);
 
-const queryExpansions: [RegExp, string[]][] = [
-];
-
-function findNodeById(
-  root: LegalDocumentNode,
-  id: string
-): LegalDocumentNode | null {
-  if (root.id === id) return root;
-  for (const child of root.children ?? []) {
-    const found = findNodeById(child, id);
-    if (found) return found;
-  }
-  return null;
-}
-
-function getNodeByPath(
-  root: LegalDocumentNode,
-  path: string[]
-): LegalDocumentNode {
-  let node = root;
-  for (const id of path) {
-    const child = node.children?.find((c) => c.id === id);
-    if (!child) break;
-    node = child;
-  }
-  return node;
-}
-
 function collectLeafArticles(node: LegalDocumentNode): LegalDocumentNode[] {
   if (node.content && node.articleNumber) return [node];
   const articles: LegalDocumentNode[] = [];
@@ -126,25 +98,138 @@ function selectorTokens(value: string): string[] {
 }
 
 function expandedQuestionTokens(question: string): string[] {
-  const tokens = selectorTokens(question);
-  for (const [pattern, expansions] of queryExpansions) {
-    if (pattern.test(question)) tokens.push(...expansions);
-  }
-  return [...new Set(tokens)];
+  return [...new Set(selectorTokens(question))];
 }
 
-function selectLocalCandidateArticles(root: LegalDocumentNode, question: string, limit: number): LegalDocumentNode[] {
-  const tokens = expandedQuestionTokens(question);
-  const articles = collectLeafArticles(root);
-  const sectionScores = scoreIndexSections(root, tokens);
-  const articleSectionBoosts = new Map<string, number>();
+function collectSectionArticleRanges(section: LegalIndexSection): LegalIndexArticleRange[] {
+  if (section.articles?.length) return section.articles;
+  return (section.subsections ?? []).flatMap(collectSectionArticleRanges);
+}
 
-  for (const [section, sectionScore] of sectionScores.slice(0, Math.max(4, Math.ceil(limit / 2)))) {
-    for (const articleId of section.articleIds) {
-      articleSectionBoosts.set(articleId, (articleSectionBoosts.get(articleId) ?? 0) + sectionScore);
+function flattenLegalIndex(index: LegalDocumentIndex): ResolvedIndexSection[] {
+  const sections: ResolvedIndexSection[] = [];
+
+  function visit(section: LegalIndexSection, path: string[], depth: number): void {
+    const nextPath = [...path, section.title];
+    const shortId = `s${sections.length + 1}`;
+    sections.push({
+      id: nextPath.map(normalizeSelectorText).filter(Boolean).join("."),
+      shortId,
+      title: section.title,
+      number: section.number,
+      description: section.description,
+      path: nextPath,
+      depth,
+      articles: collectSectionArticleRanges(section),
+    });
+
+    for (const child of section.subsections ?? []) {
+      visit(child, nextPath, depth + 1);
     }
   }
 
+  for (const section of index.sections) visit(section, [], 0);
+  return sections;
+}
+
+function rangeLabel(ranges: LegalIndexArticleRange[]): string {
+  return ranges
+    .map((range) => (range.from === range.to ? `${range.from}` : `${range.from}-${range.to}`))
+    .join(", ");
+}
+
+function buildUniversalIndexPrompt(
+  document: LegalDocumentConfig,
+  question: string,
+  sections: ResolvedIndexSection[],
+): string {
+  const sectionLines = sections
+    .map((section) => {
+      const number = section.number ? `${section.number} ` : "";
+      const articles = section.articles.length ? ` (artigos ${rangeLabel(section.articles)})` : "";
+      const description = section.description ? ` — ${section.description}` : "";
+      return `${"  ".repeat(section.depth)}${section.shortId} ${number}${section.title}${articles}${description}`;
+    })
+    .join("\n");
+
+  return `Seleciona as secções do índice de ${document.title} mais prováveis para responder à pergunta.
+
+Pergunta:
+${question}
+
+Índice compacto. A indentação indica hierarquia; os números entre parênteses são intervalos de artigos:
+${sectionLines}
+
+Escolhe até 6 sectionIds, usando ids como s1, s2, s3.
+Privilegia recall: se a pergunta puder depender de regras próximas, inclui secções vizinhas ou complementares.
+Devolve apenas ids existentes no índice.`;
+}
+
+function resolveIndexSectionId(sectionId: string, sections: ResolvedIndexSection[]): ResolvedIndexSection | undefined {
+  return sections.find((section) => section.shortId === sectionId || section.id === sectionId);
+}
+
+function articleInRanges(article: LegalDocumentNode, ranges: LegalIndexArticleRange[]): boolean {
+  if (!article.articleNumber) return false;
+  return ranges.some((range) => article.articleNumber! >= range.from && article.articleNumber! <= range.to);
+}
+
+function mentionedArticleNumbers(question: string): number[] {
+  return [...question.matchAll(/\b(\d{1,4})\s*(?:\.?\s*º|o)?\b/g)].map((match) => Number(match[1]));
+}
+
+function scoreIndexSections(index: LegalDocumentIndex, tokens: string[]): [ResolvedIndexSection, number][] {
+  if (tokens.length === 0) return [];
+
+  return flattenLegalIndex(index)
+    .map((section) => {
+      const title = normalizeSelectorText(section.title);
+      const description = normalizeSelectorText(section.description ?? "");
+      const path = normalizeSelectorText(section.path.join(" "));
+      let score = 0;
+
+      for (const token of tokens) {
+        if (title.includes(token)) score += 10;
+        if (description.includes(token)) score += token.length > 5 ? 5 : 2;
+        if (path.includes(token)) score += token.length > 5 ? 3 : 1;
+      }
+
+      return [section, score] as [ResolvedIndexSection, number];
+    })
+    .filter(([, score]) => score > 0)
+    .sort((a, b) => b[1] - a[1]);
+}
+
+function applySectionBoosts(
+  articleSectionBoosts: Map<string, number>,
+  articles: LegalDocumentNode[],
+  section: ResolvedIndexSection,
+  score: number,
+): void {
+  for (const article of articles) {
+    if (articleInRanges(article, section.articles)) {
+      articleSectionBoosts.set(article.id, (articleSectionBoosts.get(article.id) ?? 0) + score);
+    }
+  }
+}
+
+function selectLocalCandidateArticles(
+  root: LegalDocumentNode,
+  question: string,
+  limit: number,
+  index?: LegalDocumentIndex,
+): LegalDocumentNode[] {
+  const tokens = expandedQuestionTokens(question);
+  const articles = collectLeafArticles(root);
+  const articleSectionBoosts = new Map<string, number>();
+
+  if (index) {
+    for (const [section, sectionScore] of scoreIndexSections(index, tokens).slice(0, Math.max(4, Math.ceil(limit / 2)))) {
+      applySectionBoosts(articleSectionBoosts, articles, section, sectionScore);
+    }
+  }
+
+  const articleNumberMatches = mentionedArticleNumbers(question);
   const scored = articles.map((article, index) => {
     const title = normalizeSelectorText(article.title);
     const content = normalizeSelectorText(article.content ?? "");
@@ -155,7 +240,7 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
       if (content.includes(token)) score += token.length > 5 ? 2 : 1;
     }
 
-    if (article.articleNumber && new RegExp(`\\b${article.articleNumber}\\b`).test(question)) score += 50;
+    if (article.articleNumber && articleNumberMatches.includes(article.articleNumber)) score += 50;
     return { article, index, score };
   });
 
@@ -181,71 +266,55 @@ function selectLocalCandidateArticles(root: LegalDocumentNode, question: string,
   return [...selected.values()].slice(0, limit);
 }
 
-function buildIndexPrompt(question: string, sections: CodigoCivilStructureNode[]): string {
-  return buildCompactCodigoCivilIndex(question, sections);
-}
-
-function scoreIndexSections(root: LegalDocumentNode, tokens: string[]): [CodigoCivilStructureNode, number][] {
-  if (root.id !== "codigo-civil" || tokens.length === 0) return [];
-
-  return getCodigoCivilStructureNodes()
-    .map((section) => {
-      const title = normalizeSelectorText(section.title);
-      const text = normalizeSelectorText(section.path.join(" "));
-      let score = 0;
-
-      for (const token of tokens) {
-        if (title.includes(token)) score += 8;
-        if (text.includes(token)) score += token.length > 5 ? 3 : 1;
-      }
-
-      return [section, score] as [CodigoCivilStructureNode, number];
-    })
-    .filter(([, score]) => score > 0)
-    .sort((a, b) => b[1] - a[1]);
-}
-
 async function selectIndexedCandidateArticles(
-  root: LegalDocumentNode,
+  document: LegalDocumentConfig,
   question: string,
   model: NavigationModel,
   limit: number,
 ): Promise<LegalDocumentNode[]> {
-  if (root.id !== "codigo-civil") return selectLocalCandidateArticles(root, question, limit);
+  const { root, index } = document;
+  if (!index) return selectLocalCandidateArticles(root, question, limit);
 
   const tokens = expandedQuestionTokens(question);
   const articles = collectLeafArticles(root);
   const byId = new Map(articles.map((article) => [article.id, article]));
   const selectedSectionScores = new Map<string, number>();
-  const candidateSections = getCodigoCivilStructureNodes();
+  const candidateSections = flattenLegalIndex(index);
 
   try {
     const { object } = await generateObject({
       model,
       schema: IndexSectionSelection,
-      prompt: buildIndexPrompt(question, candidateSections),
+      prompt: buildUniversalIndexPrompt(document, question, candidateSections),
     });
 
     object.sectionIds.slice(0, 8).forEach((sectionId, index) => {
-      const resolvedSectionId = resolveCodigoCivilSectionId(sectionId);
-      if (resolvedSectionId) selectedSectionScores.set(resolvedSectionId, 80 - index * 8);
+      const section = resolveIndexSectionId(sectionId, candidateSections);
+      if (section) selectedSectionScores.set(section.id, 80 - index * 8);
     });
   } catch {
     // If section selection fails, fall back to deterministic index scoring.
   }
 
   if (selectedSectionScores.size === 0) {
-    for (const [section, score] of scoreIndexSections(root, tokens).slice(0, 6)) {
+    for (const [section, score] of scoreIndexSections(index, tokens).slice(0, 6)) {
       selectedSectionScores.set(section.id, score);
     }
   }
 
   const articleSectionBoosts = new Map<string, number>();
-  for (const section of getCodigoCivilStructureNodes()) {
+  for (const section of candidateSections) {
     const sectionScore = selectedSectionScores.get(section.id);
     if (!sectionScore) continue;
-    for (const articleId of section.articleIds) {
-      articleSectionBoosts.set(articleId, (articleSectionBoosts.get(articleId) ?? 0) + sectionScore);
+    applySectionBoosts(articleSectionBoosts, articles, section, sectionScore);
+  }
+
+  const articleNumberMatches = mentionedArticleNumbers(question);
+  if (articleNumberMatches.length) {
+    for (const article of articles) {
+      if (article.articleNumber && articleNumberMatches.includes(article.articleNumber)) {
+        articleSectionBoosts.set(article.id, (articleSectionBoosts.get(article.id) ?? 0) + 120);
+      }
     }
   }
 
@@ -262,7 +331,7 @@ async function selectIndexedCandidateArticles(
         if (content.includes(token)) score += token.length > 5 ? 2 : 1;
       }
 
-      if (article.articleNumber && new RegExp(`\\b${article.articleNumber}\\b`).test(question)) score += 50;
+      if (article.articleNumber && articleNumberMatches.includes(article.articleNumber)) score += 50;
       return { article, score };
     })
     .filter((item): item is { article: LegalDocumentNode; score: number } => Boolean(item))
@@ -273,7 +342,7 @@ async function selectIndexedCandidateArticles(
     selected.set(seed.article.id, seed.article);
   }
 
-  if (selected.size === 0) return selectLocalCandidateArticles(root, question, limit);
+  if (selected.size === 0) return selectLocalCandidateArticles(root, question, limit, index);
   return [...selected.values()].slice(0, limit);
 }
 
@@ -286,26 +355,6 @@ function addArticleToCollected(
     title: article.title,
     content: article.content,
   });
-}
-
-function buildFlatArticleIndex(articles: LegalDocumentNode[]): string {
-  return articles
-    .map((article) => {
-      const excerpt = (article.content ?? "").replace(/\s+/g, " ").slice(0, 260);
-      return `[${article.id}] ${article.title}${excerpt ? `\n${excerpt}` : ""}`;
-    })
-    .join("\n\n");
-}
-
-function searchArticles(root: LegalDocumentNode, query: string, limit = 8): LegalDocumentNode[] {
-  const allArticles = collectLeafArticles(root);
-  let re: RegExp;
-  try {
-    re = new RegExp(query, "i");
-  } catch {
-    re = new RegExp(query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
-  }
-  return allArticles.filter((a) => re.test(a.content ?? "") || re.test(a.title)).slice(0, limit);
 }
 
 function expandCollectedArticles(
@@ -365,12 +414,7 @@ export async function retrieveLegalDocumentCandidates(
     addArticleToCollected(collected, article);
   }
 
-  for (const article of await selectIndexedCandidateArticles(
-    root,
-    question,
-    options.model ?? defaultModel,
-    options.localSeedLimit ?? 8,
-  )) {
+  for (const article of await selectIndexedCandidateArticles(document, question, options.model ?? defaultModel, options.localSeedLimit ?? 8)) {
     addArticleToCollected(collected, article);
   }
 
@@ -379,174 +423,6 @@ export async function retrieveLegalDocumentCandidates(
     collected,
     options.expandNeighborWindow ?? 0,
     options.maxExpandedArticles ?? 24,
-  );
-
-  return buildNavigationResultFromCollected(collected);
-}
-
-export async function navigateLegalDocument(
-  document: LegalDocumentConfig,
-  question: string,
-  options: NavigationOptions = {}
-): Promise<NavigationResult> {
-  const root = document.root;
-  const model = options.model ?? defaultModel;
-  let currentNode = root;
-  const path: string[] = [];
-  const collected: Map<string, { title: string; content: string }> = new Map();
-
-  for (const article of options.seedArticles ?? []) {
-    if (article.content) {
-      collected.set(article.id, {
-        title: article.title,
-        content: article.content,
-      });
-    }
-  }
-
-  for (let step = 0; step < MAX_STEPS; step++) {
-    const prompt = buildNavigationPrompt(
-      question,
-      document,
-      currentNode,
-      path,
-      [...collected.values()].map((c) => c.title)
-    );
-
-    const { object: decision } = await generateObject({
-      model,
-      schema: NavigationDecision,
-      prompt,
-    });
-
-    if (decision.action === "navigate") {
-      const child = currentNode.children?.find(
-        (c) => c.id === decision.childId
-      );
-      if (!child) break;
-      currentNode = child;
-      path.push(child.id);
-
-      if (child.content) {
-        collected.set(child.id, {
-          title: child.title,
-          content: child.content,
-        });
-      }
-    } else if (decision.action === "back") {
-      if (path.length === 0) continue;
-      path.pop();
-      currentNode = getNodeByPath(root, path);
-    } else if (decision.action === "collect") {
-      for (const artId of decision.articleIds) {
-        // Try to find in current node's subtree first, then globally
-        let node = findNodeById(currentNode, artId);
-        if (!node) node = findNodeById(root, artId);
-        if (node?.content) {
-          collected.set(node.id, {
-            title: node.title,
-            content: node.content,
-          });
-        }
-      }
-    } else if (decision.action === "search") {
-      const results = searchArticles(root, decision.query);
-      for (const node of results) {
-        if (node.content) {
-          collected.set(node.id, {
-            title: node.title,
-            content: node.content,
-          });
-        }
-      }
-    } else if (decision.action === "answer") {
-      break;
-    }
-  }
-
-  // If nothing was collected but we're at a node with articles, grab them
-  if (collected.size === 0 && currentNode.children) {
-    const leaves = collectLeafArticles(currentNode).slice(0, 5);
-    for (const leaf of leaves) {
-      if (leaf.content) {
-        collected.set(leaf.id, { title: leaf.title, content: leaf.content });
-      }
-    }
-  }
-
-  expandCollectedArticles(
-    root,
-    collected,
-    options.expandNeighborWindow ?? 0,
-    options.maxExpandedArticles ?? 50,
-  );
-
-  return buildNavigationResultFromCollected(collected);
-}
-
-export async function selectLegalDocumentCandidates(
-  document: LegalDocumentConfig,
-  question: string,
-  options: NavigationOptions = {}
-): Promise<NavigationResult> {
-  const root = document.root;
-  const model = options.model ?? defaultModel;
-  const collected: Map<string, { title: string; content: string }> = new Map();
-  const candidateArticles = selectLocalCandidateArticles(root, question, options.candidateArticleLimit ?? 120);
-
-  for (const article of options.seedArticles ?? []) {
-    if (article.content) {
-      collected.set(article.id, {
-        title: article.title,
-        content: article.content,
-      });
-    }
-  }
-
-  const { object: selection } = await generateObject({
-    model,
-    schema: OneShotCandidateSelection,
-    prompt: `Estás a selecionar artigos relevantes de ${document.title} para responder a uma pergunta jurídica.
-
-Pergunta: "${question}"
-
-Artigos candidatos pré-selecionados por pesquisa lexical local:
-${buildFlatArticleIndex(candidateArticles)}
-
-Seleciona até 12 articleIds que possam ser relevantes. Privilegia recall: inclui artigos próximos quando uma regra depende de vários artigos consecutivos.
-Se a pergunta usar linguagem comum, mapeia para os institutos jurídicos prováveis.
-Também podes devolver até 4 searchQueries curtas para procurar texto nos artigos quando o índice não for suficiente.
-
-Devolve apenas IDs existentes no índice.`,
-  });
-
-  for (const articleId of selection.articleIds.slice(0, 20)) {
-    const node = findNodeById(root, articleId);
-    if (node?.content) {
-      collected.set(node.id, {
-        title: node.title,
-        content: node.content,
-      });
-    }
-  }
-
-  for (const query of selection.searchQueries.slice(0, 4)) {
-    const results = searchArticles(root, query, 5);
-    for (const node of results) {
-      if (node.content) {
-        collected.set(node.id, {
-          title: node.title,
-          content: node.content,
-        });
-      }
-    }
-  }
-
-  expandCollectedArticles(
-    root,
-    collected,
-    options.expandNeighborWindow ?? 0,
-    options.maxExpandedArticles ?? 50,
   );
 
   return buildNavigationResultFromCollected(collected);

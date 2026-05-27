@@ -21,11 +21,6 @@ Create `/opt/chatlegal/apps/api/.env`:
 ```env
 PORT=3088
 VERCEL_AI_GATEWAY_API_KEY=
-SUPABASE_URL=
-SUPABASE_SECRET_KEY=
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-ANON_LIMIT=3
 ALLOWED_ORIGINS=https://chatconstituicao.pt,https://www.chatconstituicao.pt,https://chatcodigocivil.pt,https://www.chatcodigocivil.pt
 APP_HOST_DOCUMENT_MAP=api.chatconstituicao.pt:constituicao,api.chatcodigocivil.pt:codigo-civil
 APP_HOST_FRONTEND_MAP=api.chatconstituicao.pt:https://chatconstituicao.pt,api.chatcodigocivil.pt:https://chatcodigocivil.pt
@@ -38,9 +33,6 @@ Build the Constituição site with:
 ```sh
 VITE_DOCUMENT_ID=constituicao \
 VITE_API_URL=https://api.chatconstituicao.pt \
-VITE_SUPABASE_URL=... \
-VITE_SUPABASE_PUBLISHABLE_KEY=... \
-VITE_STRIPE_PUBLISHABLE_KEY=... \
 pnpm --filter @chatconstituicao/web build
 ```
 
@@ -49,9 +41,6 @@ Build the Código Civil site with:
 ```sh
 VITE_DOCUMENT_ID=codigo-civil \
 VITE_API_URL=https://api.chatcodigocivil.pt \
-VITE_SUPABASE_URL=... \
-VITE_SUPABASE_PUBLISHABLE_KEY=... \
-VITE_STRIPE_PUBLISHABLE_KEY=... \
 pnpm --filter @chatconstituicao/web build
 ```
 

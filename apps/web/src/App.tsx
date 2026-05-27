@@ -1,66 +1,16 @@
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback } from "react";
 import { Drawer } from "vaul";
 import { Header } from "./components/Header";
 import { ChatPanel } from "./components/ChatPanel";
 import { PdfViewer, type PdfViewerHandle } from "./components/PdfViewer";
-import { AuthModal } from "./components/AuthModal";
-import { QuotaDialog } from "./components/QuotaDialog";
-import { QuotaBar } from "./components/QuotaBar";
-import { useAuth } from "./hooks/useAuth";
-import { useQuota } from "./hooks/useQuota";
 import { documentConfig } from "./lib/document";
 
 const PDF_WIDTH = 612;
-const API_URL = import.meta.env.VITE_API_URL as string;
-const quotaGateEnabled = import.meta.env.VITE_QUOTA_GATE_ENABLED === "true";
 
 export default function App() {
-  const { user, session, signIn, signUp, signOut } = useAuth();
-  const token = session?.access_token;
-  const { quota, refreshQuota, isExhausted, incrementAnon, resetAnon } = useQuota(token, quotaGateEnabled);
-
-  useEffect(() => {
-    if (!quotaGateEnabled) return;
-
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("refill") === "chapim") {
-      resetAnon();
-      const headers: Record<string, string> = {};
-      if (token) headers.Authorization = `Bearer ${token}`;
-      fetch(`${API_URL}/api/refill-chapim`, { method: "POST", headers })
-        .then(() => refreshQuota())
-        .finally(() => {
-          params.delete("refill");
-          const clean = params.toString();
-          window.history.replaceState({}, "", window.location.pathname + (clean ? `?${clean}` : ""));
-        });
-    }
-  }, [token, resetAnon, refreshQuota]);
-
-  useEffect(() => {
-    const dev = {
-      resetQuota: () => { resetAnon(); console.log("anon quota reset"); },
-      refreshQuota: () => { refreshQuota(); console.log("quota refreshed"); },
-      logout: () => { signOut(); console.log("logged out"); },
-    };
-    (window as unknown as Record<string, unknown>).dev = dev;
-    console.log("dev commands: dev.resetQuota(), dev.refreshQuota(), dev.logout()");
-  }, [resetAnon, refreshQuota, signOut]);
-
-  const [showAuth, setShowAuth] = useState(false);
-  const [showQuota, setShowQuota] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const pdfRef = useRef<PdfViewerHandle>(null);
   const drawerPdfRef = useRef<PdfViewerHandle>(null);
-
-  const handleMessageSent = useCallback(() => {
-    if (!quotaGateEnabled) return;
-    if (!token) {
-      incrementAnon();
-    } else {
-      refreshQuota();
-    }
-  }, [token, incrementAnon, refreshQuota]);
 
   const handleSourceClick = useCallback(
     (articleId: string, quotedText?: string) => {
@@ -91,14 +41,7 @@ export default function App() {
 
         <div className="px-4 md:px-6 pt-2">
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-2">
-            <Header
-              user={user}
-              onLoginClick={() => setShowAuth(true)}
-              onLogout={signOut}
-            />
-            {quotaGateEnabled && (
-              <QuotaBar quota={quota} onClick={() => setShowQuota(true)} />
-            )}
+            <Header />
           </div>
         </div>
 
@@ -108,12 +51,7 @@ export default function App() {
             <div className="h-full border-[3px] border-ink p-1">
               <div className="h-full border border-ink flex flex-col">
                 <ChatPanel
-                  token={token}
-                  isExhausted={quotaGateEnabled && isExhausted}
-                  isAuthenticated={!!user}
                   onSourceClick={handleSourceClick}
-                  onMessageSent={handleMessageSent}
-                  onLoginClick={() => setShowAuth(true)}
                 />
               </div>
             </div>
@@ -143,24 +81,6 @@ export default function App() {
           </Drawer.Content>
         </Drawer.Portal>
       </Drawer.Root>
-
-      {quotaGateEnabled && (
-        <QuotaDialog
-          open={showQuota}
-          onOpenChange={setShowQuota}
-          quota={quota}
-          onLoginClick={() => setShowAuth(true)}
-          token={token}
-        />
-      )}
-
-      {showAuth && (
-        <AuthModal
-          onClose={() => setShowAuth(false)}
-          onSignIn={signIn}
-          onSignUp={signUp}
-        />
-      )}
     </div>
   );
 }

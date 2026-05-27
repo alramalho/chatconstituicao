@@ -1,27 +1,16 @@
 import { Router } from "express";
 import { streamText, gateway } from "ai";
-import { authMiddleware } from "../middleware/auth.js";
-import { checkQuota, decrementQuota } from "../services/quota.js";
 import { buildAnswerSystemPrompt } from "../agent/prompt.js";
 import { getDocumentForHost } from "../data/documents.js";
+import { logger } from "../lib/logger.js";
 import { pageIndexSettingsFromEnv, preparePageIndexContext } from "../page-index/algorithm.js";
+import dedent from "dedent";
 
 const router = Router();
-const quotaGateEnabled = process.env.QUOTA_GATE_ENABLED === "true";
 
-router.post("/", authMiddleware, async (req, res) => {
+router.post("/", async (req, res) => {
   const { messages } = req.body;
-  const ip = req.ip ?? "unknown";
-  const userId = req.user?.id ?? null;
   const document = getDocumentForHost(req.headers.host);
-
-  if (quotaGateEnabled) {
-    const quota = await checkQuota(userId, ip);
-    if (quota.questionsUsed >= quota.questionsLimit) {
-      res.status(429).json({ error: "Quota exceeded" });
-      return;
-    }
-  }
 
   const lastUserMessage = [...messages]
     .reverse()
@@ -31,7 +20,7 @@ router.post("/", authMiddleware, async (req, res) => {
     return;
   }
 
-  const model = gateway("google/gemini-3-flash");
+  const model = gateway("x-ai/grok-4.3");
   const pageIndexContext = await preparePageIndexContext({
     document,
     question: lastUserMessage.content,
@@ -41,20 +30,16 @@ router.post("/", authMiddleware, async (req, res) => {
       answer: model,
     },
     settings: pageIndexSettingsFromEnv(),
-    logger: (event) => {
-      console.log(`[page-index] ${event.stage}: ${event.message}`, event.data ?? {});
-    },
+    logger: logger.child({ component: "page-index", documentId: document.id }),
   });
 
-  const systemWithContext = `${buildAnswerSystemPrompt(document)}
+  const systemWithContext = dedent(`
+    ${buildAnswerSystemPrompt(document)}
 
-ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
+    ARTIGOS RELEVANTES DE ${document.title.toUpperCase()}:
 
-${pageIndexContext.context || "Nenhum artigo relevante encontrado."}`;
-
-  if (quotaGateEnabled) {
-    await decrementQuota(userId, ip);
-  }
+    ${pageIndexContext.context || "Nenhum artigo relevante encontrado."}
+  `);
 
   const result = streamText({
     model,

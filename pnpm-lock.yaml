@@ -38,9 +38,6 @@ importers:
       sqlite-vec:
         specifier: ^0.1.9
         version: 0.1.9
-      stripe:
-        specifier: ^17.7.0
-        version: 17.7.0
       zod:
         specifier: ^3.24.0
         version: 3.25.76
@@ -109,9 +106,6 @@ importers:
       '@streamdown/mermaid':
         specifier: ^1.0.2
         version: 1.0.2(react@19.2.4)
-      '@stripe/stripe-js':
-        specifier: ^5.5.0
-        version: 5.10.0
       ai:
         specifier: ^6.0.116
         version: 6.0.116(zod@3.25.76)
@@ -1484,10 +1478,6 @@ packages:
     resolution: {integrity: sha512-Fr/4sBWnAeSnxM3PcrV/+DiZe5oPMq9gOkUIAH7ZauJeuwrZ/DVzD4g0zlav6AH0axh2m/sOfrfLtY5aLT7niw==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
-
-  '@stripe/stripe-js@5.10.0':
-    resolution: {integrity: sha512-PTigkxMdMUP6B5ISS7jMqJAKhgrhZwjprDqR1eATtFfh0OpKVNp110xiH+goeVdrJ29/4LeZJR4FaHHWstsu0A==}
-    engines: {node: '>=12.16'}
 
   '@swc/core-darwin-arm64@1.15.18':
     resolution: {integrity: sha512-+mIv7uBuSaywN3C9LNuWaX1jJJ3SKfiJuE6Lr3bd+/1Iv8oMU7oLBjYMluX1UrEPzwN2qCdY6Io0yVicABoCwQ==}
@@ -3196,10 +3186,6 @@ packages:
     resolution: {integrity: sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==}
     engines: {node: '>=0.10.0'}
 
-  stripe@17.7.0:
-    resolution: {integrity: sha512-aT2BU9KkizY9SATf14WhhYVv2uOapBWX0OFWF4xvcj1mPaNotlSc2CsxpS4DS46ZueSppmCF5BX1sNYBtwBvfw==}
-    engines: {node: '>=12.*'}
-
   style-to-js@1.1.21:
     resolution: {integrity: sha512-RjQetxJrrUJLQPHbLku6U/ocGtzyjbJMP9lCNK7Ag0CNh690nSH8woqWH9u16nMjYBAok+i7JO1NP2pOy8IsPQ==}
 
@@ -4668,8 +4654,6 @@ snapshots:
     dependencies:
       mermaid: 11.13.0
       react: 19.2.4
-
-  '@stripe/stripe-js@5.10.0': {}
 
   '@swc/core-darwin-arm64@1.15.18':
     optional: true
@@ -6908,11 +6892,6 @@ snapshots:
 
   strip-json-comments@2.0.1:
     optional: true
-
-  stripe@17.7.0:
-    dependencies:
-      '@types/node': 22.19.15
-      qs: 6.15.0
 
   style-to-js@1.1.21:
     dependencies:

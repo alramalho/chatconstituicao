@@ -1,4 +1,5 @@
 import { generateObject } from "ai";
+import type { Logger } from "pino";
 import type { LegalDocumentConfig } from "../data/documents.js";
 
 export type PageIndexModel = Parameters<typeof generateObject>[0]["model"];
@@ -33,12 +34,7 @@ export type PageIndexSettings = {
   indexTimeoutMs: number;
 };
 
-export type PageIndexLogger = (event: {
-  stage: "fetch" | "rerank" | "inject" | "answer";
-  message: string;
-  elapsedMs?: number;
-  data?: Record<string, unknown>;
-}) => void;
+export type PageIndexLogger = Logger;
 
 export type PageIndexInput = {
   document: LegalDocumentConfig;
