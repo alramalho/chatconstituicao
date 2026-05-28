@@ -9,7 +9,7 @@ const dataPath = resolve(import.meta.dirname, "../data/codigo-civil.dataset.json
 const runsDir = resolve(import.meta.dirname, "../data/runs");
 const document = LEGAL_DOCUMENTS["codigo-civil"];
 const questions = JSON.parse(readFileSync(dataPath, "utf-8")) as BenchmarkQuestion[];
-const allArticles = (document.root.children ?? []).flatMap((chunk) => chunk.children ?? []);
+const allArticles = document.document.articles;
 const articleIndexById = new Map(allArticles.map((article, index) => [article.id, index]));
 
 function recall(retrieved: string[], expected: string[]): number {

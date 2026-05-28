@@ -136,7 +136,7 @@ export async function rerankCandidates(
 
 export function injectCandidates(input: PageIndexInput, reranked: PageIndexArticleRef[]): PageIndexArticleRef[] {
   const settings = resolvePageIndexSettings(input.settings);
-  const allArticles = collectArticleRefs(input.document.root);
+  const allArticles = collectArticleRefs(input.document.document);
   const answerArticleRefs = expandWithDocumentNeighbors(reranked, allArticles, settings.finalNeighborWindow);
   input.logger?.info({ stage: "inject", finalCount: answerArticleRefs.length }, "prepared answer context");
   return answerArticleRefs;

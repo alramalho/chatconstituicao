@@ -1,12 +1,12 @@
 import { generateObject } from "ai";
 import { gateway } from "ai";
-import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
+import type { LegalArticle } from "../data/types.js";
 import type {
   LegalDocumentIndex,
   LegalIndexArticleRange,
   LegalIndexSection,
-} from "../data/legal-indexes.js";
+} from "../data/types.js";
 import { z } from "zod";
 
 const defaultModel = gateway("google/gemini-3-flash");
@@ -19,7 +19,7 @@ export type NavigationResult = {
 
 export type NavigationOptions = {
   model?: NavigationModel;
-  seedArticles?: LegalDocumentNode[];
+  seedArticles?: LegalArticle[];
   expandNeighborWindow?: number;
   maxExpandedArticles?: number;
   localSeedLimit?: number;
@@ -72,15 +72,6 @@ const selectorStopwords = new Set([
   "um",
   "uma",
 ]);
-
-function collectLeafArticles(node: LegalDocumentNode): LegalDocumentNode[] {
-  if (node.content && node.articleNumber) return [node];
-  const articles: LegalDocumentNode[] = [];
-  for (const child of node.children ?? []) {
-    articles.push(...collectLeafArticles(child));
-  }
-  return articles;
-}
 
 function normalizeSelectorText(value: string): string {
   return value
@@ -169,9 +160,8 @@ function resolveIndexSectionId(sectionId: string, sections: ResolvedIndexSection
   return sections.find((section) => section.shortId === sectionId || section.id === sectionId);
 }
 
-function articleInRanges(article: LegalDocumentNode, ranges: LegalIndexArticleRange[]): boolean {
-  if (!article.articleNumber) return false;
-  return ranges.some((range) => article.articleNumber! >= range.from && article.articleNumber! <= range.to);
+function articleInRanges(article: LegalArticle, ranges: LegalIndexArticleRange[]): boolean {
+  return ranges.some((range) => article.articleNumber >= range.from && article.articleNumber <= range.to);
 }
 
 function mentionedArticleNumbers(question: string): number[] {
@@ -202,7 +192,7 @@ function scoreIndexSections(index: LegalDocumentIndex, tokens: string[]): [Resol
 
 function applySectionBoosts(
   articleSectionBoosts: Map<string, number>,
-  articles: LegalDocumentNode[],
+  articles: LegalArticle[],
   section: ResolvedIndexSection,
   score: number,
 ): void {
@@ -214,13 +204,12 @@ function applySectionBoosts(
 }
 
 function selectLocalCandidateArticles(
-  root: LegalDocumentNode,
+  articles: LegalArticle[],
   question: string,
   limit: number,
   index?: LegalDocumentIndex,
-): LegalDocumentNode[] {
+): LegalArticle[] {
   const tokens = expandedQuestionTokens(question);
-  const articles = collectLeafArticles(root);
   const articleSectionBoosts = new Map<string, number>();
 
   if (index) {
@@ -249,7 +238,7 @@ function selectLocalCandidateArticles(
     .sort((a, b) => b.score - a.score)
     .slice(0, Math.max(10, Math.floor(limit * 0.7)));
 
-  const selected = new Map<string, LegalDocumentNode>();
+  const selected = new Map<string, LegalArticle>();
   for (const seed of seeds) {
     for (let offset = -3; offset <= 3; offset++) {
       const article = articles[seed.index + offset];
@@ -271,12 +260,12 @@ async function selectIndexedCandidateArticles(
   question: string,
   model: NavigationModel,
   limit: number,
-): Promise<LegalDocumentNode[]> {
-  const { root, index } = document;
-  if (!index) return selectLocalCandidateArticles(root, question, limit);
+): Promise<LegalArticle[]> {
+  const { index } = document;
+  const articles = document.document.articles;
+  if (!index) return selectLocalCandidateArticles(articles, question, limit);
 
   const tokens = expandedQuestionTokens(question);
-  const articles = collectLeafArticles(root);
   const byId = new Map(articles.map((article) => [article.id, article]));
   const selectedSectionScores = new Map<string, number>();
   const candidateSections = flattenLegalIndex(index);
@@ -334,23 +323,22 @@ async function selectIndexedCandidateArticles(
       if (article.articleNumber && articleNumberMatches.includes(article.articleNumber)) score += 50;
       return { article, score };
     })
-    .filter((item): item is { article: LegalDocumentNode; score: number } => Boolean(item))
+    .filter((item): item is { article: LegalArticle; score: number } => Boolean(item))
     .sort((a, b) => b.score - a.score);
 
-  const selected = new Map<string, LegalDocumentNode>();
+  const selected = new Map<string, LegalArticle>();
   for (const seed of scored.slice(0, Math.max(10, Math.floor(limit * 0.7)))) {
     selected.set(seed.article.id, seed.article);
   }
 
-  if (selected.size === 0) return selectLocalCandidateArticles(root, question, limit, index);
+  if (selected.size === 0) return selectLocalCandidateArticles(articles, question, limit, index);
   return [...selected.values()].slice(0, limit);
 }
 
 function addArticleToCollected(
   collected: Map<string, { title: string; content: string }>,
-  article: LegalDocumentNode,
+  article: LegalArticle,
 ): void {
-  if (!article.content) return;
   collected.set(article.id, {
     title: article.title,
     content: article.content,
@@ -358,14 +346,13 @@ function addArticleToCollected(
 }
 
 function expandCollectedArticles(
-  root: LegalDocumentNode,
+  articles: LegalArticle[],
   collected: Map<string, { title: string; content: string }>,
   window: number,
   maxArticles: number,
 ): void {
   if (window <= 0 || collected.size >= maxArticles) return;
 
-  const articles = collectLeafArticles(root);
   const indexById = new Map(articles.map((article, index) => [article.id, index]));
   const originalIds = [...collected.keys()];
 
@@ -376,7 +363,7 @@ function expandCollectedArticles(
     for (let offset = -window; offset <= window; offset++) {
       if (offset === 0) continue;
       const neighbor = articles[index + offset];
-      if (!neighbor?.content || collected.has(neighbor.id)) continue;
+      if (!neighbor || collected.has(neighbor.id)) continue;
 
       collected.set(neighbor.id, {
         title: neighbor.title,
@@ -407,7 +394,7 @@ export async function retrieveLegalDocumentCandidates(
   question: string,
   options: NavigationOptions = {},
 ): Promise<NavigationResult> {
-  const root = document.root;
+  const articles = document.document.articles;
   const collected: Map<string, { title: string; content: string }> = new Map();
 
   for (const article of options.seedArticles ?? []) {
@@ -419,7 +406,7 @@ export async function retrieveLegalDocumentCandidates(
   }
 
   expandCollectedArticles(
-    root,
+    articles,
     collected,
     options.expandNeighborWindow ?? 0,
     options.maxExpandedArticles ?? 24,

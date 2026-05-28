@@ -1,0 +1,1181 @@
+import type { LegalDocumentIndex } from "../types.js";
+import { r } from "../types.js";
+
+export const CODIGO_CIVIL_INDEX: LegalDocumentIndex = {
+  title: "Índice do Código Civil Português",
+  sections: [
+    {
+      title: "Anexo CÓDIGO CIVIL",
+      articles: [r(1, 4)],
+      subsections: [
+        {
+          title: "Livro I PARTE GERAL",
+          description: "Anexo CÓDIGO CIVIL",
+          articles: [r(1, 4)],
+          subsections: [
+            {
+              title: "Título I Das leis, sua interpretação e aplicação",
+              description: "Anexo CÓDIGO CIVIL > Livro I PARTE GERAL",
+              articles: [r(1, 4)],
+              subsections: [
+                { title: "Capítulo I Fontes do direito", description: "Anexo CÓDIGO CIVIL > Livro I PARTE GERAL > Título I Das leis, sua interpretação e aplicação", articles: [r(1, 4)] }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    { title: "Capítulo II Vigência, interpretação e aplicação das leis", articles: [r(5, 13)] },
+    {
+      title: "Capítulo III Direitos dos estrangeiros e conflitos de leis",
+      articles: [r(14, 65)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis", articles: [r(14, 24)] },
+        {
+          title: "Secção II Normas de conflitos",
+          description: "Capítulo III Direitos dos estrangeiros e conflitos de leis",
+          articles: [r(25, 65)],
+          subsections: [
+            { title: "Subsecção I Âmbito e determinação da lei pessoal", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos", articles: [r(25, 34)] },
+            { title: "Subsecção II Lei reguladora dos negócios jurídicos", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos", articles: [r(35, 40)] },
+            { title: "Subsecção III Lei reguladora das obrigações", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos", articles: [r(41, 45)] },
+            { title: "Subsecção IV Lei reguladora das coisas", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos", articles: [r(46, 48)] },
+            {
+              title: "Subsecção V Lei reguladora das relações de família",
+              description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos",
+              articles: [r(49, 65)],
+              subsections: [
+                { title: "Subsecção VI Lei reguladora das sucessões", description: "Capítulo III Direitos dos estrangeiros e conflitos de leis > Secção II Normas de conflitos > Subsecção V Lei reguladora das relações de família", articles: [r(62, 65)] }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título II Das relações jurídicas",
+      articles: [r(66, 121)],
+      subsections: [
+        {
+          title: "Subtítulo I Das pessoas",
+          description: "Título II Das relações jurídicas",
+          articles: [r(66, 98)],
+          subsections: [
+            {
+              title: "Capítulo I Pessoas singulares",
+              description: "Título II Das relações jurídicas > Subtítulo I Das pessoas",
+              articles: [r(66, 98)],
+              subsections: [
+                { title: "Secção I Personalidade e capacidade jurídica", description: "Título II Das relações jurídicas > Subtítulo I Das pessoas > Capítulo I Pessoas singulares", articles: [r(66, 69)] },
+                { title: "Secção II Direitos de personalidade", description: "Título II Das relações jurídicas > Subtítulo I Das pessoas > Capítulo I Pessoas singulares", articles: [r(70, 81)] },
+                { title: "Secção III Domicílio", description: "Título II Das relações jurídicas > Subtítulo I Das pessoas > Capítulo I Pessoas singulares", articles: [r(82, 88)] },
+                {
+                  title: "Secção IV Ausência",
+                  description: "Título II Das relações jurídicas > Subtítulo I Das pessoas > Capítulo I Pessoas singulares",
+                  articles: [r(89, 98)],
+                  subsections: [
+                    { title: "Subsecção I Curadoria provisória", description: "Título II Das relações jurídicas > Subtítulo I Das pessoas > Capítulo I Pessoas singulares > Secção IV Ausência", articles: [r(89, 98)] }
+                  ],
+                }
+              ],
+            }
+          ],
+        },
+        { title: "Subsecção II Curadoria definitiva", description: "Título II Das relações jurídicas", articles: [r(99, 113)] },
+        { title: "Subsecção III Morte presumida", description: "Título II Das relações jurídicas", articles: [r(114, 119)] },
+        { title: "Subsecção IV Direitos eventuais do ausente", description: "Título II Das relações jurídicas", articles: [r(120, 121)] }
+      ],
+    },
+    {
+      title: "Secção V Menores e maiores acompanhados",
+      articles: [r(122, 156)],
+      subsections: [
+        { title: "Subsecção I Condição jurídica dos menores", description: "Secção V Menores e maiores acompanhados", articles: [r(122, 129)] },
+        { title: "Subsecção II Maioridade e emancipação", description: "Secção V Menores e maiores acompanhados", articles: [r(130, 137)] },
+        { title: "Subsecção III Maiores acompanhados", description: "Secção V Menores e maiores acompanhados", articles: [r(138, 156)] }
+      ],
+    },
+    {
+      title: "Capítulo II Pessoas colectivas",
+      articles: [r(157, 194)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo II Pessoas colectivas", articles: [r(157, 166)] },
+        { title: "Secção II Associações", description: "Capítulo II Pessoas colectivas", articles: [r(167, 184)] },
+        { title: "Secção III Fundações", description: "Capítulo II Pessoas colectivas", articles: [r(185, 194)] }
+      ],
+    },
+    { title: "Capítulo III Associações sem personalidade jurídica e comissões especiais", articles: [r(195, 201)] },
+    { title: "Subtítulo I-A Dos animais", articles: [r(201, 201)] },
+    { title: "Subtítulo II Das coisas", articles: [r(202, 216)] },
+    {
+      title: "Subtítulo III Dos factos jurídicos",
+      articles: [r(217, 279)],
+      subsections: [
+        {
+          title: "Capítulo I Negócio jurídico",
+          description: "Subtítulo III Dos factos jurídicos",
+          articles: [r(217, 239)],
+          subsections: [
+            {
+              title: "Secção I Declaração negocial",
+              description: "Subtítulo III Dos factos jurídicos > Capítulo I Negócio jurídico",
+              articles: [r(217, 239)],
+              subsections: [
+                { title: "Subsecção I Modalidades da declaração", description: "Subtítulo III Dos factos jurídicos > Capítulo I Negócio jurídico > Secção I Declaração negocial", articles: [r(217, 218)] },
+                { title: "Subsecção II Forma", description: "Subtítulo III Dos factos jurídicos > Capítulo I Negócio jurídico > Secção I Declaração negocial", articles: [r(219, 223)] },
+                { title: "Subsecção III Perfeição da declaração negocial", description: "Subtítulo III Dos factos jurídicos > Capítulo I Negócio jurídico > Secção I Declaração negocial", articles: [r(224, 235)] },
+                { title: "Subsecção IV Interpretação e integração", description: "Subtítulo III Dos factos jurídicos > Capítulo I Negócio jurídico > Secção I Declaração negocial", articles: [r(236, 239)] }
+              ],
+            }
+          ],
+        },
+        { title: "Subsecção V Falta e vícios da vontade", description: "Subtítulo III Dos factos jurídicos", articles: [r(240, 257)] },
+        {
+          title: "Subsecção VI Representação",
+          description: "Subtítulo III Dos factos jurídicos",
+          articles: [r(258, 269)],
+          subsections: [
+            { title: "Divisão I Princípios gerais", description: "Subtítulo III Dos factos jurídicos > Subsecção VI Representação", articles: [r(258, 261)] },
+            { title: "Divisão II Representação voluntária", description: "Subtítulo III Dos factos jurídicos > Subsecção VI Representação", articles: [r(262, 269)] }
+          ],
+        },
+        { title: "Subsecção VII Condição e termo", description: "Subtítulo III Dos factos jurídicos", articles: [r(270, 279)] }
+      ],
+    },
+    { title: "Secção II Objecto negocial. Negócios usurários", articles: [r(280, 284)] },
+    { title: "Secção III Nulidade e anulabilidade do negócio jurídico", articles: [r(285, 294)] },
+    { title: "Capítulo II Actos jurídicos", articles: [r(295, 295)] },
+    {
+      title: "Capítulo III O tempo e sua repercussão nas relações jurídicas",
+      articles: [r(296, 333)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas", articles: [r(296, 299)] },
+        {
+          title: "Secção II Prescrição",
+          description: "Capítulo III O tempo e sua repercussão nas relações jurídicas",
+          articles: [r(300, 327)],
+          subsections: [
+            { title: "Subsecção I Disposições gerais", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas > Secção II Prescrição", articles: [r(300, 308)] },
+            { title: "Subsecção II Prazos da prescrição", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas > Secção II Prescrição", articles: [r(309, 311)] },
+            { title: "Subsecção III Prescrições presuntivas", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas > Secção II Prescrição", articles: [r(312, 317)] },
+            { title: "Subsecção IV Suspensão da prescrição", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas > Secção II Prescrição", articles: [r(318, 322)] },
+            { title: "Subsecção V Interrupção da prescrição", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas > Secção II Prescrição", articles: [r(323, 327)] }
+          ],
+        },
+        { title: "Secção III Caducidade", description: "Capítulo III O tempo e sua repercussão nas relações jurídicas", articles: [r(328, 333)] }
+      ],
+    },
+    {
+      title: "Subtítulo IV Do exercício e tutela dos direitos",
+      articles: [r(334, 396)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Subtítulo IV Do exercício e tutela dos direitos", articles: [r(334, 340)] },
+        {
+          title: "Capítulo II Provas",
+          description: "Subtítulo IV Do exercício e tutela dos direitos",
+          articles: [r(341, 396)],
+          subsections: [
+            { title: "Secção I Disposições gerais", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas", articles: [r(341, 348)] },
+            { title: "Secção II Presunções", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas", articles: [r(349, 351)] },
+            { title: "Secção III Confissão", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas", articles: [r(352, 361)] },
+            {
+              title: "Secção IV Prova documental",
+              description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas",
+              articles: [r(362, 396)],
+              subsections: [
+                { title: "Subsecção I Disposições gerais", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental", articles: [r(362, 368)] },
+                { title: "Subsecção II Documentos autênticos", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental", articles: [r(369, 372)] },
+                {
+                  title: "Subsecção III Documentos particulares",
+                  description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental",
+                  articles: [r(373, 396)],
+                  subsections: [
+                    { title: "Subsecção IV Disposições especiais", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental > Subsecção III Documentos particulares", articles: [r(380, 387)] },
+                    { title: "Secção V Prova pericial", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental > Subsecção III Documentos particulares", articles: [r(388, 389)] },
+                    { title: "Secção VI Prova por inspecção", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental > Subsecção III Documentos particulares", articles: [r(390, 391)] },
+                    { title: "Secção VII Prova testemunhal", description: "Subtítulo IV Do exercício e tutela dos direitos > Capítulo II Provas > Secção IV Prova documental > Subsecção III Documentos particulares", articles: [r(392, 396)] }
+                  ],
+                }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Livro II DIREITO DAS OBRIGAÇÕES",
+      articles: [r(397, 456)],
+      subsections: [
+        {
+          title: "Título I Das obrigações em geral",
+          description: "Livro II DIREITO DAS OBRIGAÇÕES",
+          articles: [r(397, 423)],
+          subsections: [
+            {
+              title: "Capítulo I Disposições gerais",
+              description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral",
+              articles: [r(397, 404)],
+              subsections: [
+                { title: "Secção I Conteúdo da obrigação", description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo I Disposições gerais", articles: [r(397, 401)] },
+                { title: "Secção II Obrigações naturais", description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo I Disposições gerais", articles: [r(402, 404)] }
+              ],
+            },
+            {
+              title: "Capítulo II Fontes das obrigações",
+              description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral",
+              articles: [r(405, 423)],
+              subsections: [
+                {
+                  title: "Secção I Contratos",
+                  description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo II Fontes das obrigações",
+                  articles: [r(405, 423)],
+                  subsections: [
+                    { title: "Subsecção I Disposições gerais", description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo II Fontes das obrigações > Secção I Contratos", articles: [r(405, 409)] },
+                    { title: "Subsecção II Contrato-promessa", description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo II Fontes das obrigações > Secção I Contratos", articles: [r(410, 413)] },
+                    { title: "Subsecção III Pactos de preferência", description: "Livro II DIREITO DAS OBRIGAÇÕES > Título I Das obrigações em geral > Capítulo II Fontes das obrigações > Secção I Contratos", articles: [r(414, 423)] }
+                  ],
+                }
+              ],
+            }
+          ],
+        },
+        { title: "Subsecção IV Cessão da posição contratual", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(424, 427)] },
+        { title: "Subsecção V Excepção de não cumprimento do contrato", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(428, 431)] },
+        { title: "Subsecção VI Resolução do contrato", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(432, 436)] },
+        { title: "Subsecção VII Resolução ou modificação do contrato por alteração das circunstâncias", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(437, 439)] },
+        { title: "Subsecção VIII Antecipação do cumprimento. Sinal", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(440, 442)] },
+        { title: "Subsecção IX Contrato a favor de terceiro", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(443, 451)] },
+        { title: "Subsecção X Contrato para pessoa a nomear", description: "Livro II DIREITO DAS OBRIGAÇÕES", articles: [r(452, 456)] }
+      ],
+    },
+    { title: "Secção II Negócios unilaterais", articles: [r(457, 463)] },
+    {
+      title: "Secção III Gestão de negócios",
+      articles: [r(464, 510)],
+      subsections: [
+        { title: "Secção IV Enriquecimento sem causa", description: "Secção III Gestão de negócios", articles: [r(473, 482)] },
+        {
+          title: "Secção V Responsabilidade civil",
+          description: "Secção III Gestão de negócios",
+          articles: [r(483, 510)],
+          subsections: [
+            { title: "Subsecção I Responsabilidade por factos ilícitos", description: "Secção III Gestão de negócios > Secção V Responsabilidade civil", articles: [r(483, 498)] },
+            { title: "Subsecção II Responsabilidade pelo risco", description: "Secção III Gestão de negócios > Secção V Responsabilidade civil", articles: [r(499, 510)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo III Modalidades das obrigações",
+      articles: [r(511, 533)],
+      subsections: [
+        { title: "Secção I Obrigações de sujeito activo indeterminado", description: "Capítulo III Modalidades das obrigações", articles: [r(511, 511)] },
+        {
+          title: "Secção II Obrigações solidárias",
+          description: "Capítulo III Modalidades das obrigações",
+          articles: [r(512, 517)],
+          subsections: [
+            { title: "Subsecção I Disposições gerais", description: "Capítulo III Modalidades das obrigações > Secção II Obrigações solidárias", articles: [r(512, 517)] }
+          ],
+        },
+        { title: "Subsecção II Solidariedade entre devedores", description: "Capítulo III Modalidades das obrigações", articles: [r(518, 527)] },
+        { title: "Subsecção III Solidariedade entre credores", description: "Capítulo III Modalidades das obrigações", articles: [r(528, 533)] }
+      ],
+    },
+    { title: "Secção III Obrigações divisíveis e indivisíveis", articles: [r(534, 538)] },
+    { title: "Secção IV Obrigações genéricas", articles: [r(539, 542)] },
+    { title: "Secção V Obrigações alternativas", articles: [r(543, 549)] },
+    {
+      title: "Secção VI Obrigações pecuniárias",
+      articles: [r(550, 558)],
+      subsections: [
+        { title: "Subsecção I Obrigações de quantidade", description: "Secção VI Obrigações pecuniárias", articles: [r(550, 551)] },
+        { title: "Subsecção II Obrigações de moeda específica", description: "Secção VI Obrigações pecuniárias", articles: [r(552, 557)] },
+        { title: "Subsecção III Obrigações em moeda com curso legal apenas no estrangeiro", description: "Secção VI Obrigações pecuniárias", articles: [r(558, 558)] }
+      ],
+    },
+    {
+      title: "Secção VII Obrigações de juros",
+      articles: [r(559, 576)],
+      subsections: [
+        { title: "Secção VIII Obrigação de indemnização", description: "Secção VII Obrigações de juros", articles: [r(562, 572)] },
+        { title: "Secção IX Obrigação de informação e de apresentação de coisas ou documentos", description: "Secção VII Obrigações de juros", articles: [r(573, 576)] }
+      ],
+    },
+    {
+      title: "Capítulo IV Transmissão de créditos e de dívidas",
+      articles: [r(577, 600)],
+      subsections: [
+        { title: "Secção I Cessão de créditos", description: "Capítulo IV Transmissão de créditos e de dívidas", articles: [r(577, 588)] },
+        { title: "Secção II Sub-rogação", description: "Capítulo IV Transmissão de créditos e de dívidas", articles: [r(589, 594)] },
+        { title: "Secção III Transmissão singular de dívidas", description: "Capítulo IV Transmissão de créditos e de dívidas", articles: [r(595, 600)] }
+      ],
+    },
+    {
+      title: "Capítulo V Garantia geral das obrigações",
+      articles: [r(601, 622)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo V Garantia geral das obrigações", articles: [r(601, 604)] },
+        {
+          title: "Secção II Conservação da garantia patrimonial",
+          description: "Capítulo V Garantia geral das obrigações",
+          articles: [r(605, 622)],
+          subsections: [
+            { title: "Subsecção I Declaração de nulidade", description: "Capítulo V Garantia geral das obrigações > Secção II Conservação da garantia patrimonial", articles: [r(605, 605)] },
+            { title: "Subsecção II Sub-rogação do credor ao devedor", description: "Capítulo V Garantia geral das obrigações > Secção II Conservação da garantia patrimonial", articles: [r(606, 609)] },
+            { title: "Subsecção III Impugnação pauliana", description: "Capítulo V Garantia geral das obrigações > Secção II Conservação da garantia patrimonial", articles: [r(610, 618)] },
+            { title: "Subsecção IV Arresto", description: "Capítulo V Garantia geral das obrigações > Secção II Conservação da garantia patrimonial", articles: [r(619, 622)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo VI Garantias especiais das obrigações",
+      articles: [r(623, 655)],
+      subsections: [
+        { title: "Secção I Prestação de caução", description: "Capítulo VI Garantias especiais das obrigações", articles: [r(623, 626)] },
+        {
+          title: "Secção II Fiança",
+          description: "Capítulo VI Garantias especiais das obrigações",
+          articles: [r(627, 655)],
+          subsections: [
+            { title: "Subsecção I Disposições gerais", description: "Capítulo VI Garantias especiais das obrigações > Secção II Fiança", articles: [r(627, 633)] },
+            { title: "Subsecção II Relações entre o credor e o fiador", description: "Capítulo VI Garantias especiais das obrigações > Secção II Fiança", articles: [r(634, 643)] },
+            { title: "Subsecção III Relações entre o devedor e o fiador", description: "Capítulo VI Garantias especiais das obrigações > Secção II Fiança", articles: [r(644, 648)] },
+            { title: "Subsecção IV Pluralidade de fiadores", description: "Capítulo VI Garantias especiais das obrigações > Secção II Fiança", articles: [r(649, 650)] },
+            { title: "Subsecção V Extinção da fiança", description: "Capítulo VI Garantias especiais das obrigações > Secção II Fiança", articles: [r(651, 655)] }
+          ],
+        }
+      ],
+    },
+    { title: "Secção III Consignação de rendimentos", articles: [r(656, 665)] },
+    {
+      title: "Secção IV Penhor",
+      articles: [r(666, 685)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção IV Penhor", articles: [r(666, 668)] },
+        { title: "Subsecção II Penhor de coisas", description: "Secção IV Penhor", articles: [r(669, 678)] },
+        { title: "Subsecção III Penhor de direitos", description: "Secção IV Penhor", articles: [r(679, 685)] }
+      ],
+    },
+    {
+      title: "Secção V Hipoteca",
+      articles: [r(686, 732)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção V Hipoteca", articles: [r(686, 703)] },
+        { title: "Subsecção II Hipotecas legais", description: "Secção V Hipoteca", articles: [r(704, 709)] },
+        { title: "Subsecção III Hipotecas judiciais", description: "Secção V Hipoteca", articles: [r(710, 711)] },
+        { title: "Subsecção IV Hipotecas voluntárias", description: "Secção V Hipoteca", articles: [r(712, 717)] },
+        { title: "Subsecção V Redução da hipoteca", description: "Secção V Hipoteca", articles: [r(718, 720)] },
+        { title: "Subsecção VI Transmissão dos bens hipotecados", description: "Secção V Hipoteca", articles: [r(721, 726)] },
+        { title: "Subsecção VII Transmissão da hipoteca", description: "Secção V Hipoteca", articles: [r(727, 729)] },
+        { title: "Subsecção VIII Extinção da hipoteca", description: "Secção V Hipoteca", articles: [r(730, 732)] }
+      ],
+    },
+    {
+      title: "Secção VI Privilégios creditórios",
+      articles: [r(733, 761)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção VI Privilégios creditórios", articles: [r(733, 735)] },
+        { title: "Subsecção II Privilégios mobiliários gerais", description: "Secção VI Privilégios creditórios", articles: [r(736, 737)] },
+        { title: "Subsecção III Privilégios mobiliários especiais", description: "Secção VI Privilégios creditórios", articles: [r(738, 742)] },
+        {
+          title: "Subsecção IV Privilégios imobiliários",
+          description: "Secção VI Privilégios creditórios",
+          articles: [r(743, 753)],
+          subsections: [
+            { title: "Subsecção V Efeitos e extinção dos privilégios", description: "Secção VI Privilégios creditórios > Subsecção IV Privilégios imobiliários", articles: [r(745, 753)] }
+          ],
+        },
+        { title: "Secção VII Direito de retenção", description: "Secção VI Privilégios creditórios", articles: [r(754, 761)] }
+      ],
+    },
+    {
+      title: "Capítulo VII Cumprimento e não cumprimento das obrigações",
+      articles: [r(762, 789)],
+      subsections: [
+        {
+          title: "Secção I Cumprimento",
+          description: "Capítulo VII Cumprimento e não cumprimento das obrigações",
+          articles: [r(762, 789)],
+          subsections: [
+            { title: "Subsecção I Disposições gerais", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(762, 766)] },
+            { title: "Subsecção II Quem pode fazer e a quem pode ser feita a prestação", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(767, 771)] },
+            { title: "Subsecção III Lugar da prestação", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(772, 776)] },
+            { title: "Subsecção IV Prazo da prestação", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(777, 782)] },
+            { title: "Subsecção V Imputação do cumprimento", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(783, 785)] },
+            { title: "Subsecção VI Prova do cumprimento", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(786, 787)] },
+            { title: "Subsecção VII Direito à restituição do título ou à menção do cumprimento", description: "Capítulo VII Cumprimento e não cumprimento das obrigações > Secção I Cumprimento", articles: [r(788, 789)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Secção II Não cumprimento",
+      articles: [r(790, 816)],
+      subsections: [
+        { title: "Subsecção I Impossibilidade do cumprimento e mora não imputáveis ao devedor", description: "Secção II Não cumprimento", articles: [r(790, 797)] },
+        {
+          title: "Subsecção II Falta de cumprimento e mora imputáveis ao devedor",
+          description: "Secção II Não cumprimento",
+          articles: [r(798, 812)],
+          subsections: [
+            { title: "Divisão I Princípios gerais", description: "Secção II Não cumprimento > Subsecção II Falta de cumprimento e mora imputáveis ao devedor", articles: [r(798, 800)] },
+            { title: "Divisão II Impossibilidade do cumprimento", description: "Secção II Não cumprimento > Subsecção II Falta de cumprimento e mora imputáveis ao devedor", articles: [r(801, 803)] },
+            { title: "Divisão III Mora do devedor", description: "Secção II Não cumprimento > Subsecção II Falta de cumprimento e mora imputáveis ao devedor", articles: [r(804, 808)] },
+            { title: "Divisão IV Fixação contratual dos direitos do credor", description: "Secção II Não cumprimento > Subsecção II Falta de cumprimento e mora imputáveis ao devedor", articles: [r(809, 812)] }
+          ],
+        },
+        { title: "Subsecção III Mora do credor", description: "Secção II Não cumprimento", articles: [r(813, 816)] }
+      ],
+    },
+    {
+      title: "Secção III Realização coactiva da prestação",
+      articles: [r(817, 830)],
+      subsections: [
+        { title: "Subsecção I Acção de cumprimento e execução", description: "Secção III Realização coactiva da prestação", articles: [r(817, 826)] },
+        { title: "Subsecção II Execução específica", description: "Secção III Realização coactiva da prestação", articles: [r(827, 830)] }
+      ],
+    },
+    {
+      title: "Secção IV Cessão de bens aos credores",
+      articles: [r(831, 873)],
+      subsections: [
+        {
+          title: "Capítulo VIII Causas de extinção das obrigações além do cumprimento",
+          description: "Secção IV Cessão de bens aos credores",
+          articles: [r(837, 873)],
+          subsections: [
+            { title: "Secção I Dação em cumprimento", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(837, 840)] },
+            { title: "Secção II Consignação em depósito", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(841, 846)] },
+            { title: "Secção III Compensação", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(847, 856)] },
+            { title: "Secção IV Novação", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(857, 862)] },
+            { title: "Secção V Remissão", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(863, 867)] },
+            { title: "Secção VI Confusão", description: "Secção IV Cessão de bens aos credores > Capítulo VIII Causas de extinção das obrigações além do cumprimento", articles: [r(868, 873)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título II Dos contratos em especial",
+      articles: [r(874, 878)],
+      subsections: [
+        {
+          title: "Capítulo I Compra e venda",
+          description: "Título II Dos contratos em especial",
+          articles: [r(874, 878)],
+          subsections: [
+            { title: "Secção I Disposições gerais", description: "Título II Dos contratos em especial > Capítulo I Compra e venda", articles: [r(874, 878)] }
+          ],
+        }
+      ],
+    },
+    { title: "Secção II Efeitos da compra e venda", articles: [r(879, 886)] },
+    { title: "Secção III Venda de coisas sujeitas a contagem, pesagem ou medição", articles: [r(887, 891)] },
+    { title: "Secção IV Venda de bens alheios", articles: [r(892, 904)] },
+    { title: "Secção V Venda de bens onerados", articles: [r(905, 912)] },
+    { title: "Secção VI Venda de coisas defeituosas", articles: [r(913, 922)] },
+    { title: "Secção VII Venda a contento e venda sujeita a prova", articles: [r(923, 926)] },
+    {
+      title: "Secção VIII Venda a retro",
+      articles: [r(927, 939)],
+      subsections: [
+        { title: "Secção IX Venda a prestações", description: "Secção VIII Venda a retro", articles: [r(934, 936)] },
+        { title: "Secção X Venda sobre documentos", description: "Secção VIII Venda a retro", articles: [r(937, 938)] },
+        { title: "Secção XI Outros contratos onerosos", description: "Secção VIII Venda a retro", articles: [r(939, 939)] }
+      ],
+    },
+    {
+      title: "Capítulo II Doação",
+      articles: [r(940, 979)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo II Doação", articles: [r(940, 947)] },
+        { title: "Secção II Capacidade para fazer ou receber doações", description: "Capítulo II Doação", articles: [r(948, 953)] },
+        { title: "Secção III Efeitos das doações", description: "Capítulo II Doação", articles: [r(954, 968)] },
+        { title: "Secção IV Revogação das doações", description: "Capítulo II Doação", articles: [r(969, 979)] }
+      ],
+    },
+    {
+      title: "Capítulo III Sociedade",
+      articles: [r(980, 1021)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo III Sociedade", articles: [r(980, 982)] },
+        { title: "Secção II Relações entre os sócios", description: "Capítulo III Sociedade", articles: [r(983, 995)] },
+        { title: "Secção III Relações com terceiros", description: "Capítulo III Sociedade", articles: [r(996, 1000)] },
+        { title: "Secção IV Morte, exoneração ou exclusão de sócios", description: "Capítulo III Sociedade", articles: [r(1001, 1006)] },
+        { title: "Secção V Dissolução da sociedade", description: "Capítulo III Sociedade", articles: [r(1007, 1009)] },
+        { title: "Secção VI Liquidação da sociedade e de quotas", description: "Capítulo III Sociedade", articles: [r(1010, 1021)] }
+      ],
+    },
+    {
+      title: "Capítulo IV Locação",
+      articles: [r(1022, 1030)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo IV Locação", articles: [r(1022, 1030)] }
+      ],
+    },
+    { title: "Secção II Obrigações do locador", articles: [r(1031, 1037)] },
+    {
+      title: "Secção III Obrigações do locatário",
+      articles: [r(1038, 1046)],
+      subsections: [
+        { title: "Subsecção I Disposição geral", description: "Secção III Obrigações do locatário", articles: [r(1038, 1038)] },
+        { title: "Subsecção II Pagamento da renda ou aluguer", description: "Secção III Obrigações do locatário", articles: [r(1039, 1042)] },
+        { title: "Subsecção III Restituição da coisa locada", description: "Secção III Obrigações do locatário", articles: [r(1043, 1046)] }
+      ],
+    },
+    {
+      title: "Secção IV Resolução e caducidade do contrato",
+      articles: [r(1047, 1056)],
+      subsections: [
+        { title: "Subsecção I Resolução", description: "Secção IV Resolução e caducidade do contrato", articles: [r(1047, 1050)] },
+        { title: "Subsecção II Caducidade", description: "Secção IV Resolução e caducidade do contrato", articles: [r(1051, 1056)] }
+      ],
+    },
+    { title: "Secção V Transmissão da posição contratual", articles: [r(1057, 1059)] },
+    { title: "Secção VI Sublocação", articles: [r(1060, 1063)] },
+    {
+      title: "Secção VII Arrendamento de prédios urbanos",
+      articles: [r(1064, 1068)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção VII Arrendamento de prédios urbanos", articles: [r(1064, 1068)] }
+      ],
+    },
+    { title: "Subsecção II Celebração", articles: [r(1069, 1070)] },
+    {
+      title: "Subsecção III Direitos e obrigações das partes",
+      articles: [r(1071, 1078)],
+      subsections: [
+        { title: "Divisão I Obrigações não pecuniárias", description: "Subsecção III Direitos e obrigações das partes", articles: [r(1071, 1074)] },
+        { title: "Divisão II Renda e encargos", description: "Subsecção III Direitos e obrigações das partes", articles: [r(1075, 1078)] }
+      ],
+    },
+    {
+      title: "Subsecção IV Cessação",
+      articles: [r(1079, 1087)],
+      subsections: [
+        { title: "Divisão I Disposições comuns", description: "Subsecção IV Cessação", articles: [r(1079, 1081)] },
+        { title: "Divisão II Cessação por acordo entre as partes", description: "Subsecção IV Cessação", articles: [r(1082, 1082)] },
+        { title: "Divisão III Resolução", description: "Subsecção IV Cessação", articles: [r(1083, 1087)] }
+      ],
+    },
+    { title: "Subsecção V Subarrendamento", articles: [r(1088, 1090)] },
+    { title: "Subsecção VI Direito de preferência", articles: [r(1091, 1091)] },
+    {
+      title: "Subsecção VII Disposições especiais do arrendamento para habitação",
+      articles: [r(1092, 1120)],
+      subsections: [
+        { title: "Divisão I Âmbito do contrato", description: "Subsecção VII Disposições especiais do arrendamento para habitação", articles: [r(1092, 1093)] },
+        {
+          title: "Divisão II Duração",
+          description: "Subsecção VII Disposições especiais do arrendamento para habitação",
+          articles: [r(1094, 1104)],
+          subsections: [
+            { title: "Subdivisão I Contrato com prazo certo", description: "Subsecção VII Disposições especiais do arrendamento para habitação > Divisão II Duração", articles: [r(1095, 1098)] },
+            { title: "Subdivisão II Contrato de duração indeterminada", description: "Subsecção VII Disposições especiais do arrendamento para habitação > Divisão II Duração", articles: [r(1099, 1104)] }
+          ],
+        },
+        {
+          title: "Divisão III Transmissão",
+          description: "Subsecção VII Disposições especiais do arrendamento para habitação",
+          articles: [r(1105, 1113)],
+          subsections: [
+            { title: "Subsecção VIII Disposições especiais do arrendamento para fins não habitacionais", description: "Subsecção VII Disposições especiais do arrendamento para habitação > Divisão III Transmissão", articles: [r(1108, 1113)] }
+          ],
+        },
+        { title: "Secção VIII Arrendamento de prédios urbanos e arrendamento de prédios rústicos não abrangidos na secção", description: "Subsecção VII Disposições especiais do arrendamento para habitação", articles: [r(1114, 1120)] }
+      ],
+    },
+    { title: "Capítulo V Parceria pecuária", articles: [r(1121, 1128)] },
+    { title: "Capítulo VI Comodato", articles: [r(1129, 1141)] },
+    { title: "Capítulo VII Mútuo", articles: [r(1142, 1151)] },
+    { title: "Capítulo VIII Contrato de trabalho", articles: [r(1152, 1153)] },
+    { title: "Capítulo IX Prestação de serviço", articles: [r(1154, 1156)] },
+    {
+      title: "Capítulo X Mandato",
+      articles: [r(1157, 1184)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo X Mandato", articles: [r(1157, 1160)] },
+        { title: "Secção II Direitos e obrigações do mandatário", description: "Capítulo X Mandato", articles: [r(1161, 1166)] },
+        { title: "Secção III Obrigações do mandante", description: "Capítulo X Mandato", articles: [r(1167, 1169)] },
+        {
+          title: "Secção IV Revogação e caducidade do mandato",
+          description: "Capítulo X Mandato",
+          articles: [r(1170, 1177)],
+          subsections: [
+            { title: "Subsecção I Revogação", description: "Capítulo X Mandato > Secção IV Revogação e caducidade do mandato", articles: [r(1170, 1173)] },
+            { title: "Subsecção II Caducidade", description: "Capítulo X Mandato > Secção IV Revogação e caducidade do mandato", articles: [r(1174, 1177)] }
+          ],
+        },
+        { title: "Secção V Mandato com representação", description: "Capítulo X Mandato", articles: [r(1178, 1179)] },
+        { title: "Secção VI Mandato sem representação", description: "Capítulo X Mandato", articles: [r(1180, 1184)] }
+      ],
+    },
+    {
+      title: "Capítulo XI Depósito",
+      articles: [r(1185, 1206)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo XI Depósito", articles: [r(1185, 1186)] },
+        { title: "Secção II Direitos e obrigações do depositário", description: "Capítulo XI Depósito", articles: [r(1187, 1198)] },
+        { title: "Secção III Obrigações do depositante", description: "Capítulo XI Depósito", articles: [r(1199, 1201)] },
+        { title: "Secção IV Depósito de coisa controvertida", description: "Capítulo XI Depósito", articles: [r(1202, 1204)] },
+        { title: "Secção V Depósito irregular", description: "Capítulo XI Depósito", articles: [r(1205, 1206)] }
+      ],
+    },
+    {
+      title: "Capítulo XII Empreitada",
+      articles: [r(1207, 1230)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo XII Empreitada", articles: [r(1207, 1213)] },
+        { title: "Secção II Alterações e obras novas", description: "Capítulo XII Empreitada", articles: [r(1214, 1217)] },
+        { title: "Secção III Defeitos da obra", description: "Capítulo XII Empreitada", articles: [r(1218, 1226)] },
+        { title: "Secção IV Impossibilidade de cumprimento e risco pela perda ou deterioração da obra", description: "Capítulo XII Empreitada", articles: [r(1227, 1228)] },
+        { title: "Secção V Extinção do contrato", description: "Capítulo XII Empreitada", articles: [r(1229, 1230)] }
+      ],
+    },
+    { title: "Capítulo XIII Renda perpétua", articles: [r(1231, 1237)] },
+    {
+      title: "Capítulo XIV Renda vitalícia",
+      articles: [r(1238, 1250)],
+      subsections: [
+        { title: "Capítulo XV Jogo e aposta", description: "Capítulo XIV Renda vitalícia", articles: [r(1245, 1247)] },
+        { title: "Capítulo XVI Transacção", description: "Capítulo XIV Renda vitalícia", articles: [r(1248, 1250)] }
+      ],
+    },
+    {
+      title: "Livro III DIREITO DAS COISAS",
+      articles: [r(1251, 1301)],
+      subsections: [
+        {
+          title: "Título I Da posse",
+          description: "Livro III DIREITO DAS COISAS",
+          articles: [r(1251, 1301)],
+          subsections: [
+            { title: "Capítulo I Disposições gerais", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1251, 1257)] },
+            { title: "Capítulo II Caracteres da posse", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1258, 1262)] },
+            { title: "Capítulo III Aquisição e perda da posse", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1263, 1267)] },
+            { title: "Capítulo IV Efeitos da posse", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1268, 1275)] },
+            { title: "Capítulo V Defesa da posse", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1276, 1286)] },
+            { title: "Secção I Disposições gerais", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1287, 1292)] },
+            { title: "Secção II Usucapião de imóveis", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1293, 1297)] },
+            { title: "Secção III Usucapião de móveis", description: "Livro III DIREITO DAS COISAS > Título I Da posse", articles: [r(1298, 1301)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título II Do direito de propriedade",
+      articles: [r(1302, 1343)],
+      subsections: [
+        {
+          title: "Capítulo I Propriedade em geral",
+          description: "Título II Do direito de propriedade",
+          articles: [r(1302, 1315)],
+          subsections: [
+            { title: "Secção I Disposições gerais", description: "Título II Do direito de propriedade > Capítulo I Propriedade em geral", articles: [r(1302, 1310)] },
+            { title: "Secção II Defesa da propriedade", description: "Título II Do direito de propriedade > Capítulo I Propriedade em geral", articles: [r(1311, 1315)] }
+          ],
+        },
+        {
+          title: "Capítulo II Aquisição da propriedade",
+          description: "Título II Do direito de propriedade",
+          articles: [r(1316, 1343)],
+          subsections: [
+            { title: "Secção I Disposições gerais", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade", articles: [r(1316, 1317)] },
+            { title: "Secção II Ocupação de coisas e animais", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade", articles: [r(1318, 1324)] },
+            {
+              title: "Secção III Acessão",
+              description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade",
+              articles: [r(1325, 1332)],
+              subsections: [
+                { title: "Subsecção I Disposições gerais", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade > Secção III Acessão", articles: [r(1325, 1326)] },
+                { title: "Subsecção II Acessão natural", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade > Secção III Acessão", articles: [r(1327, 1332)] }
+              ],
+            },
+            { title: "Subsecção III Acessão industrial mobiliária", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade", articles: [r(1333, 1338)] },
+            { title: "Subsecção IV Acessão industrial imobiliária", description: "Título II Do direito de propriedade > Capítulo II Aquisição da propriedade", articles: [r(1339, 1343)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo III Propriedade de imóveis",
+      articles: [r(1344, 1384)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo III Propriedade de imóveis", articles: [r(1344, 1352)] },
+        { title: "Secção II Direito de demarcação", description: "Capítulo III Propriedade de imóveis", articles: [r(1353, 1355)] },
+        { title: "Secção III Direito de tapagem", description: "Capítulo III Propriedade de imóveis", articles: [r(1356, 1359)] },
+        { title: "Secção IV Construções e edificações", description: "Capítulo III Propriedade de imóveis", articles: [r(1360, 1365)] },
+        { title: "Secção V Plantação de árvores e arbustos", description: "Capítulo III Propriedade de imóveis", articles: [r(1366, 1369)] },
+        { title: "Secção VI Paredes e muros de meação", description: "Capítulo III Propriedade de imóveis", articles: [r(1370, 1375)] },
+        { title: "Secção VII Fraccionamento e emparcelamento de prédios rústicos", description: "Capítulo III Propriedade de imóveis", articles: [r(1376, 1382)] },
+        { title: "Secção VIII Atravessadouros", description: "Capítulo III Propriedade de imóveis", articles: [r(1383, 1384)] }
+      ],
+    },
+    {
+      title: "Capítulo IV Propriedade das águas",
+      articles: [r(1385, 1402)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo IV Propriedade das águas", articles: [r(1385, 1388)] },
+        { title: "Secção II Aproveitamento das águas", description: "Capítulo IV Propriedade das águas", articles: [r(1389, 1397)] },
+        { title: "Secção III Condomínio das águas", description: "Capítulo IV Propriedade das águas", articles: [r(1398, 1402)] }
+      ],
+    },
+    {
+      title: "Capítulo V Compropriedade",
+      articles: [r(1403, 1413)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo V Compropriedade", articles: [r(1403, 1405)] },
+        { title: "Secção II Direitos e encargos do comproprietário", description: "Capítulo V Compropriedade", articles: [r(1406, 1413)] }
+      ],
+    },
+    {
+      title: "Capítulo VI Propriedade horizontal",
+      articles: [r(1414, 1438)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo VI Propriedade horizontal", articles: [r(1414, 1416)] },
+        {
+          title: "Secção II Constituição",
+          description: "Capítulo VI Propriedade horizontal",
+          articles: [r(1417, 1438)],
+          subsections: [
+            { title: "Secção III Direitos e encargos dos condóminos", description: "Capítulo VI Propriedade horizontal > Secção II Constituição", articles: [r(1420, 1429)] },
+            { title: "Secção IV Administração das partes comuns do edifício", description: "Capítulo VI Propriedade horizontal > Secção II Constituição", articles: [r(1430, 1438)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título III Do usufruto, uso e habitação",
+      articles: [r(1439, 1490)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título III Do usufruto, uso e habitação", articles: [r(1439, 1445)] },
+        { title: "Capítulo II Direitos do usufrutuário", description: "Título III Do usufruto, uso e habitação", articles: [r(1446, 1467)] },
+        { title: "Capítulo III Obrigações do usufrutuário", description: "Título III Do usufruto, uso e habitação", articles: [r(1468, 1475)] },
+        { title: "Capítulo IV Extinção do usufruto", description: "Título III Do usufruto, uso e habitação", articles: [r(1476, 1483)] },
+        { title: "Capítulo V Uso e habitação", description: "Título III Do usufruto, uso e habitação", articles: [r(1484, 1490)] }
+      ],
+    },
+    {
+      title: "Título IV Da enfiteuse REVOGADO",
+      articles: [r(1491, 1523)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais REVOGADO", description: "Título IV Da enfiteuse REVOGADO", articles: [r(1491, 1496)] },
+        { title: "Capítulo II Constituição da enfiteuse REVOGADO", description: "Título IV Da enfiteuse REVOGADO", articles: [r(1497, 1498)] },
+        {
+          title: "Capítulo III Direitos e encargos do senhorio e do enfiteuta REVOGADO",
+          description: "Título IV Da enfiteuse REVOGADO",
+          articles: [r(1499, 1512)],
+          subsections: [
+            { title: "Secção I Disposições gerais REVOGADO", description: "Título IV Da enfiteuse REVOGADO > Capítulo III Direitos e encargos do senhorio e do enfiteuta REVOGADO", articles: [r(1499, 1501)] },
+            { title: "Secção II Pagamento do foro REVOGADO", description: "Título IV Da enfiteuse REVOGADO > Capítulo III Direitos e encargos do senhorio e do enfiteuta REVOGADO", articles: [r(1502, 1506)] },
+            { title: "Secção III Outros direitos e encargos REVOGADO", description: "Título IV Da enfiteuse REVOGADO > Capítulo III Direitos e encargos do senhorio e do enfiteuta REVOGADO", articles: [r(1507, 1512)] }
+          ],
+        },
+        { title: "Capítulo IV Extinção da enfiteuse REVOGADO", description: "Título IV Da enfiteuse REVOGADO", articles: [r(1513, 1515)] },
+        { title: "Capítulo V Disposições transitórias REVOGADO", description: "Título IV Da enfiteuse REVOGADO", articles: [r(1516, 1523)] }
+      ],
+    },
+    {
+      title: "Título V Do direito de superfície",
+      articles: [r(1524, 1542)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título V Do direito de superfície", articles: [r(1524, 1527)] },
+        { title: "Capítulo II Constituição do direito de superfície", description: "Título V Do direito de superfície", articles: [r(1528, 1529)] },
+        { title: "Capítulo III Direitos e encargos do superficiário e do proprietário", description: "Título V Do direito de superfície", articles: [r(1530, 1535)] },
+        { title: "Capítulo IV Extinção do direito de superfície", description: "Título V Do direito de superfície", articles: [r(1536, 1542)] }
+      ],
+    },
+    {
+      title: "Título VI Das servidões prediais",
+      articles: [r(1543, 1575)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título VI Das servidões prediais", articles: [r(1543, 1546)] },
+        { title: "Capítulo II Constituição das servidões", description: "Título VI Das servidões prediais", articles: [r(1547, 1549)] },
+        {
+          title: "Capítulo III Servidões legais",
+          description: "Título VI Das servidões prediais",
+          articles: [r(1550, 1575)],
+          subsections: [
+            {
+              title: "Secção I Servidões legais de passagem",
+              description: "Título VI Das servidões prediais > Capítulo III Servidões legais",
+              articles: [r(1550, 1563)],
+              subsections: [
+                { title: "Secção II Servidões legais de águas", description: "Título VI Das servidões prediais > Capítulo III Servidões legais > Secção I Servidões legais de passagem", articles: [r(1557, 1563)] }
+              ],
+            },
+            { title: "Capítulo IV Exercício das servidões", description: "Título VI Das servidões prediais > Capítulo III Servidões legais", articles: [r(1564, 1568)] },
+            { title: "Capítulo V Extinção das servidões", description: "Título VI Das servidões prediais > Capítulo III Servidões legais", articles: [r(1569, 1575)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Livro IV DIREITO DA FAMÍLIA",
+      articles: [r(1576, 1614)],
+      subsections: [
+        { title: "Título I Disposições gerais", description: "Livro IV DIREITO DA FAMÍLIA", articles: [r(1576, 1586)] },
+        {
+          title: "Título II Do casamento",
+          description: "Livro IV DIREITO DA FAMÍLIA",
+          articles: [r(1587, 1614)],
+          subsections: [
+            { title: "Capítulo I Modalidades do casamento", description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento", articles: [r(1587, 1590)] },
+            { title: "Capítulo II Promessa de casamento", description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento", articles: [r(1591, 1595)] },
+            {
+              title: "Capítulo III Pressupostos da celebração do casamento",
+              description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento",
+              articles: [r(1596, 1599)],
+              subsections: [
+                { title: "Secção I Casamento católico", description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento > Capítulo III Pressupostos da celebração do casamento", articles: [r(1596, 1599)] }
+              ],
+            },
+            { title: "Subsecção I Impedimentos matrimoniais", description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento", articles: [r(1600, 1609)] },
+            { title: "Subsecção II Processo preliminar de casamento", description: "Livro IV DIREITO DA FAMÍLIA > Título II Do casamento", articles: [r(1610, 1614)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo IV Celebração do casamento civil",
+      articles: [r(1615, 1624)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo IV Celebração do casamento civil", articles: [r(1615, 1621)] },
+        { title: "Secção II Casamentos urgentes", description: "Capítulo IV Celebração do casamento civil", articles: [r(1622, 1624)] }
+      ],
+    },
+    {
+      title: "Capítulo V Invalidade do casamento",
+      articles: [r(1625, 1646)],
+      subsections: [
+        { title: "Secção I Casamento católico", description: "Capítulo V Invalidade do casamento", articles: [r(1625, 1626)] },
+        {
+          title: "Secção II Casamento civil",
+          description: "Capítulo V Invalidade do casamento",
+          articles: [r(1627, 1646)],
+          subsections: [
+            { title: "Subsecção I Disposição geral", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil", articles: [r(1627, 1627)] },
+            { title: "Subsecção II Inexistência do casamento", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil", articles: [r(1628, 1630)] },
+            {
+              title: "Subsecção III Anulabilidade do casamento",
+              description: "Capítulo V Invalidade do casamento > Secção II Casamento civil",
+              articles: [r(1631, 1646)],
+              subsections: [
+                { title: "Divisão I Disposições gerais", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil > Subsecção III Anulabilidade do casamento", articles: [r(1631, 1633)] },
+                { title: "Divisão II Falta ou vícios da vontade", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil > Subsecção III Anulabilidade do casamento", articles: [r(1634, 1638)] },
+                { title: "Divisão III Legitimidade", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil > Subsecção III Anulabilidade do casamento", articles: [r(1639, 1642)] },
+                { title: "Divisão IV Prazos", description: "Capítulo V Invalidade do casamento > Secção II Casamento civil > Subsecção III Anulabilidade do casamento", articles: [r(1643, 1646)] }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    { title: "Capítulo VI Casamento putativo", articles: [r(1647, 1648)] },
+    { title: "Capítulo VII Sanções especiais", articles: [r(1649, 1650)] },
+    {
+      title: "Capítulo VIII Registo do casamento",
+      articles: [r(1651, 1670)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo VIII Registo do casamento", articles: [r(1651, 1653)] },
+        {
+          title: "Secção II Registo por transcrição REVOGADO",
+          description: "Capítulo VIII Registo do casamento",
+          articles: [r(1654, 1668)],
+          subsections: [
+            { title: "Subsecção I Disposição geral REVOGADO", description: "Capítulo VIII Registo do casamento > Secção II Registo por transcrição REVOGADO", articles: [r(1654, 1654)] },
+            { title: "Subsecção II Transcrição dos casamentos católicos celebrados em Portugal REVOGADO", description: "Capítulo VIII Registo do casamento > Secção II Registo por transcrição REVOGADO", articles: [r(1655, 1661)] },
+            { title: "Subsecção III Transcrição dos casamentos civis urgentes REVOGADO", description: "Capítulo VIII Registo do casamento > Secção II Registo por transcrição REVOGADO", articles: [r(1662, 1663)] },
+            { title: "Subsecção IV Transcrição dos casamentos de portugueses no estrangeiro REVOGADO", description: "Capítulo VIII Registo do casamento > Secção II Registo por transcrição REVOGADO", articles: [r(1664, 1667)] },
+            { title: "Subsecção V Transcrição dos casamentos admitidos a registo REVOGADO", description: "Capítulo VIII Registo do casamento > Secção II Registo por transcrição REVOGADO", articles: [r(1668, 1668)] }
+          ],
+        },
+        { title: "Secção III Efeitos do registo", description: "Capítulo VIII Registo do casamento", articles: [r(1669, 1670)] }
+      ],
+    },
+    {
+      title: "Capítulo IX Efeitos do casamento quanto às pessoas e aos bens dos cônjuges",
+      articles: [r(1671, 1689)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo IX Efeitos do casamento quanto às pessoas e aos bens dos cônjuges", articles: [r(1671, 1689)] }
+      ],
+    },
+    { title: "Secção II Dívidas dos cônjuges", articles: [r(1690, 1697)] },
+    { title: "Secção III Convenções antenupciais", articles: [r(1698, 1716)] },
+    {
+      title: "Secção IV Regimes de bens",
+      articles: [r(1717, 1752)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção IV Regimes de bens", articles: [r(1717, 1720)] },
+        {
+          title: "Subsecção II Regime da comunhão de adquiridos",
+          description: "Secção IV Regimes de bens",
+          articles: [r(1721, 1752)],
+          subsections: [
+            { title: "Subsecção III Regime da comunhão geral", description: "Secção IV Regimes de bens > Subsecção II Regime da comunhão de adquiridos", articles: [r(1732, 1734)] },
+            { title: "Subsecção IV Regime da separação", description: "Secção IV Regimes de bens > Subsecção II Regime da comunhão de adquiridos", articles: [r(1735, 1737)] },
+            { title: "Subsecção V Regime dotal REVOGADO", description: "Secção IV Regimes de bens > Subsecção II Regime da comunhão de adquiridos", articles: [r(1738, 1752)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo X Doações para casamento e entre casados",
+      articles: [r(1753, 1766)],
+      subsections: [
+        { title: "Secção I Doações para casamento", description: "Capítulo X Doações para casamento e entre casados", articles: [r(1753, 1760)] },
+        { title: "Secção II Doações entre casados", description: "Capítulo X Doações para casamento e entre casados", articles: [r(1761, 1766)] }
+      ],
+    },
+    { title: "Capítulo XI Simples separação judicial de bens", articles: [r(1767, 1770)] },
+    {
+      title: "Capítulo XII Divórcio e separação judicial de pessoas e bens",
+      articles: [r(1773, 1795)],
+      subsections: [
+        {
+          title: "Secção I Divórcio",
+          description: "Capítulo XII Divórcio e separação judicial de pessoas e bens",
+          articles: [r(1773, 1795)],
+          subsections: [
+            {
+              title: "Subsecção I Disposições gerais",
+              description: "Capítulo XII Divórcio e separação judicial de pessoas e bens > Secção I Divórcio",
+              articles: [r(1773, 1793)],
+              subsections: [
+                { title: "Subsecção II Divórcio por mútuo consentimento", description: "Capítulo XII Divórcio e separação judicial de pessoas e bens > Secção I Divórcio > Subsecção I Disposições gerais", articles: [r(1775, 1778)] },
+                { title: "Subsecção III Divórcio litigioso", description: "Capítulo XII Divórcio e separação judicial de pessoas e bens > Secção I Divórcio > Subsecção I Disposições gerais", articles: [r(1779, 1787)] },
+                { title: "Subsecção IV Efeitos do divórcio", description: "Capítulo XII Divórcio e separação judicial de pessoas e bens > Secção I Divórcio > Subsecção I Disposições gerais", articles: [r(1788, 1793)] }
+              ],
+            },
+            { title: "Secção II Separação judicial de pessoas e bens", description: "Capítulo XII Divórcio e separação judicial de pessoas e bens > Secção I Divórcio", articles: [r(1794, 1795)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título III Da filiação",
+      articles: [r(1796, 1825)],
+      subsections: [
+        {
+          title: "Capítulo I Estabelecimento da filiação",
+          description: "Título III Da filiação",
+          articles: [r(1796, 1813)],
+          subsections: [
+            { title: "Secção I Disposições gerais", description: "Título III Da filiação > Capítulo I Estabelecimento da filiação", articles: [r(1796, 1802)] },
+            {
+              title: "Secção II Estabelecimento da maternidade",
+              description: "Título III Da filiação > Capítulo I Estabelecimento da filiação",
+              articles: [r(1803, 1813)],
+              subsections: [
+                { title: "Subsecção i Declaração de maternidade", description: "Título III Da filiação > Capítulo I Estabelecimento da filiação > Secção II Estabelecimento da maternidade", articles: [r(1803, 1807)] },
+                { title: "Subsecção II Averiguação oficiosa", description: "Título III Da filiação > Capítulo I Estabelecimento da filiação > Secção II Estabelecimento da maternidade", articles: [r(1808, 1813)] }
+              ],
+            }
+          ],
+        },
+        { title: "Subsecção III Reconhecimento judicial", description: "Título III Da filiação", articles: [r(1814, 1825)] }
+      ],
+    },
+    {
+      title: "Secção III Estabelecimento da paternidade",
+      articles: [r(1826, 1873)],
+      subsections: [
+        { title: "Subsecção I Presunção de paternidade", description: "Secção III Estabelecimento da paternidade", articles: [r(1826, 1846)] },
+        {
+          title: "Subsecção II Reconhecimento de paternidade",
+          description: "Secção III Estabelecimento da paternidade",
+          articles: [r(1847, 1873)],
+          subsections: [
+            { title: "Divisão I Disposições gerais", description: "Secção III Estabelecimento da paternidade > Subsecção II Reconhecimento de paternidade", articles: [r(1847, 1848)] },
+            {
+              title: "Divisão II Perfilhação",
+              description: "Secção III Estabelecimento da paternidade > Subsecção II Reconhecimento de paternidade",
+              articles: [r(1849, 1873)],
+              subsections: [
+                { title: "Divisão III Averiguação oficiosa da paternidade", description: "Secção III Estabelecimento da paternidade > Subsecção II Reconhecimento de paternidade > Divisão II Perfilhação", articles: [r(1864, 1868)] },
+                { title: "Divisão IV Reconhecimento judicial", description: "Secção III Estabelecimento da paternidade > Subsecção II Reconhecimento de paternidade > Divisão II Perfilhação", articles: [r(1869, 1873)] }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo II Efeitos da filiação",
+      articles: [r(1874, 1920)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo II Efeitos da filiação", articles: [r(1874, 1876)] },
+        {
+          title: "Secção II Responsabilidades parentais",
+          description: "Capítulo II Efeitos da filiação",
+          articles: [r(1877, 1912)],
+          subsections: [
+            { title: "Subsecção I Princípios Gerais", description: "Capítulo II Efeitos da filiação > Secção II Responsabilidades parentais", articles: [r(1877, 1884)] },
+            { title: "Subsecção II Responsabilidades parentais relativamente à pessoa dos filhos", description: "Capítulo II Efeitos da filiação > Secção II Responsabilidades parentais", articles: [r(1885, 1887)] },
+            { title: "Subsecção III Responsabilidades parentais relativamente aos bens dos filhos", description: "Capítulo II Efeitos da filiação > Secção II Responsabilidades parentais", articles: [r(1888, 1900)] },
+            { title: "Subsecção IV Exercício das responsabilidades parentais", description: "Capítulo II Efeitos da filiação > Secção II Responsabilidades parentais", articles: [r(1901, 1912)] }
+          ],
+        },
+        { title: "Subsecção V Inibição e limitações ao exercício das responsabilidades parentais", description: "Capítulo II Efeitos da filiação", articles: [r(1913, 1920)] },
+        { title: "Subsecção VI Registo das decisões relativas às responsabilidades parentais", description: "Capítulo II Efeitos da filiação", articles: [r(1920, 1920)] }
+      ],
+    },
+    {
+      title: "Secção III Meios de suprir o poder paternal",
+      articles: [r(1921, 1972)],
+      subsections: [
+        { title: "Subsecção I Disposições gerais", description: "Secção III Meios de suprir o poder paternal", articles: [r(1921, 1926)] },
+        {
+          title: "Subsecção II Tutela",
+          description: "Secção III Meios de suprir o poder paternal",
+          articles: [r(1927, 1972)],
+          subsections: [
+            { title: "Divisão I Designação do tutor", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela", articles: [r(1927, 1934)] },
+            {
+              title: "Divisão II Direitos e obrigações do tutor",
+              description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela",
+              articles: [r(1935, 1972)],
+              subsections: [
+                { title: "Divisão III Remoção e exoneração do tutor", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela > Divisão II Direitos e obrigações do tutor", articles: [r(1948, 1950)] },
+                { title: "Divisão IV Conselho de família", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela > Divisão II Direitos e obrigações do tutor", articles: [r(1951, 1960)] },
+                { title: "Divisão V Termo da tutela", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela > Divisão II Direitos e obrigações do tutor", articles: [r(1961, 1961)] },
+                { title: "Divisão VI Tutela de menores confiados a estabelecimento de educação ou assistência", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela > Divisão II Direitos e obrigações do tutor", articles: [r(1962, 1966)] },
+                { title: "Subsecção III Administração de bens", description: "Secção III Meios de suprir o poder paternal > Subsecção II Tutela > Divisão II Direitos e obrigações do tutor", articles: [r(1967, 1972)] }
+              ],
+            }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Título IV Da adopção",
+      articles: [r(1973, 2023)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título IV Da adopção", articles: [r(1973, 1978)] },
+        { title: "Capítulo II Adopção plena", description: "Título IV Da adopção", articles: [r(1979, 1991)] },
+        { title: "Capítulo III Adopção restrita REVOGADO", description: "Título IV Da adopção", articles: [r(1992, 2002)] },
+        {
+          title: "Título V Dos alimentos",
+          description: "Título IV Da adopção",
+          articles: [r(2003, 2023)],
+          subsections: [
+            { title: "Capítulo I Disposições gerais", description: "Título IV Da adopção > Título V Dos alimentos", articles: [r(2003, 2014)] },
+            { title: "Capítulo II Disposições especiais", description: "Título IV Da adopção > Título V Dos alimentos", articles: [r(2015, 2023)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Livro V DIREITO DAS SUCESSÕES",
+      articles: [r(2024, 2045)],
+      subsections: [
+        {
+          title: "Título I Das sucessões em geral",
+          description: "Livro V DIREITO DAS SUCESSÕES",
+          articles: [r(2024, 2038)],
+          subsections: [
+            { title: "Capítulo I Disposições gerais", description: "Livro V DIREITO DAS SUCESSÕES > Título I Das sucessões em geral", articles: [r(2024, 2030)] },
+            {
+              title: "Capítulo II Abertura da sucessão e chamamento dos herdeiros e legatários",
+              description: "Livro V DIREITO DAS SUCESSÕES > Título I Das sucessões em geral",
+              articles: [r(2031, 2038)],
+              subsections: [
+                { title: "Secção I Abertura da sucessão", description: "Livro V DIREITO DAS SUCESSÕES > Título I Das sucessões em geral > Capítulo II Abertura da sucessão e chamamento dos herdeiros e legatários", articles: [r(2031, 2032)] },
+                { title: "Secção II Capacidade sucessória", description: "Livro V DIREITO DAS SUCESSÕES > Título I Das sucessões em geral > Capítulo II Abertura da sucessão e chamamento dos herdeiros e legatários", articles: [r(2033, 2038)] }
+              ],
+            }
+          ],
+        },
+        { title: "Secção III Direito de representação", description: "Livro V DIREITO DAS SUCESSÕES", articles: [r(2039, 2045)] }
+      ],
+    },
+    { title: "Capítulo III Herança jacente", articles: [r(2046, 2049)] },
+    { title: "Capítulo IV Aceitação da herança", articles: [r(2050, 2061)] },
+    { title: "Capítulo V Repúdio da herança", articles: [r(2062, 2067)] },
+    { title: "Capítulo VI Encargos da herança", articles: [r(2068, 2074)] },
+    { title: "Capítulo VII Petição da herança", articles: [r(2075, 2078)] },
+    { title: "Capítulo VIII Administração da herança", articles: [r(2079, 2096)] },
+    { title: "Capítulo IX Liquidação da herança", articles: [r(2097, 2100)] },
+    {
+      title: "Capítulo X Partilha da herança",
+      articles: [r(2101, 2123)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo X Partilha da herança", articles: [r(2101, 2103)] },
+        { title: "Secção II Atribuições preferenciais", description: "Capítulo X Partilha da herança", articles: [r(2103, 2103)] },
+        { title: "Secção III Colação", description: "Capítulo X Partilha da herança", articles: [r(2104, 2118)] },
+        { title: "Secção IV Efeitos da partilha", description: "Capítulo X Partilha da herança", articles: [r(2119, 2120)] },
+        { title: "Secção V Impugnação da partilha", description: "Capítulo X Partilha da herança", articles: [r(2121, 2123)] }
+      ],
+    },
+    { title: "Capítulo XI Alienação de herança", articles: [r(2124, 2130)] },
+    {
+      title: "Título II Da sucessão legítima",
+      articles: [r(2131, 2155)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título II Da sucessão legítima", articles: [r(2131, 2138)] },
+        { title: "Capítulo II Sucessão do cônjuge e dos descendentes", description: "Título II Da sucessão legítima", articles: [r(2139, 2141)] },
+        { title: "Capítulo III Sucessão do cônjuge e dos ascendentes", description: "Título II Da sucessão legítima", articles: [r(2142, 2144)] },
+        { title: "Capítulo IV Sucessão dos irmãos e seus descendentes", description: "Título II Da sucessão legítima", articles: [r(2145, 2146)] },
+        { title: "Capítulo V Sucessão dos outros colaterais", description: "Título II Da sucessão legítima", articles: [r(2147, 2151)] },
+        { title: "Capítulo VI Sucessão do Estado", description: "Título II Da sucessão legítima", articles: [r(2152, 2155)] }
+      ],
+    },
+    {
+      title: "Título III Da sucessão legitimária",
+      articles: [r(2156, 2178)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título III Da sucessão legitimária", articles: [r(2156, 2167)] },
+        { title: "Capítulo II Redução de liberalidades", description: "Título III Da sucessão legitimária", articles: [r(2168, 2178)] }
+      ],
+    },
+    {
+      title: "Título IV Da sucessão testamentária",
+      articles: [r(2179, 2223)],
+      subsections: [
+        { title: "Capítulo I Disposições gerais", description: "Título IV Da sucessão testamentária", articles: [r(2179, 2187)] },
+        { title: "Capítulo II Capacidade testamentária", description: "Título IV Da sucessão testamentária", articles: [r(2188, 2191)] },
+        { title: "Capítulo III Casos de indisponibilidade relativa", description: "Título IV Da sucessão testamentária", articles: [r(2192, 2198)] },
+        { title: "Capítulo IV Falta e vícios da vontade", description: "Título IV Da sucessão testamentária", articles: [r(2199, 2203)] },
+        {
+          title: "Capítulo V Forma do testamento",
+          description: "Título IV Da sucessão testamentária",
+          articles: [r(2204, 2223)],
+          subsections: [
+            { title: "Secção I Formas comuns", description: "Título IV Da sucessão testamentária > Capítulo V Forma do testamento", articles: [r(2204, 2209)] },
+            { title: "Secção II Formas especiais", description: "Título IV Da sucessão testamentária > Capítulo V Forma do testamento", articles: [r(2210, 2223)] }
+          ],
+        }
+      ],
+    },
+    {
+      title: "Capítulo VI Conteúdo do testamento",
+      articles: [r(2224, 2307)],
+      subsections: [
+        { title: "Secção I Disposições gerais", description: "Capítulo VI Conteúdo do testamento", articles: [r(2224, 2228)] },
+        { title: "Secção II Disposições condicionais, a termo e modais", description: "Capítulo VI Conteúdo do testamento", articles: [r(2229, 2248)] },
+        { title: "Secção III Legados", description: "Capítulo VI Conteúdo do testamento", articles: [r(2249, 2280)] },
+        {
+          title: "Secção IV Substituições",
+          description: "Capítulo VI Conteúdo do testamento",
+          articles: [r(2281, 2300)],
+          subsections: [
+            { title: "Subsecção I Substituição directa", description: "Capítulo VI Conteúdo do testamento > Secção IV Substituições", articles: [r(2281, 2285)] },
+            { title: "Subsecção II Substituição fideicomissária", description: "Capítulo VI Conteúdo do testamento > Secção IV Substituições", articles: [r(2286, 2296)] },
+            { title: "Subsecção III Substituições pupilar e quase-pupilar", description: "Capítulo VI Conteúdo do testamento > Secção IV Substituições", articles: [r(2297, 2300)] }
+          ],
+        },
+        { title: "Secção V Direito de acrescer", description: "Capítulo VI Conteúdo do testamento", articles: [r(2301, 2307)] }
+      ],
+    },
+    {
+      title: "Capítulo VII Nulidade, anulabilidade, revogação e caducidade dos testamentos e disposições testamentárias",
+      articles: [r(2308, 2319)],
+      subsections: [
+        { title: "Secção I Nulidade e anulabilidade", description: "Capítulo VII Nulidade, anulabilidade, revogação e caducidade dos testamentos e disposições testamentárias", articles: [r(2308, 2310)] },
+        { title: "Secção II Revogação e caducidade", description: "Capítulo VII Nulidade, anulabilidade, revogação e caducidade dos testamentos e disposições testamentárias", articles: [r(2311, 2319)] }
+      ],
+    },
+    { title: "Capítulo VIII Testamentaria", articles: [r(2320, 2334)] }
+  ],
+};

@@ -1,9 +1,12 @@
-import type { LegalDocumentNode } from "@chatconstituicao/shared";
+import type { LegalArticle, LegalDocument } from "../data/types.js";
 import type { PageIndexArticleRef } from "./types.js";
 
-export function collectArticleRefs(node: LegalDocumentNode): PageIndexArticleRef[] {
-  if (node.content) return [{ id: node.id, title: node.title, content: node.content }];
-  return (node.children ?? []).flatMap((child) => collectArticleRefs(child));
+export function collectArticleRefs(document: LegalDocument): PageIndexArticleRef[] {
+  return document.articles.map(articleToRef);
+}
+
+export function articleToRef(article: LegalArticle): PageIndexArticleRef {
+  return { id: article.id, title: article.title, content: article.content };
 }
 
 export function mergeArticleRefs(

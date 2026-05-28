@@ -1,20 +1,12 @@
-import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import { LEGAL_DOCUMENTS } from "../../api/src/data/documents.js";
+import type { LegalArticle } from "../../api/src/data/types.js";
 import type { AnswerCitation } from "./types.js";
 
-const codigoCivil = LEGAL_DOCUMENTS["codigo-civil"].root;
-
-function collectArticles(node: LegalDocumentNode, out: LegalDocumentNode[] = []): LegalDocumentNode[] {
-  if (node.articleNumber && node.content) out.push(node);
-  for (const child of node.children ?? []) collectArticles(child, out);
-  return out;
-}
-
-const articles = collectArticles(codigoCivil);
+const articles = LEGAL_DOCUMENTS["codigo-civil"].document.articles;
 const articleById = new Map(articles.map((article) => [article.id, article]));
 const articleByNumber = new Map(articles.map((article) => [String(article.articleNumber), article]));
 
-export function getArticle(id: string): LegalDocumentNode {
+export function getArticle(id: string): LegalArticle {
   const article = articleById.get(id);
   if (!article) throw new Error(`Unknown article id in benchmark dataset: ${id}`);
   return article;

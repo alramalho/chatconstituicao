@@ -2,8 +2,8 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import * as sqliteVec from "sqlite-vec";
-import type { LegalDocumentNode } from "@chatconstituicao/shared";
 import type { LegalDocumentConfig } from "../data/documents.js";
+import type { LegalArticle } from "../data/types.js";
 
 const DEFAULT_LIMIT = 12;
 const NEIGHBOR_WINDOW = 8;
@@ -52,7 +52,7 @@ const stopwords = new Set([
 
 type IndexedDocument = {
   db: DatabaseSync;
-  articleByRowid: Map<number, LegalDocumentNode>;
+  articleByRowid: Map<number, LegalArticle>;
   embeddingDimensions: number;
 };
 
@@ -69,17 +69,11 @@ export type HybridSearchOptions = {
 };
 
 export type ScoredLegalDocumentArticle = {
-  article: LegalDocumentNode;
+  article: LegalArticle;
   score: number;
 };
 
 const indexes = new WeakMap<LegalDocumentConfig, IndexedDocument>();
-
-function collectArticles(node: LegalDocumentNode, out: LegalDocumentNode[] = []): LegalDocumentNode[] {
-  if (node.content && node.articleNumber) out.push(node);
-  for (const child of node.children ?? []) collectArticles(child, out);
-  return out;
-}
 
 function normalize(value: string): string {
   return value
@@ -247,7 +241,7 @@ function createHybridSearchSchema(db: DatabaseSync, tables: HybridSearchTables):
 function needsHybridSearchRebuild(
   db: DatabaseSync,
   tables: HybridSearchTables,
-  articles: LegalDocumentNode[],
+  articles: LegalArticle[],
   expectedConfig: string,
 ): boolean {
   const count = db.prepare(`select count(*) as count from ${tables.articlesTable}`).get() as { count: number };
@@ -265,11 +259,11 @@ function ensureVectorTable(db: DatabaseSync, tables: HybridSearchTables, dimensi
 async function rebuildHybridSearchIndex(
   db: DatabaseSync,
   tables: HybridSearchTables,
-  articles: LegalDocumentNode[],
+  articles: LegalArticle[],
   dimensions: number,
   expectedConfig: string,
 ): Promise<void> {
-  const embeddings = await embedTexts(articles.map((article) => `${article.title}\n${article.content ?? ""}`));
+  const embeddings = await embedTexts(articles.map((article) => `${article.title}\n${article.content}`));
 
   db.exec(`drop table if exists ${tables.vecTable};`);
   db.exec(`create virtual table ${tables.vecTable} using vec0(embedding float[${dimensions}]);`);
@@ -286,8 +280,8 @@ async function rebuildHybridSearchIndex(
     for (let i = 0; i < articles.length; i++) {
       const rowid = i + 1;
       const article = articles[i];
-      insertArticle.run(rowid, article.id, article.title, article.content ?? "");
-      insertFts.run(rowid, article.title, article.content ?? "");
+      insertArticle.run(rowid, article.id, article.title, article.content);
+      insertFts.run(rowid, article.title, article.content);
       insertVec.run(BigInt(rowid), embeddingToBuffer(embeddings[i], dimensions));
     }
     upsertMeta.run(expectedConfig);
@@ -298,8 +292,8 @@ async function rebuildHybridSearchIndex(
   }
 }
 
-function buildArticleRowMap(articles: LegalDocumentNode[]): Map<number, LegalDocumentNode> {
-  const articleByRowid = new Map<number, LegalDocumentNode>();
+function buildArticleRowMap(articles: LegalArticle[]): Map<number, LegalArticle> {
+  const articleByRowid = new Map<number, LegalArticle>();
   for (let i = 0; i < articles.length; i++) {
     articleByRowid.set(i + 1, articles[i]);
   }
@@ -316,7 +310,7 @@ async function ensureHybridSearchIndex(document: LegalDocumentConfig): Promise<I
 
   createHybridSearchSchema(db, tables);
 
-  const articles = collectArticles(document.root);
+  const articles = document.document.articles;
   const expectedConfig = embeddingConfigKey(articles.length);
 
   if (needsHybridSearchRebuild(db, tables, articles, expectedConfig)) {
@@ -333,7 +327,7 @@ async function ensureHybridSearchIndex(document: LegalDocumentConfig): Promise<I
 
 function addNeighborScores(
   scores: Map<number, number>,
-  articleByRowid: Map<number, LegalDocumentNode>,
+  articleByRowid: Map<number, LegalArticle>,
   seedRowids: number[],
 ): void {
   for (const rowid of seedRowids) {
@@ -357,7 +351,7 @@ export async function hybridSearchArticles(
   document: LegalDocumentConfig,
   question: string,
   limit = DEFAULT_LIMIT,
-): Promise<LegalDocumentNode[]> {
+): Promise<LegalArticle[]> {
   return (await hybridSearchArticleCandidates(document, question, { limit })).map((candidate) => candidate.article);
 }
 

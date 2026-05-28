@@ -1,11 +1,8 @@
-import type { LegalDocumentNode } from "@chatconstituicao/shared";
-import { CONSTITUICAO } from "./constituicao.js";
-import { CODIGO_CIVIL } from "./codigo-civil.js";
-import {
-  CODIGO_CIVIL_INDEX,
-  CONSTITUICAO_INDEX,
-  type LegalDocumentIndex,
-} from "./legal-indexes.js";
+import { CONSTITUICAO } from "./constituicao/constituicao.js";
+import { CONSTITUICAO_INDEX } from "./constituicao/index.js";
+import { CODIGO_CIVIL } from "./codigo-civil/codigo-civil.js";
+import { CODIGO_CIVIL_INDEX } from "./codigo-civil/index.js";
+import type { LegalDocument, LegalDocumentIndex } from "./types.js";
 
 export type LegalDocumentId = "constituicao" | "codigo-civil";
 
@@ -16,7 +13,7 @@ export type LegalDocumentConfig = {
   domainLabel: string;
   articlePlural: string;
   specialistRole: string;
-  root: LegalDocumentNode;
+  document: LegalDocument;
   index: LegalDocumentIndex;
 };
 
@@ -28,7 +25,7 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocumentConfig> = {
     domainLabel: "direito constitucional português",
     articlePlural: "artigos da Constituição",
     specialistRole: "especialista em direito constitucional português",
-    root: CONSTITUICAO,
+    document: CONSTITUICAO,
     index: CONSTITUICAO_INDEX,
   },
   "codigo-civil": {
@@ -38,7 +35,7 @@ export const LEGAL_DOCUMENTS: Record<LegalDocumentId, LegalDocumentConfig> = {
     domainLabel: "direito civil português",
     articlePlural: "artigos do Código Civil",
     specialistRole: "especialista em direito civil português",
-    root: CODIGO_CIVIL,
+    document: CODIGO_CIVIL,
     index: CODIGO_CIVIL_INDEX,
   },
 };
